@@ -26,7 +26,8 @@ type MeltProvider struct {
 
 // MeltProviderModel describes the provider data model.
 type MeltProviderModel struct {
-	Endpoint types.String `tfsdk:"endpoint"`
+	Endpoint     types.String `tfsdk:"endpoint"`
+	Organization types.String `tfsdk:"organization"`
 }
 
 func (p *MeltProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -38,8 +39,12 @@ func (p *MeltProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
+				MarkdownDescription: "URL of the Melt API, i.e. https://api.meltcloud.io",
 				Optional:            true,
+			},
+			"organization": schema.StringAttribute{
+				MarkdownDescription: "UUID of the Melt Organization",
+				Required:            true,
 			},
 		},
 	}
@@ -54,12 +59,10 @@ func (p *MeltProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
+	// TODO validate somehow?
 
 	// Example client configuration for data sources and resources
-	client := client.New()
-	client.SetBaseURL(data.Endpoint.ValueString())
+	client := client.New(data.Endpoint.ValueString(), data.Organization.ValueString())
 	client.HttpClient.Debug = true
 	resp.DataSourceData = client
 	resp.ResourceData = client
@@ -80,9 +83,7 @@ func (p *MeltProvider) DataSources(ctx context.Context) []func() datasource.Data
 }
 
 func (p *MeltProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewExampleFunction,
-	}
+	return []func() function.Function{}
 }
 
 func New(version string) func() provider.Provider {

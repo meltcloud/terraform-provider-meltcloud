@@ -6,7 +6,6 @@ import (
 )
 import "github.com/go-resty/resty/v2"
 
-const baseURL string = "https://api.meltcloud.io"
 const apiPath string = "/api/v1/"
 
 type Client struct {
@@ -29,8 +28,8 @@ type Metadata struct {
 	TotalCount  int `json:"total_count,omitempty"`
 }
 
-func New() *Client {
-	url := fmt.Sprintf("%s%s", baseURL, apiPath)
+func New(baseURL string, organization string) *Client {
+	url := fmt.Sprintf("%s%s/orgs/%s/", baseURL, apiPath, organization)
 
 	restyClient := resty.New().
 		SetBaseURL(url).
@@ -40,19 +39,6 @@ func New() *Client {
 	return &Client{
 		HttpClient: restyClient,
 	}
-}
-
-func (c *Client) SetApiKey(apiKey string) *Client {
-	c.HttpClient = c.HttpClient.SetAuthToken(apiKey)
-
-	return c
-}
-
-func (c *Client) SetBaseURL(url string) *Client {
-	customURL := fmt.Sprintf("%s%s", url, apiPath)
-	c.HttpClient = c.HttpClient.SetBaseURL(customURL)
-
-	return c
 }
 
 func (c *Client) SetDebug(debug bool) *Client {

@@ -7,7 +7,8 @@ terraform {
 }
 
 provider "melt" {
-  endpoint = "http://localhost:3000"
+  endpoint     = "http://localhost:3000"
+  organization = "deadbeef-0000-0000-0000-000000000000"
 }
 
 resource "melt_cluster" "example" {
