@@ -3,6 +3,10 @@ terraform {
     melt = {
       source = "meltcloud.io/melt/melt"
     }
+    time = {
+      source = "hashicorp/time"
+      version = "0.11.2"
+    }
   }
 }
 
@@ -29,5 +33,23 @@ resource "melt_machine" "example" {
 
   uuid = "2005cc24-522a-4485-9b9a-e60a61d9f9cf"
   name = "melt-node01"
+}
+
+resource "time_offset" "in_a_year" {
+  offset_days = 365
+}
+
+resource "melt_ipxe_boot_iso" "example" {
+  expires_at = time_offset.in_a_year.rfc3339
+}
+
+data "http" "ipxe_iso" {
+  url = melt_ipxe_boot_iso.example.download_url
+}
+
+resource "local_sensitive_file" "ipxe_iso" {
+  filename        = "${path.module}/ipxe.iso"
+  content_base64  = data.http.ipxe_iso.response_body_base64
+  file_permission = "0600"
 }
 
