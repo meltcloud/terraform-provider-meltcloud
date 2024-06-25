@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"os"
 	"terraform-provider-melt/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -28,6 +29,7 @@ type MeltProvider struct {
 type MeltProviderModel struct {
 	Endpoint     types.String `tfsdk:"endpoint"`
 	Organization types.String `tfsdk:"organization"`
+	APIKey       types.String `tfsdk:"api_key"`
 }
 
 func (p *MeltProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -46,6 +48,10 @@ func (p *MeltProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 				MarkdownDescription: "UUID of the Melt Organization",
 				Required:            true,
 			},
+			"api_key": schema.StringAttribute{
+				MarkdownDescription: "API Key permitted for the organization. Can also be set via MELT_API_KEY environment variable.",
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -59,10 +65,21 @@ func (p *MeltProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		return
 	}
 
+	var apiKey string
+	if data.APIKey.IsNull() {
+		var found bool
+		if apiKey, found = os.LookupEnv("MELT_API_KEY"); !found {
+			resp.Diagnostics.AddError("Config Error", "either MELT_API_KEY or api_key in provider config must be set")
+			return
+		}
+	} else {
+		apiKey = data.APIKey.ValueString()
+	}
+
 	// TODO validate somehow?
 
 	// Example client configuration for data sources and resources
-	client := client.New(data.Endpoint.ValueString(), data.Organization.ValueString())
+	client := client.New(data.Endpoint.ValueString(), data.Organization.ValueString(), apiKey)
 	client.HttpClient.Debug = true
 	resp.DataSourceData = client
 	resp.ResourceData = client

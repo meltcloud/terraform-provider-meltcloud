@@ -28,13 +28,14 @@ type Metadata struct {
 	TotalCount  int `json:"total_count,omitempty"`
 }
 
-func New(baseURL string, organization string) *Client {
+func New(baseURL string, organization string, apiKey string) *Client {
 	url := fmt.Sprintf("%s%s/orgs/%s/", baseURL, apiPath, organization)
 
 	restyClient := resty.New().
 		SetBaseURL(url).
 		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", "melt-go-client v1")
+		SetHeader("User-Agent", "melt-go-client v1").
+		SetHeader("X-Melt-API-Key", apiKey)
 
 	return &Client{
 		HttpClient: restyClient,

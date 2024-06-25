@@ -13,6 +13,7 @@ terraform {
 provider "melt" {
   endpoint     = "http://localhost:3000"
   organization = "deadbeef-0000-0000-0000-000000000000"
+  api_key      = "eyJfcmFpbHMiOnsiZGF0YSI6WzEyXSwicHVyIjoiQXBpS2V5XG5hY2Nlc3NcbiJ9fQ==--82a4a1063d910efaabb8bc5baf184c28da4db871"
 }
 
 resource "melt_cluster" "example" {
