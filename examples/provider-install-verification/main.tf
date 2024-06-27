@@ -40,12 +40,13 @@ resource "time_offset" "in_a_year" {
   offset_days = 365
 }
 
-resource "melt_ipxe_boot_iso" "example" {
+resource "melt_ipxe_boot_artifact" "example" {
+  name = "tf-test2"
   expires_at = time_offset.in_a_year.rfc3339
 }
 
 data "http" "ipxe_iso" {
-  url = melt_ipxe_boot_iso.example.download_url
+  url = melt_ipxe_boot_artifact.example.download_url_iso
 }
 
 resource "local_sensitive_file" "ipxe_iso" {
