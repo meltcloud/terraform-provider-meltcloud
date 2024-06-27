@@ -13,7 +13,7 @@ terraform {
 provider "melt" {
   endpoint     = "http://localhost:3000"
   organization = "deadbeef-0000-0000-0000-000000000000"
-  api_key      = "eyJfcmFpbHMiOnsiZGF0YSI6WzEyXSwicHVyIjoiQXBpS2V5XG5hY2Nlc3NcbiJ9fQ==--82a4a1063d910efaabb8bc5baf184c28da4db871"
+  api_key      = "eyJfcmFpbHMiOnsiZGF0YSI6WzE3XSwicHVyIjoiQXBpS2V5XG5hY2Nlc3NcbiJ9fQ==--107eac424aaf10dc90df1110e56ba5502848b330"
 }
 
 resource "melt_cluster" "example" {
@@ -52,5 +52,10 @@ resource "local_sensitive_file" "ipxe_iso" {
   filename        = "${path.module}/ipxe.iso"
   content_base64  = data.http.ipxe_iso.response_body_base64
   file_permission = "0600"
+}
+
+resource "melt_ipxe_boot_url" "example" {
+  name       = "example"
+  expires_at = time_offset.in_a_year.rfc3339
 }
 
