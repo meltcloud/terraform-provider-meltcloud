@@ -91,7 +91,7 @@ func (p *MeltProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewMachinePoolResource,
 		NewMachineResource,
 		NewIPXEBootArtifactResource,
-		NewIPXEBootURLResource,
+		NewIPXEChainURLResource,
 	}
 }
 

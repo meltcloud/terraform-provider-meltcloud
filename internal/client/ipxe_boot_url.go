@@ -6,38 +6,39 @@ import (
 	"time"
 )
 
-type IPXEBootURLRequest struct {
+type IPXEChainURLRequest struct {
 	client *Client
 }
 
-type IPXEBootURLResult struct {
-	IPXEBootURL *IPXEBootURL `json:"ipxe_boot_url"`
-	Operation   *Operation   `json:"operation,omitempty"`
+type IPXEChainURLResult struct {
+	IPXEChainURL *IPXEChainURL `json:"ipxe_chain_url"`
+	Operation    *Operation    `json:"operation,omitempty"`
 }
 
-type IPXEBootURL struct {
+type IPXEChainURL struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`
 	ExpiresAt time.Time `json:"expires_at"`
-	BootURL   string    `json:"url"`
+	URL       string    `json:"url"`
+	Script    string    `json:"script"`
 }
 
-type IPXEBootURLCreateInput struct {
+type IPXEChainURLCreateInput struct {
 	Name      string    `json:"name"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
-func (c *Client) IPXEBootURL() *IPXEBootURLRequest {
-	return &IPXEBootURLRequest{
+func (c *Client) IPXEChainURL() *IPXEChainURLRequest {
+	return &IPXEChainURLRequest{
 		client: c,
 	}
 }
 
-func (mr *IPXEBootURLRequest) Get(ctx context.Context, id int64) (*IPXEBootURLResult, *Error) {
-	subPath := fmt.Sprintf("%s/%d", "ipxe_boot_urls", id)
+func (mr *IPXEChainURLRequest) Get(ctx context.Context, id int64) (*IPXEChainURLResult, *Error) {
+	subPath := fmt.Sprintf("%s/%d", "ipxe_chain_urls", id)
 	clientRequest := &ClientRequest{
 		Path:   subPath,
-		Result: &IPXEBootURLResult{},
+		Result: &IPXEChainURLResult{},
 	}
 
 	result, err := mr.client.Get(ctx, clientRequest)
@@ -45,7 +46,7 @@ func (mr *IPXEBootURLRequest) Get(ctx context.Context, id int64) (*IPXEBootURLRe
 		return nil, err
 	}
 
-	clusterResult, ok := result.(*IPXEBootURLResult)
+	clusterResult, ok := result.(*IPXEChainURLResult)
 	if !ok {
 		return nil, &ErrorTypeAssert
 	}
@@ -53,10 +54,10 @@ func (mr *IPXEBootURLRequest) Get(ctx context.Context, id int64) (*IPXEBootURLRe
 	return clusterResult, nil
 }
 
-func (mr *IPXEBootURLRequest) Create(ctx context.Context, input *IPXEBootURLCreateInput) (*IPXEBootURLResult, *Error) {
+func (mr *IPXEChainURLRequest) Create(ctx context.Context, input *IPXEChainURLCreateInput) (*IPXEChainURLResult, *Error) {
 	clientRequest := &ClientRequest{
-		Path:   "ipxe_boot_urls",
-		Result: &IPXEBootURLResult{},
+		Path:   "ipxe_chain_urls",
+		Result: &IPXEChainURLResult{},
 		Body:   input,
 	}
 
@@ -65,7 +66,7 @@ func (mr *IPXEBootURLRequest) Create(ctx context.Context, input *IPXEBootURLCrea
 		return nil, err
 	}
 
-	clusterResult, ok := result.(*IPXEBootURLResult)
+	clusterResult, ok := result.(*IPXEChainURLResult)
 	if !ok {
 		return nil, &ErrorTypeAssert
 	}
@@ -73,11 +74,11 @@ func (mr *IPXEBootURLRequest) Create(ctx context.Context, input *IPXEBootURLCrea
 	return clusterResult, nil
 }
 
-func (mr *IPXEBootURLRequest) Delete(ctx context.Context, id int64) (*IPXEBootURLResult, *Error) {
-	subPath := fmt.Sprintf("%s/%d", "ipxe_boot_urls", id)
+func (mr *IPXEChainURLRequest) Delete(ctx context.Context, id int64) (*IPXEChainURLResult, *Error) {
+	subPath := fmt.Sprintf("%s/%d", "ipxe_chain_urls", id)
 	clientRequest := &ClientRequest{
 		Path:   subPath,
-		Result: &IPXEBootURLResult{},
+		Result: &IPXEChainURLResult{},
 	}
 
 	result, err := mr.client.Delete(ctx, clientRequest)
@@ -85,7 +86,7 @@ func (mr *IPXEBootURLRequest) Delete(ctx context.Context, id int64) (*IPXEBootUR
 		return nil, err
 	}
 
-	clusterResult, ok := result.(*IPXEBootURLResult)
+	clusterResult, ok := result.(*IPXEChainURLResult)
 	if !ok {
 		return nil, &ErrorTypeAssert
 	}

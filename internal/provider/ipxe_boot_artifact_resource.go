@@ -72,14 +72,17 @@ func (r *IPXEBootArtifactResource) Schema(ctx context.Context, req resource.Sche
 			"download_url_iso": schema.StringAttribute{
 				MarkdownDescription: "URL to download the ISO",
 				Computed:            true,
+				Sensitive:           true,
 			},
 			"download_url_pxe": schema.StringAttribute{
 				MarkdownDescription: "URL to download the PXE",
 				Computed:            true,
+				Sensitive:           true,
 			},
 			"download_url_efi": schema.StringAttribute{
 				MarkdownDescription: "URL to download the EFI",
 				Computed:            true,
+				Sensitive:           true,
 			},
 		},
 	}

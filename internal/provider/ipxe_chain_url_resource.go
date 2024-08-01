@@ -16,44 +16,45 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &IPXEBootURLResource{}
-var _ resource.ResourceWithImportState = &IPXEBootURLResource{}
+var _ resource.Resource = &IPXEChainURLResource{}
+var _ resource.ResourceWithImportState = &IPXEChainURLResource{}
 
-func NewIPXEBootURLResource() resource.Resource {
-	return &IPXEBootURLResource{}
+func NewIPXEChainURLResource() resource.Resource {
+	return &IPXEChainURLResource{}
 }
 
-// IPXEBootURLResource defines the resource implementation.
-type IPXEBootURLResource struct {
+// IPXEChainURLResource defines the resource implementation.
+type IPXEChainURLResource struct {
 	client *client.Client
 }
 
-// IPXEBootURLResourceModel describes the resource data model.
-type IPXEBootURLResourceModel struct {
+// IPXEBChainURLResourceModel describes the resource data model.
+type IPXEBChainURLResourceModel struct {
 	ID        types.Int64       `tfsdk:"id"`
 	Name      types.String      `tfsdk:"name"`
 	ExpiresAt timetypes.RFC3339 `tfsdk:"expires_at"`
-	BootURL   types.String      `tfsdk:"boot_url"`
+	URL       types.String      `tfsdk:"url"`
+	Script    types.String      `tfsdk:"script"`
 }
 
-func (r *IPXEBootURLResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipxe_boot_url"
+func (r *IPXEChainURLResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_ipxe_chain_url"
 }
 
-func (r *IPXEBootURLResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *IPXEChainURLResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "IPXEBootURL",
+		MarkdownDescription: "IPXEChainURL",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "Melt ID of the iPXE Boot URL",
+				MarkdownDescription: "Melt ID of the iPXE Chain URL",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the iPXE Boot URL",
+				MarkdownDescription: "Name of the iPXE Chain URL",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -67,8 +68,13 @@ func (r *IPXEBootURLResource) Schema(ctx context.Context, req resource.SchemaReq
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"boot_url": schema.StringAttribute{
-				MarkdownDescription: "URL to the iPXE boot script",
+			"url": schema.StringAttribute{
+				MarkdownDescription: "URL to the iPXE chain script",
+				Computed:            true,
+				Sensitive:           true,
+			},
+			"script": schema.StringAttribute{
+				MarkdownDescription: "The complete iPXE script",
 				Computed:            true,
 				Sensitive:           true,
 			},
@@ -76,7 +82,7 @@ func (r *IPXEBootURLResource) Schema(ctx context.Context, req resource.SchemaReq
 	}
 }
 
-func (r *IPXEBootURLResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *IPXEChainURLResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
@@ -96,8 +102,8 @@ func (r *IPXEBootURLResource) Configure(ctx context.Context, req resource.Config
 	r.client = client
 }
 
-func (r *IPXEBootURLResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data IPXEBootURLResourceModel
+func (r *IPXEChainURLResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data IPXEBChainURLResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
@@ -109,61 +115,62 @@ func (r *IPXEBootURLResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	ipxeBootURLCreateInput := &client.IPXEBootURLCreateInput{
+	ipxeChainURLCreateInput := &client.IPXEChainURLCreateInput{
 		Name:      data.Name.ValueString(),
 		ExpiresAt: expiresAt.UTC(),
 	}
 
-	result, err := r.client.IPXEBootURL().Create(ctx, ipxeBootURLCreateInput)
+	result, err := r.client.IPXEChainURL().Create(ctx, ipxeChainURLCreateInput)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create ipxe boot url, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create ipxe chain url, got error: %s", err))
 		return
 	}
 
-	data.ID = types.Int64Value(result.IPXEBootURL.ID)
-	data.BootURL = types.StringValue(result.IPXEBootURL.BootURL)
+	data.ID = types.Int64Value(result.IPXEChainURL.ID)
+	data.URL = types.StringValue(result.IPXEChainURL.URL)
+	data.Script = types.StringValue(result.IPXEChainURL.Script)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *IPXEBootURLResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data IPXEBootURLResourceModel
+func (r *IPXEChainURLResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data IPXEBChainURLResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	result, err := r.client.IPXEBootURL().Get(ctx, data.ID.ValueInt64())
+	result, err := r.client.IPXEChainURL().Get(ctx, data.ID.ValueInt64())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read ipxe url, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read ipxe chain url, got error: %s", err))
 		return
 	}
 
-	data.BootURL = types.StringValue(result.IPXEBootURL.BootURL)
+	data.URL = types.StringValue(result.IPXEChainURL.URL)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *IPXEBootURLResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	resp.Diagnostics.AddError("Resource Update Not Implemented", "ipxe_boot_url does not support updates")
+func (r *IPXEChainURLResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	resp.Diagnostics.AddError("Resource Update Not Implemented", "ipxe_chain_url does not support updates")
 }
 
-func (r *IPXEBootURLResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data IPXEBootURLResourceModel
+func (r *IPXEChainURLResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data IPXEBChainURLResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, err := r.client.IPXEBootURL().Delete(ctx, data.ID.ValueInt64())
+	_, err := r.client.IPXEChainURL().Delete(ctx, data.ID.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete url, got error: %s", err))
 		return
 	}
 }
 
-func (r *IPXEBootURLResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *IPXEChainURLResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
