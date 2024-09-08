@@ -20,11 +20,15 @@ type Cluster struct {
 	ControlPlaneStatus ClusterControlPlaneStatus `json:"control_plane_status"`
 	UserVersion        string                    `json:"user_version"`
 	PatchVersion       string                    `json:"patch_version"`
+	KubeConfig         string                    `json:"kubeconfig"`
 }
 
 type ClusterCreateInput struct {
-	Name        string `json:"name"`
-	UserVersion string `json:"user_version"`
+	Name         string `json:"name"`
+	UserVersion  string `json:"user_version"`
+	PodCIDR      string `json:"pod_cidr"`
+	ServiceCIDR  string `json:"service_cidr"`
+	DNSServiceIP string `json:"dns_service_ip"`
 }
 
 type ClusterUpdateInput struct {

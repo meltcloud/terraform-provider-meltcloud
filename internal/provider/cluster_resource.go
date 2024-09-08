@@ -3,15 +3,15 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"terraform-provider-melt/internal/client"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"terraform-provider-melt/internal/client"
+	"terraform-provider-melt/internal/kubernetes"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -29,10 +29,24 @@ type ClusterResource struct {
 
 // ClusterResourceModel describes the resource data model.
 type ClusterResourceModel struct {
-	ID           types.Int64  `tfsdk:"id"`
-	Name         types.String `tfsdk:"name"`
-	Version      types.String `tfsdk:"version"`
-	PatchVersion types.String `tfsdk:"patch_version"`
+	ID            types.Int64  `tfsdk:"id"`
+	Name          types.String `tfsdk:"name"`
+	Version       types.String `tfsdk:"version"`
+	PatchVersion  types.String `tfsdk:"patch_version"`
+	PodCIDR       types.String `tfsdk:"pod_cidr"`
+	ServiceCIDR   types.String `tfsdk:"service_cidr"`
+	DNSServiceIP  types.String `tfsdk:"dns_service_ip"`
+	KubeConfigRaw types.String `tfsdk:"kubeconfig_raw"`
+	KubeConfig    types.Object `tfsdk:"kubeconfig"`
+}
+
+type KubeConfigResourceModel struct {
+	Host                 types.String `tfsdk:"host"`
+	Username             types.String `tfsdk:"username"`
+	Password             types.String `tfsdk:"password"`
+	ClientCertificate    types.String `tfsdk:"client_certificate"`
+	ClientKey            types.String `tfsdk:"client_key"`
+	ClusterCACertificate types.String `tfsdk:"cluster_ca_certificate"`
 }
 
 func (r *ClusterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -65,6 +79,52 @@ func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest
 			"patch_version": schema.StringAttribute{
 				MarkdownDescription: "Kubernetes patch version of the cluster",
 				Computed:            true,
+			},
+			"pod_cidr": schema.StringAttribute{
+				MarkdownDescription: "CIDR for the Kubernetes Pods",
+				Required:            true,
+			},
+			"service_cidr": schema.StringAttribute{
+				MarkdownDescription: "CIDR for the Kubernetes Services",
+				Required:            true,
+			},
+			"dns_service_ip": schema.StringAttribute{
+				MarkdownDescription: "IP for the DNS service",
+				Required:            true,
+			},
+			"kubeconfig": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"host": schema.StringAttribute{
+						Computed:  true,
+						Sensitive: true,
+					},
+					"username": schema.StringAttribute{
+						Computed:  true,
+						Sensitive: true,
+					},
+					"password": schema.StringAttribute{
+						Computed:  true,
+						Sensitive: true,
+					},
+					"client_certificate": schema.StringAttribute{
+						Computed:  true,
+						Sensitive: true,
+					},
+					"client_key": schema.StringAttribute{
+						Computed:  true,
+						Sensitive: true,
+					},
+					"cluster_ca_certificate": schema.StringAttribute{
+						Computed:  true,
+						Sensitive: true,
+					},
+				},
+				Computed:  true,
+				Sensitive: true,
+			},
+			"kubeconfig_raw": schema.StringAttribute{
+				Computed:  true,
+				Sensitive: true,
 			},
 		},
 	}
@@ -99,21 +159,24 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	clusterCreateInput := &client.ClusterCreateInput{
-		Name:        data.Name.ValueString(),
-		UserVersion: data.Version.ValueString(),
+		Name:         data.Name.ValueString(),
+		UserVersion:  data.Version.ValueString(),
+		PodCIDR:      data.PodCIDR.ValueString(),
+		ServiceCIDR:  data.ServiceCIDR.ValueString(),
+		DNSServiceIP: data.DNSServiceIP.ValueString(),
 	}
 
-	result, err := r.client.Cluster().Create(ctx, clusterCreateInput)
+	clusterCreateResult, err := r.client.Cluster().Create(ctx, clusterCreateInput)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create cluster, got error: %s", err))
 		return
 	}
-	if result.Operation == nil {
+	if clusterCreateResult.Operation == nil {
 		resp.Diagnostics.AddError("Server Error", "Created cluster, but did not get operation")
 		return
 	}
 
-	_, err = r.client.Operation().PollUntilDone(ctx, result.Operation.ID)
+	_, err = r.client.Operation().PollUntilDone(ctx, clusterCreateResult.Operation.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("error during creation of cluster, got error: %s", err))
 		return
@@ -121,16 +184,25 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	// TODO handle failed state
 
-	_, err = r.client.Cluster().Get(ctx, result.Cluster.ID)
+	clusterGetResult, err := r.client.Cluster().Get(ctx, clusterCreateResult.Cluster.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 		return
 	}
 
-	data.ID = types.Int64Value(result.Cluster.ID)
-	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
-
+	data.ID = types.Int64Value(clusterGetResult.Cluster.ID)
+	data.PatchVersion = types.StringValue(clusterGetResult.Cluster.PatchVersion)
+	data.KubeConfigRaw = types.StringValue(clusterGetResult.Cluster.KubeConfig)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(clusterGetResult.Cluster.KubeConfig)
+	if kErr != nil {
+		resp.Diagnostics.AddError("Client Error", kErr.Error())
+		return
+	}
+
+	diags := resp.State.SetAttribute(ctx, path.Root("kubeconfig"), kubeConfigResourceModel)
+	resp.Diagnostics.Append(diags...)
 }
 
 func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -150,8 +222,33 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.Name = types.StringValue(result.Cluster.Name)
 	data.Version = types.StringValue(result.Cluster.UserVersion)
 	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
-
+	data.KubeConfigRaw = types.StringValue(result.Cluster.KubeConfig)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(result.Cluster.KubeConfig)
+	if kErr != nil {
+		resp.Diagnostics.AddError("Client Error", kErr.Error())
+		return
+	}
+
+	diags := resp.State.SetAttribute(ctx, path.Root("kubeconfig"), kubeConfigResourceModel)
+	resp.Diagnostics.Append(diags...)
+}
+
+func (r *ClusterResource) getKubeConfigResourceModel(kubeconfig string) (*KubeConfigResourceModel, error) {
+	kubeConfig, err := kubernetes.ParseKubeConfig(kubeconfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse kubeconfig error %+v", err)
+	}
+
+	return &KubeConfigResourceModel{
+		Host:                 types.StringValue(kubeConfig.Clusters[0].Cluster.Server),
+		Username:             types.StringValue(kubeConfig.Users[0].Name),
+		Password:             types.StringValue(""),
+		ClientCertificate:    types.StringValue(kubeConfig.Users[0].User.ClientCertificateData),
+		ClientKey:            types.StringValue(kubeConfig.Users[0].User.ClientKeyData),
+		ClusterCACertificate: types.StringValue(kubeConfig.Clusters[0].Cluster.ClusterAuthorityData),
+	}, nil
 }
 
 func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
