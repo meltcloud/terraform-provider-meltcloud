@@ -114,7 +114,7 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 
 	result, err2 := r.client.Machine().Create(ctx, machineCreateInput)
 	if err2 != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create machine, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create machine, got error: %s", err2))
 		return
 	}
 
