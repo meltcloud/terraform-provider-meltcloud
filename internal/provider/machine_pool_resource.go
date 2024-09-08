@@ -28,12 +28,20 @@ type MachinePoolResource struct {
 
 // MachinePoolResourceModel describes the resource data model.
 type MachinePoolResourceModel struct {
-	ID                types.Int64  `tfsdk:"id"`
-	ClusterId         types.Int64  `tfsdk:"cluster_id"`
-	Name              types.String `tfsdk:"name"`
-	PrimaryDiskDevice types.String `tfsdk:"primary_disk_device"`
-	Version           types.String `tfsdk:"version"`
-	PatchVersion      types.String `tfsdk:"patch_version"`
+	ID                    types.Int64  `tfsdk:"id"`
+	ClusterId             types.Int64  `tfsdk:"cluster_id"`
+	Name                  types.String `tfsdk:"name"`
+	PrimaryDiskDevice     types.String `tfsdk:"primary_disk_device"`
+	Version               types.String `tfsdk:"version"`
+	PatchVersion          types.String `tfsdk:"patch_version"`
+	NetworkConfigurations types.List   `tfsdk:"network_configuration"`
+}
+
+type NetworkConfigurationResourceModel struct {
+	Type       types.String `tfsdk:"type"`
+	Interfaces types.String `tfsdk:"interfaces"`
+	VLANMode   types.String `tfsdk:"vlan_mode"`
+	VLANs      types.String `tfsdk:"vlans"`
 }
 
 func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -76,6 +84,35 @@ func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaReq
 				Computed:            true,
 			},
 		},
+
+		Blocks: map[string]schema.Block{
+			"network_configuration": schema.ListNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"type": schema.StringAttribute{
+							Required:            true,
+							MarkdownDescription: "The network type - must be 'native' or 'bond'",
+						},
+
+						"interfaces": schema.StringAttribute{
+							Required:            true,
+							MarkdownDescription: "interface name (for network type native), wildcard or comma-separated list of interfaces (for network type bond)",
+						},
+
+						"vlan_mode": schema.StringAttribute{
+							Required:            true,
+							MarkdownDescription: "The VLAN mode - must be 'default' or 'trunk'",
+						},
+
+						"vlans": schema.StringAttribute{
+							Optional:            true,
+							Computed:            false,
+							MarkdownDescription: "Comma-separated list of VLAN-IDs (required for VLAN mode trunk)",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -107,10 +144,18 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
+	var networkConfigurations []NetworkConfigurationResourceModel
+	diags := data.NetworkConfigurations.ElementsAs(ctx, &networkConfigurations, false)
+	resp.Diagnostics.Append(diags...)
+	if diags.HasError() {
+		return
+	}
+
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
-		Name:              data.Name.ValueString(),
-		PrimaryDiskDevice: data.PrimaryDiskDevice.ValueString(),
-		UserVersion:       data.Version.ValueString(),
+		Name:                  data.Name.ValueString(),
+		PrimaryDiskDevice:     data.PrimaryDiskDevice.ValueString(),
+		UserVersion:           data.Version.ValueString(),
+		NetworkConfigurations: r.networkConfigurationInput(networkConfigurations),
 	}
 
 	result, err := r.client.MachinePool().Create(ctx, data.ClusterId.ValueInt64(), machinePoolCreateInput)
@@ -123,6 +168,19 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func (r *MachinePoolResource) networkConfigurationInput(networkConfigurations []NetworkConfigurationResourceModel) []client.NetworkConfiguration {
+	var networkConfigurationInput []client.NetworkConfiguration
+	for _, networkConfiguration := range networkConfigurations {
+		networkConfigurationInput = append(networkConfigurationInput, client.NetworkConfiguration{
+			Type:       networkConfiguration.Type.ValueString(),
+			Interfaces: networkConfiguration.Interfaces.ValueString(),
+			VLANMode:   networkConfiguration.VLANMode.ValueString(),
+			VLANS:      networkConfiguration.VLANs.ValueString(),
+		})
+	}
+	return networkConfigurationInput
 }
 
 func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -154,10 +212,18 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
+	var networkConfigurations []NetworkConfigurationResourceModel
+	diags := data.NetworkConfigurations.ElementsAs(ctx, &networkConfigurations, false)
+	resp.Diagnostics.Append(diags...)
+	if diags.HasError() {
+		return
+	}
+
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
-		Name:              data.Name.ValueString(),
-		PrimaryDiskDevice: data.PrimaryDiskDevice.ValueString(),
-		UserVersion:       data.Version.ValueString(),
+		Name:                  data.Name.ValueString(),
+		PrimaryDiskDevice:     data.PrimaryDiskDevice.ValueString(),
+		UserVersion:           data.Version.ValueString(),
+		NetworkConfigurations: r.networkConfigurationInput(networkConfigurations),
 	}
 
 	result, err := r.client.MachinePool().Update(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64(), machinePoolUpdateInput)

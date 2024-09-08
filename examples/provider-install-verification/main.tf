@@ -34,6 +34,13 @@ resource "melt_machine_pool" "example" {
   name                = "pool2"
   version             = "1.29"
   primary_disk_device = "/dev/vda"
+
+  network_configuration {
+    type       = "native"
+    interfaces = "123456"
+    vlan_mode  = "trunk"
+    vlans      = "1,2,3"
+  }
 }
 
 resource "melt_machine" "example" {
@@ -72,16 +79,16 @@ output "ipxe_chain_script" {
   sensitive = true
 }
 
-# provider "helm" {
-#   kubernetes {
-#     host     = melt_cluster.example.kubeconfig.host
-#     username = melt_cluster.example.kubeconfig.username
-#     password = melt_cluster.example.kubeconfig.password
-#     client_certificate = base64decode(melt_cluster.example.kubeconfig.client_certificate)
-#     client_key = base64decode(melt_cluster.example.kubeconfig.client_key)
-#     cluster_ca_certificate = base64decode(melt_cluster.example.kubeconfig.cluster_ca_certificate)
-#   }
-# }
+provider "helm" {
+  kubernetes {
+    host     = melt_cluster.example.kubeconfig.host
+    username = melt_cluster.example.kubeconfig.username
+    password = melt_cluster.example.kubeconfig.password
+    client_certificate = base64decode(melt_cluster.example.kubeconfig.client_certificate)
+    client_key = base64decode(melt_cluster.example.kubeconfig.client_key)
+    cluster_ca_certificate = base64decode(melt_cluster.example.kubeconfig.cluster_ca_certificate)
+  }
+}
 #
 # resource "helm_release" "cilium" {
 #   name       = "cilium"

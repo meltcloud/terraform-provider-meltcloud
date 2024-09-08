@@ -22,15 +22,24 @@ type MachinePool struct {
 }
 
 type MachinePoolCreateInput struct {
-	Name              string `json:"name"`
-	UserVersion       string `json:"user_version"`
-	PrimaryDiskDevice string `json:"primary_disk_device"`
+	Name                  string                 `json:"name"`
+	UserVersion           string                 `json:"user_version"`
+	PrimaryDiskDevice     string                 `json:"primary_disk_device"`
+	NetworkConfigurations []NetworkConfiguration `json:"network_configurations"`
+}
+
+type NetworkConfiguration struct {
+	Type       string `json:"net_type"`
+	Interfaces string `json:"interfaces"`
+	VLANMode   string `json:"vlan_mode"`
+	VLANS      string `json:"vlans"`
 }
 
 type MachinePoolUpdateInput struct {
-	Name              string `json:"name"`
-	UserVersion       string `json:"user_version"`
-	PrimaryDiskDevice string `json:"primary_disk_device"`
+	Name                  string                 `json:"name"`
+	UserVersion           string                 `json:"user_version"`
+	PrimaryDiskDevice     string                 `json:"primary_disk_device"`
+	NetworkConfigurations []NetworkConfiguration `json:"network_configurations"`
 }
 
 func (c *Client) MachinePool() *MachinePoolRequest {
