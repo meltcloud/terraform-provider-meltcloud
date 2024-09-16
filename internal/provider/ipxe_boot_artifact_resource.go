@@ -44,19 +44,19 @@ func (r *IPXEBootArtifactResource) Metadata(ctx context.Context, req resource.Me
 
 func (r *IPXEBootArtifactResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "IPXEBootArtifact",
+		MarkdownDescription: "An [iPXE Boot Artifact](https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html) contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization:",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "Melt ID of the ipxe boot artifact",
+				MarkdownDescription: "Internal ID of the iPXE Boot Artifact",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Name of the ipxe boot artifact",
+				MarkdownDescription: "Name of the iPXE Boot Artifact",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -75,12 +75,12 @@ func (r *IPXEBootArtifactResource) Schema(ctx context.Context, req resource.Sche
 				Sensitive:           true,
 			},
 			"download_url_pxe": schema.StringAttribute{
-				MarkdownDescription: "URL to download the PXE",
+				MarkdownDescription: "URL to download the PCBIOS artifact (.undionly)",
 				Computed:            true,
 				Sensitive:           true,
 			},
 			"download_url_efi": schema.StringAttribute{
-				MarkdownDescription: "URL to download the EFI",
+				MarkdownDescription: "URL to download the EFI boot artifact",
 				Computed:            true,
 				Sensitive:           true,
 			},
@@ -179,7 +179,7 @@ func (r *IPXEBootArtifactResource) Read(ctx context.Context, req resource.ReadRe
 }
 
 func (r *IPXEBootArtifactResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	resp.Diagnostics.AddError("Resource Update Not Implemented", "ipxe_boot_iso does not support updates")
+	resp.Diagnostics.AddError("Resource Update Not Implemented", "ipxe_boot_artifact does not support updates")
 }
 
 func (r *IPXEBootArtifactResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

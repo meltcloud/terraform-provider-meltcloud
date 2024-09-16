@@ -41,7 +41,7 @@ func (p *MeltcloudProvider) Schema(ctx context.Context, req provider.SchemaReque
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "URL of the meltcloud API, i.e. https://app.meltcloud.io. Can also be set via MELTCLOUD_ENDPOINT environment variable.",
+				MarkdownDescription: "URL of the meltcloud API, defaults to https://app.meltcloud.io. Can also be set via MELTCLOUD_ENDPOINT environment variable.",
 				Optional:            true,
 			},
 			"organization": schema.StringAttribute{
@@ -50,7 +50,7 @@ func (p *MeltcloudProvider) Schema(ctx context.Context, req provider.SchemaReque
 			},
 			"api_key": schema.StringAttribute{
 				MarkdownDescription: "API Key permitted for the organization. Can also be set via MELTCLOUD_API_KEY environment variable.",
-				Optional:            true,
+				Required:            true,
 			},
 		},
 	}

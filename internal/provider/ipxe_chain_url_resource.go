@@ -43,12 +43,12 @@ func (r *IPXEChainURLResource) Metadata(ctx context.Context, req resource.Metada
 
 func (r *IPXEChainURLResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "IPXEChainURL",
+		MarkdownDescription: "Generate [iPXE Chain URLs](https://meltcloud.io/docs/guides/boot-config/create-ipxe-chain-urls.html) for providers that allow booting an iPXE Script or a remote iPXE URL (for example Equinix Metal)",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "Melt ID of the iPXE Chain URL",
+				MarkdownDescription: "Internal ID of the iPXE Chain URL on meltcloud",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},

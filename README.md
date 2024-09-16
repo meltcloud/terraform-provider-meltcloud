@@ -1,5 +1,10 @@
 # terraform-provider-meltcloud
 
+## Quickstarts
+- [Quickstart with Terraform | Docs | meltcloud.io](https://meltcloud.io/docs/guides/quick-start-terraform.html)
+- [Documentation on Terraform Registry](https://registry.terraform.io/providers/meltcloud/meltcloud/latest/docs)
+
+
 ## Local development
 
 Instruct terraform to use the local provider:

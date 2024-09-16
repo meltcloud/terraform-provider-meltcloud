@@ -50,12 +50,14 @@ func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.Metadat
 
 func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "MachinePool",
+		MarkdownDescription: "A [Machine Pool](https://meltcloud.io/docs/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) " +
+			"which share a set of common configuration such as Kubelet version, disk or network configuration.\n\n" +
+			"~> Be aware that changing the version or the primary_disk_device will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "Machine Pool Melt ID",
+				MarkdownDescription: "Internal ID of the Machine Pool on meltcloud",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -76,11 +78,11 @@ func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaReq
 				Required:            true,
 			},
 			"version": schema.StringAttribute{
-				MarkdownDescription: "Kubernetes minor version of the machine pool",
+				MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
 				Required:            true,
 			},
 			"patch_version": schema.StringAttribute{
-				MarkdownDescription: "Kubernetes patch version of the machine pool",
+				MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
 				Computed:            true,
 			},
 		},
@@ -96,7 +98,7 @@ func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaReq
 
 						"interfaces": schema.StringAttribute{
 							Required:            true,
-							MarkdownDescription: "interface name (for network type native), wildcard or comma-separated list of interfaces (for network type bond)",
+							MarkdownDescription: "Interface name (for network type native), wildcard or comma-separated list of interfaces (for network type bond)",
 						},
 
 						"vlan_mode": schema.StringAttribute{

@@ -42,7 +42,9 @@ func (r *MachineResource) Metadata(ctx context.Context, req resource.MetadataReq
 
 func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Machine",
+		MarkdownDescription: "[Machines](https://meltcloud.io/docs/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.\n\n" +
+			"This resource [pre-registers](https://meltcloud.io/docs/guides/machines/intro.html#pre-register) Machines for a later boot.\n\n" +
+			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
@@ -53,14 +55,14 @@ func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest
 				},
 			},
 			"uuid": schema.StringAttribute{
-				MarkdownDescription: "Name of the machine",
+				MarkdownDescription: "UUID of the Machine",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the machine",
+				MarkdownDescription: "Name of the Machine",
 				Optional:            true,
 			},
 			"machine_pool_id": schema.Int64Attribute{

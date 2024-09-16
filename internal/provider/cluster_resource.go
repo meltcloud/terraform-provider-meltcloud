@@ -55,29 +55,29 @@ func (r *ClusterResource) Metadata(ctx context.Context, req resource.MetadataReq
 
 func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Cluster",
+		MarkdownDescription: "A [Cluster](https://meltcloud.io/docs/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://meltcloud.io/docs/guides/machine-pools/create.html) (which hold assigned [Machines](https://meltcloud.io/docs/guides/machine-pools/intro.html))",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "Cluster Melt ID",
+				MarkdownDescription: "Internal ID of the Cluster in meltcloud",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the cluster",
+				MarkdownDescription: "Name of the cluster. Must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"version": schema.StringAttribute{
-				MarkdownDescription: "Kubernetes minor version of the cluster",
+				MarkdownDescription: "Kubernetes minor version of the cluster control plane",
 				Required:            true,
 			},
 			"patch_version": schema.StringAttribute{
-				MarkdownDescription: "Kubernetes patch version of the cluster",
+				MarkdownDescription: "Kubernetes patch version of the cluster control plane",
 				Computed:            true,
 			},
 			"pod_cidr": schema.StringAttribute{
