@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"log"
-	"terraform-provider-melt/internal/provider"
+	"terraform-provider-meltcloud/internal/provider"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )

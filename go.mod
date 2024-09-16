@@ -1,4 +1,4 @@
-module terraform-provider-melt
+module terraform-provider-meltcloud
 
 go 1.21
 
@@ -10,6 +10,7 @@ require (
 	github.com/hashicorp/terraform-plugin-framework-timetypes v0.4.0
 	github.com/hashicorp/terraform-plugin-go v0.23.0
 	github.com/hashicorp/terraform-plugin-testing v1.8.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -81,5 +82,4 @@ require (
 	google.golang.org/grpc v1.63.2 // indirect
 	google.golang.org/protobuf v1.34.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -1,4 +1,4 @@
-# terraform-provider-melt
+# terraform-provider-meltcloud
 
 ## Local development
 
@@ -31,6 +31,6 @@ terraform apply
 ```
 
 or Run/Debug within Goland:
-- Run/Debug `main.go`
+- Run/Debug `main.go` with program arguments `-debug`
 - Export the variables printed on stdout before running `terraform apply`
 

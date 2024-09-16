@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"terraform-provider-melt/internal/client"
+	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework/path"

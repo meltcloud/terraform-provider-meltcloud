@@ -10,8 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"terraform-provider-melt/internal/client"
-	"terraform-provider-melt/internal/kubernetes"
+	"terraform-provider-meltcloud/internal/client"
+	"terraform-provider-meltcloud/internal/kubernetes"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.

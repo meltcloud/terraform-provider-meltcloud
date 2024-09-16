@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 	"os"
-	"terraform-provider-melt/internal/client"
+	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/function"

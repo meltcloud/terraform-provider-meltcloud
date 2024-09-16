@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"terraform-provider-melt/internal/client"
+	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
