@@ -99,7 +99,6 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// TODO move validation somewhere else
 	uuid, err := uuid.Parse(data.UUID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UUID invalid: %s", err))
