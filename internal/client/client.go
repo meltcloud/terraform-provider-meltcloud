@@ -34,8 +34,8 @@ func New(baseURL string, organization string, apiKey string) *Client {
 	restyClient := resty.New().
 		SetBaseURL(url).
 		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", "melt-go-client v1").
-		SetHeader("X-Melt-API-Key", apiKey)
+		SetHeader("User-Agent", "meltcloud-go-client v1").
+		SetHeader("X-Meltcloud-API-Key", apiKey)
 
 	return &Client{
 		HttpClient: restyClient,

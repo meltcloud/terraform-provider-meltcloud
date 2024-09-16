@@ -47,7 +47,7 @@ func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
 				Computed:            true,
-				MarkdownDescription: "Machine Melt ID",
+				MarkdownDescription: "Internal ID of the Machine in meltcloud",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},

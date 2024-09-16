@@ -9,7 +9,7 @@ cat > ~/.terraformrc <<EOF
 provider_installation {
 
   dev_overrides {
-      "meltcloud.io/melt/melt" = "path/to/go/bin"
+      "registry.terraform.io/meltcloud/meltcloud" = "path/to/go/bin"
   }
 
   # For all other providers, install them directly from their origin provider
