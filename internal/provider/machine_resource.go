@@ -169,8 +169,6 @@ func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest
 			return
 		}
 
-		// TODO handle failed state
-
 		_, err := r.client.Machine().Get(ctx, data.ID.ValueInt64())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update machine, got error: %s", err))

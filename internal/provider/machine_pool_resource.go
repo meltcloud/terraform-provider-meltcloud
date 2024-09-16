@@ -239,8 +239,6 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 			return
 		}
 
-		// TODO handle failed state
-
 		_, err := r.client.MachinePool().Get(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read machine pool, got error: %s", err))

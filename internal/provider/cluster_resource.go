@@ -182,8 +182,6 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// TODO handle failed state
-
 	clusterGetResult, err := r.client.Cluster().Get(ctx, clusterCreateResult.Cluster.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
@@ -275,8 +273,6 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update cluster, got error: %s", err))
 			return
 		}
-
-		// TODO handle failed state
 
 		_, err := r.client.Cluster().Get(ctx, data.ID.ValueInt64())
 		if err != nil {

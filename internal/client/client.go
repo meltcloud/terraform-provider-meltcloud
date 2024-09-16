@@ -9,8 +9,10 @@ import "github.com/go-resty/resty/v2"
 const apiPath string = "/api/v1/"
 
 type Client struct {
-	Debug      bool
-	HttpClient *resty.Client
+	Debug        bool
+	HttpClient   *resty.Client
+	Endpoint     string
+	Organization string
 }
 
 type ClientRequest struct {
@@ -28,8 +30,8 @@ type Metadata struct {
 	TotalCount  int `json:"total_count,omitempty"`
 }
 
-func New(baseURL string, organization string, apiKey string) *Client {
-	url := fmt.Sprintf("%s%s/orgs/%s/", baseURL, apiPath, organization)
+func New(endpoint string, organization string, apiKey string) *Client {
+	url := fmt.Sprintf("%s%s/orgs/%s/", endpoint, apiPath, organization)
 
 	restyClient := resty.New().
 		SetBaseURL(url).
@@ -38,7 +40,9 @@ func New(baseURL string, organization string, apiKey string) *Client {
 		SetHeader("X-Meltcloud-API-Key", apiKey)
 
 	return &Client{
-		HttpClient: restyClient,
+		HttpClient:   restyClient,
+		Endpoint:     endpoint,
+		Organization: organization,
 	}
 }
 

@@ -143,8 +143,6 @@ func (r *IPXEBootArtifactResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	// TODO handle failed state
-
 	result, err = r.client.IPXEBootArtifact().Get(ctx, result.IPXEBootArtifact.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read ipxe boot artifact, got error: %s", err))

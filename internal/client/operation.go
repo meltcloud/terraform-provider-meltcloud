@@ -27,6 +27,7 @@ const (
 	OperationStatusRunning   OperationStatus = "running"
 	OperationStatusSucceeded OperationStatus = "succeeded"
 	OperationStatusFailed    OperationStatus = "failed"
+	OperationStatusCancelled OperationStatus = "cancelled"
 )
 
 func (c *Client) Operation() *OperationRequest {
@@ -66,8 +67,12 @@ func (or *OperationRequest) PollUntilDone(ctx context.Context, id int64) (*Opera
 			if err != nil {
 				return nil, err
 			}
-			if result.Operation.Status == OperationStatusSucceeded || result.Operation.Status == OperationStatusFailed {
+			if result.Operation.Status == OperationStatusSucceeded {
 				return result, nil
+			}
+			if result.Operation.Status == OperationStatusFailed || result.Operation.Status == OperationStatusCancelled {
+				consoleURL := fmt.Sprintf("%s/ui/orgs/%s/operations/%d", or.client.Endpoint, or.client.Organization, id)
+				return result, &Error{Err: fmt.Errorf("operation %d %s. check the console for more information: %s", result.Operation.ID, result.Operation.Status, consoleURL)}
 			}
 		case <-ctx.Done():
 			return nil, &Error{Err: ctx.Err()}
