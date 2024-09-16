@@ -16,7 +16,7 @@ description: |-
 terraform {
   required_providers {
     meltcloud = {
-      source  = "meltcloud"
+      source  = "meltcloud/meltcloud"
       version = "~> 1.0"
     }
   }
@@ -39,9 +39,9 @@ resource "meltcloud_cluster" "example" {
 
 ### Required
 
-- `api_key` (String) API Key permitted for the organization. Can also be set via MELTCLOUD_API_KEY environment variable.
 - `organization` (String) UUID of the meltcloud Organization. Can also be set via MELTCLOUD_ORGANIZATION environment variable.
 
 ### Optional
 
+- `api_key` (String) API Key permitted for the organization. Can also be set via MELTCLOUD_API_KEY environment variable.
 - `endpoint` (String) URL of the meltcloud API, defaults to https://app.meltcloud.io. Can also be set via MELTCLOUD_ENDPOINT environment variable.

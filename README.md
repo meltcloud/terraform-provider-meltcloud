@@ -30,12 +30,14 @@ Run from CLI:
 ``` 
 go install
 
-cd examples/provider-install-verification
+cd examples
 terraform init # only required once
+
+export MELTCLOUD_API_TOKEN=...
 terraform apply
 ```
 
 or Run/Debug within Goland:
-- Run/Debug `main.go` with program arguments `-debug`
+- Run/Debug `main.go` with program arguments `-debug` and environment variables `MELTCLOUD_API_TOKEN=...`
 - Export the variables printed on stdout before running `terraform apply`
 

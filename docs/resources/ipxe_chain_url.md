@@ -28,21 +28,9 @@ resource "time_offset" "in_a_year" {
 }
 
 # create ipxe chain url
-resource "meltcloud_ipxe_boot_artifact" "example" {
-  name       = "my-artifact"
+resource "meltcloud_ipxe_chain_url" "example" {
+  name       = "my-chain-url"
   expires_at = time_offset.in_a_year.rfc3339
-}
-
-# download the iso
-data "http" "ipxe_iso" {
-  url = meltcloud_ipxe_boot_artifact.example.download_url_iso
-}
-
-# save iso to a file
-resource "local_sensitive_file" "ipxe_iso" {
-  filename        = "${path.module}/ipxe.iso"
-  content_base64  = data.http.ipxe_iso.response_body_base64
-  file_permission = "0600"
 }
 
 # output url - can be used for providers that support booting from remote URL
@@ -64,7 +52,7 @@ output "ipxe_chain_script" {
 ### Required
 
 - `expires_at` (String) Timestamp when the URL should expire
-- `name` (String) Name of the iPXE Chain URL
+- `name` (String) Name of the iPXE Chain URL, not case-sensitive. Must be unique within the organization.
 
 ### Read-Only
 

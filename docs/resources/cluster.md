@@ -54,7 +54,7 @@ resource "helm_release" "cilium" {
 ### Required
 
 - `dns_service_ip` (String) IP for the DNS service
-- `name` (String) Name of the cluster. Must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')
+- `name` (String) Name of the cluster, not case-sensitive. Must be unique within the organization and consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')
 - `pod_cidr` (String) CIDR for the Kubernetes Pods
 - `service_cidr` (String) CIDR for the Kubernetes Services
 - `version` (String) Kubernetes minor version of the cluster control plane

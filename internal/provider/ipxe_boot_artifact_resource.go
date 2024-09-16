@@ -56,7 +56,7 @@ func (r *IPXEBootArtifactResource) Schema(ctx context.Context, req resource.Sche
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "Name of the iPXE Boot Artifact",
+				MarkdownDescription: "Name of the iPXE Boot Artifact, not case-sensitive. Must be unique within the organization.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},

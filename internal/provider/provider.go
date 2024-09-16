@@ -50,7 +50,7 @@ func (p *MeltcloudProvider) Schema(ctx context.Context, req provider.SchemaReque
 			},
 			"api_key": schema.StringAttribute{
 				MarkdownDescription: "API Key permitted for the organization. Can also be set via MELTCLOUD_API_KEY environment variable.",
-				Required:            true,
+				Optional:            true,
 			},
 		},
 	}

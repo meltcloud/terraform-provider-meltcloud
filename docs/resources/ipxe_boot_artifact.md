@@ -52,7 +52,7 @@ resource "local_sensitive_file" "ipxe_iso" {
 ### Required
 
 - `expires_at` (String) Timestamp when the artifact should expire
-- `name` (String) Name of the iPXE Boot Artifact
+- `name` (String) Name of the iPXE Boot Artifact, not case-sensitive. Must be unique within the organization.
 
 ### Read-Only
 

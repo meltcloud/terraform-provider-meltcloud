@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     meltcloud = {
-      source  = "meltcloud"
+      source  = "meltcloud/meltcloud"
       version = "~> 1.0"
     }
   }

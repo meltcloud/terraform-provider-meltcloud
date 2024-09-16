@@ -15,6 +15,10 @@ type MachineResult struct {
 	Operation *Operation `json:"operation,omitempty"`
 }
 
+type MachinesResult struct {
+	Machines []*Machine `json:"machines"`
+}
+
 type Machine struct {
 	ID            int64         `json:"id"`
 	UUID          uuid.UUID     `json:"uuid"`
@@ -47,6 +51,25 @@ func (c *Client) Machine() *MachineRequest {
 	return &MachineRequest{
 		client: c,
 	}
+}
+
+func (mr *MachineRequest) List(ctx context.Context) (*MachinesResult, *Error) {
+	clientRequest := &ClientRequest{
+		Path:   "machines",
+		Result: &MachinesResult{},
+	}
+
+	result, err := mr.client.Get(ctx, clientRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	machinesResult, ok := result.(*MachinesResult)
+	if !ok {
+		return nil, &ErrorTypeAssert
+	}
+
+	return machinesResult, nil
 }
 
 func (mr *MachineRequest) Get(ctx context.Context, id int64) (*MachineResult, *Error) {

@@ -5,7 +5,7 @@ subcategory: ""
 description: |-
   Machines https://meltcloud.io/docs/guides/machines/intro.html are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
   This resource pre-registers https://meltcloud.io/docs/guides/machines/intro.html#pre-register Machines for a later boot.
-  ~> Be aware that changing the name will cause a new Revision that will be applied immediately, causing a reboot the Machine https://meltcloud.io/docs/guides/machines/intro.html#revisions.
+  ~> Be aware that changing the name will cause a new Revision that will be applied immediately, causing a reboot of the Machine https://meltcloud.io/docs/guides/machines/intro.html#revisions.
 ---
 
 # meltcloud_machine (Resource)
@@ -14,7 +14,7 @@ description: |-
 
 This resource [pre-registers](https://meltcloud.io/docs/guides/machines/intro.html#pre-register) Machines for a later boot.
 
-~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).
+~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).
 
 ## Example Usage
 

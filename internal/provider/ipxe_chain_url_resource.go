@@ -54,7 +54,7 @@ func (r *IPXEChainURLResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the iPXE Chain URL",
+				MarkdownDescription: "Name of the iPXE Chain URL, not case-sensitive. Must be unique within the organization.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
