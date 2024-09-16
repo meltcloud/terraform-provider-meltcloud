@@ -44,7 +44,7 @@ func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "[Machines](https://meltcloud.io/docs/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.\n\n" +
 			"This resource [pre-registers](https://meltcloud.io/docs/guides/machines/intro.html#pre-register) Machines for a later boot.\n\n" +
-			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).",
+			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
