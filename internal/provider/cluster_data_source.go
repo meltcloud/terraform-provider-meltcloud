@@ -187,7 +187,7 @@ func (d *ClusterDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		}
 
 		if cluster == nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Could not find machine by Name %s", data.Name.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Could not find cluster by name %s", data.Name.ValueString()))
 			return
 		}
 
