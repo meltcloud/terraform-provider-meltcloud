@@ -56,7 +56,7 @@ func (d *ClusterDataSource) Metadata(ctx context.Context, req datasource.Metadat
 
 func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: machineDesc,
+		MarkdownDescription: clusterDesc,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{

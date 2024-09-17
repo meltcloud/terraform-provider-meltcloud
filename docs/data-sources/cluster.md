@@ -3,12 +3,12 @@
 page_title: "meltcloud_cluster Data Source - meltcloud"
 subcategory: ""
 description: |-
-  Machines https://meltcloud.io/docs/guides/machines/intro.html are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
+  A Cluster https://meltcloud.io/docs/guides/clusters/create.html in meltcloud consists of a Kubernetes Control Plane and associated objects like Machine Pools https://meltcloud.io/docs/guides/machine-pools/create.html (which hold assigned Machines https://meltcloud.io/docs/guides/machine-pools/intro.html).
 ---
 
 # meltcloud_cluster (Data Source)
 
-[Machines](https://meltcloud.io/docs/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
+A [Cluster](https://meltcloud.io/docs/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://meltcloud.io/docs/guides/machine-pools/create.html) (which hold assigned [Machines](https://meltcloud.io/docs/guides/machine-pools/intro.html)).
 
 ## Example Usage
 
