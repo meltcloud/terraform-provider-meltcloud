@@ -43,7 +43,7 @@ func (d *iPXEBootArtifactDataSource) Metadata(ctx context.Context, req datasourc
 
 func (d *iPXEBootArtifactDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: ipxeBootArtifactDesc,
+		MarkdownDescription: iPXEBootArtifactDesc,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{

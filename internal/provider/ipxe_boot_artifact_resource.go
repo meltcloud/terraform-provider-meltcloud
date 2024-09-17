@@ -42,7 +42,7 @@ func (r *IPXEBootArtifactResource) Metadata(ctx context.Context, req resource.Me
 	resp.TypeName = req.ProviderTypeName + "_ipxe_boot_artifact"
 }
 
-const ipxeBootArtifactDesc string = "An [iPXE Boot Artifact](https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html) contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization."
+const iPXEBootArtifactDesc string = "An [iPXE Boot Artifact](https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html) contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization."
 
 func iPXEBootArtifactResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
@@ -88,7 +88,7 @@ func iPXEBootArtifactResourceAttributes() map[string]schema.Attribute {
 
 func (r *IPXEBootArtifactResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: ipxeBootArtifactDesc,
+		MarkdownDescription: iPXEBootArtifactDesc,
 
 		Attributes: iPXEBootArtifactResourceAttributes(),
 	}

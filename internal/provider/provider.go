@@ -120,6 +120,7 @@ func (p *MeltcloudProvider) DataSources(ctx context.Context) []func() datasource
 		NewMachinePoolDataSource,
 		NewMachineDataSource,
 		NewiPXEBootArtifactDataSource,
+		NewiPXEChainURLDataSource,
 	}
 }
 

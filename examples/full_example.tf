@@ -37,6 +37,14 @@ resource "meltcloud_ipxe_chain_url" "example" {
   expires_at = time_offset.in_a_year.rfc3339
 }
 
+data "meltcloud_ipxe_chain_url" "example_id" {
+  id = meltcloud_ipxe_chain_url.example.id
+}
+
+data "meltcloud_ipxe_chain_url" "example_name" {
+  name = meltcloud_ipxe_chain_url.example.name
+}
+
 resource "meltcloud_cluster" "example" {
   name           = "melt03"
   version        = "1.30"

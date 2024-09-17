@@ -15,6 +15,10 @@ type IPXEChainURLResult struct {
 	Operation    *Operation    `json:"operation,omitempty"`
 }
 
+type IPXEChainURLsResult struct {
+	IPXEChainURLs []*IPXEChainURL `json:"ipxe_chain_urls"`
+}
+
 type IPXEChainURL struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`
@@ -32,6 +36,25 @@ func (c *Client) IPXEChainURL() *IPXEChainURLRequest {
 	return &IPXEChainURLRequest{
 		client: c,
 	}
+}
+
+func (mr *IPXEChainURLRequest) List(ctx context.Context) (*IPXEChainURLsResult, *Error) {
+	clientRequest := &ClientRequest{
+		Path:   "ipxe_chain_urls",
+		Result: &IPXEChainURLsResult{},
+	}
+
+	result, err := mr.client.Get(ctx, clientRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	iPXEBootArtifactsResult, ok := result.(*IPXEChainURLsResult)
+	if !ok {
+		return nil, &ErrorTypeAssert
+	}
+
+	return iPXEBootArtifactsResult, nil
 }
 
 func (mr *IPXEChainURLRequest) Get(ctx context.Context, id int64) (*IPXEChainURLResult, *Error) {

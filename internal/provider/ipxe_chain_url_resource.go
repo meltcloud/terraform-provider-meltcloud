@@ -41,44 +41,50 @@ func (r *IPXEChainURLResource) Metadata(ctx context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_ipxe_chain_url"
 }
 
-func (r *IPXEChainURLResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		MarkdownDescription: "Generate [iPXE Chain URLs](https://meltcloud.io/docs/guides/boot-config/create-ipxe-chain-urls.html) for providers that allow booting an iPXE Script or a remote iPXE URL (for example Equinix Metal)",
+const iPXEChainURLDesc string = "Generate [iPXE Chain URLs](https://meltcloud.io/docs/guides/boot-config/create-ipxe-chain-urls.html) for providers that allow booting an iPXE Script or a remote iPXE URL (for example Equinix Metal)"
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				Computed:            true,
-				MarkdownDescription: "Internal ID of the iPXE Chain URL on meltcloud",
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the iPXE Chain URL, not case-sensitive. Must be unique within the organization.",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"expires_at": schema.StringAttribute{
-				CustomType:          timetypes.RFC3339Type{},
-				MarkdownDescription: "Timestamp when the URL should expire",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"url": schema.StringAttribute{
-				MarkdownDescription: "URL to the iPXE chain script",
-				Computed:            true,
-				Sensitive:           true,
-			},
-			"script": schema.StringAttribute{
-				MarkdownDescription: "The complete iPXE script",
-				Computed:            true,
-				Sensitive:           true,
+func iPXEChainURLResourceAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"id": schema.Int64Attribute{
+			Computed:            true,
+			MarkdownDescription: "Internal ID of the iPXE Chain URL on meltcloud",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.UseStateForUnknown(),
 			},
 		},
+		"name": schema.StringAttribute{
+			MarkdownDescription: "Name of the iPXE Chain URL, not case-sensitive. Must be unique within the organization.",
+			Required:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
+		},
+		"expires_at": schema.StringAttribute{
+			CustomType:          timetypes.RFC3339Type{},
+			MarkdownDescription: "Timestamp when the URL should expire",
+			Required:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
+		},
+		"url": schema.StringAttribute{
+			MarkdownDescription: "URL to the iPXE chain script",
+			Computed:            true,
+			Sensitive:           true,
+		},
+		"script": schema.StringAttribute{
+			MarkdownDescription: "The complete iPXE script",
+			Computed:            true,
+			Sensitive:           true,
+		},
+	}
+}
+
+func (r *IPXEChainURLResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: iPXEChainURLDesc,
+
+		Attributes: iPXEChainURLResourceAttributes(),
 	}
 }
 
