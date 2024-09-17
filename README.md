@@ -30,10 +30,10 @@ Run from CLI:
 ``` 
 go install
 
-cd examples
+cd examples/full-example
 terraform init # only required once
 
-export MELTCLOUD_API_TOKEN=...
+export MELTCLOUD_API_KEY=...
 terraform apply
 ```
 
