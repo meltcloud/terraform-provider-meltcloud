@@ -125,7 +125,9 @@ func (p *MeltcloudProvider) DataSources(ctx context.Context) []func() datasource
 }
 
 func (p *MeltcloudProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{}
+	return []func() function.Function{
+		NewCustomizeUUIDInIPXEScriptFunction,
+	}
 }
 
 func New(version string) func() provider.Provider {

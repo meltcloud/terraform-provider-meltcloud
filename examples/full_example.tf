@@ -7,6 +7,10 @@ terraform {
       source  = "hashicorp/time"
       version = "0.11.2"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.3"
+    }
   }
 }
 
@@ -43,6 +47,14 @@ data "meltcloud_ipxe_chain_url" "example_id" {
 
 data "meltcloud_ipxe_chain_url" "example_name" {
   name = meltcloud_ipxe_chain_url.example.name
+}
+
+resource "random_uuid" "machine_override" {
+}
+
+output "customized_ipxe_script" {
+  sensitive = true
+  value     = provider::meltcloud::customize_uuid_in_ipxe_script(meltcloud_ipxe_chain_url.example.script, random_uuid.machine_override.result)
 }
 
 resource "meltcloud_cluster" "example" {
