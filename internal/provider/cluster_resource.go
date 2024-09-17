@@ -53,80 +53,86 @@ func (r *ClusterResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_cluster"
 }
 
-func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		MarkdownDescription: "A [Cluster](https://meltcloud.io/docs/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://meltcloud.io/docs/guides/machine-pools/create.html) (which hold assigned [Machines](https://meltcloud.io/docs/guides/machine-pools/intro.html))",
+const clusterDesc string = "A [Cluster](https://meltcloud.io/docs/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://meltcloud.io/docs/guides/machine-pools/create.html) (which hold assigned [Machines](https://meltcloud.io/docs/guides/machine-pools/intro.html))."
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				Computed:            true,
-				MarkdownDescription: "Internal ID of the Cluster in meltcloud",
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the cluster, not case-sensitive. Must be unique within the organization and consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"version": schema.StringAttribute{
-				MarkdownDescription: "Kubernetes minor version of the cluster control plane",
-				Required:            true,
-			},
-			"patch_version": schema.StringAttribute{
-				MarkdownDescription: "Kubernetes patch version of the cluster control plane",
-				Computed:            true,
-			},
-			"pod_cidr": schema.StringAttribute{
-				MarkdownDescription: "CIDR for the Kubernetes Pods",
-				Required:            true,
-			},
-			"service_cidr": schema.StringAttribute{
-				MarkdownDescription: "CIDR for the Kubernetes Services",
-				Required:            true,
-			},
-			"dns_service_ip": schema.StringAttribute{
-				MarkdownDescription: "IP for the DNS service",
-				Required:            true,
-			},
-			"kubeconfig": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"host": schema.StringAttribute{
-						Computed:  true,
-						Sensitive: true,
-					},
-					"username": schema.StringAttribute{
-						Computed:  true,
-						Sensitive: true,
-					},
-					"password": schema.StringAttribute{
-						Computed:  true,
-						Sensitive: true,
-					},
-					"client_certificate": schema.StringAttribute{
-						Computed:  true,
-						Sensitive: true,
-					},
-					"client_key": schema.StringAttribute{
-						Computed:  true,
-						Sensitive: true,
-					},
-					"cluster_ca_certificate": schema.StringAttribute{
-						Computed:  true,
-						Sensitive: true,
-					},
-				},
-				Computed:  true,
-				Sensitive: true,
-			},
-			"kubeconfig_raw": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+func clusterResourceAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"id": schema.Int64Attribute{
+			Computed:            true,
+			MarkdownDescription: "Internal ID of the Cluster in meltcloud",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.UseStateForUnknown(),
 			},
 		},
+		"name": schema.StringAttribute{
+			MarkdownDescription: "Name of the cluster, not case-sensitive. Must be unique within the organization and consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')",
+			Required:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
+		},
+		"version": schema.StringAttribute{
+			MarkdownDescription: "Kubernetes minor version of the cluster control plane",
+			Required:            true,
+		},
+		"patch_version": schema.StringAttribute{
+			MarkdownDescription: "Kubernetes patch version of the cluster control plane",
+			Computed:            true,
+		},
+		"pod_cidr": schema.StringAttribute{
+			MarkdownDescription: "CIDR for the Kubernetes Pods",
+			Required:            true,
+		},
+		"service_cidr": schema.StringAttribute{
+			MarkdownDescription: "CIDR for the Kubernetes Services",
+			Required:            true,
+		},
+		"dns_service_ip": schema.StringAttribute{
+			MarkdownDescription: "IP for the DNS service",
+			Required:            true,
+		},
+		"kubeconfig": schema.SingleNestedAttribute{
+			Attributes: map[string]schema.Attribute{
+				"host": schema.StringAttribute{
+					Computed:  true,
+					Sensitive: true,
+				},
+				"username": schema.StringAttribute{
+					Computed:  true,
+					Sensitive: true,
+				},
+				"password": schema.StringAttribute{
+					Computed:  true,
+					Sensitive: true,
+				},
+				"client_certificate": schema.StringAttribute{
+					Computed:  true,
+					Sensitive: true,
+				},
+				"client_key": schema.StringAttribute{
+					Computed:  true,
+					Sensitive: true,
+				},
+				"cluster_ca_certificate": schema.StringAttribute{
+					Computed:  true,
+					Sensitive: true,
+				},
+			},
+			Computed:  true,
+			Sensitive: true,
+		},
+		"kubeconfig_raw": schema.StringAttribute{
+			Computed:  true,
+			Sensitive: true,
+		},
+	}
+}
+
+func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: clusterDesc,
+
+		Attributes: clusterResourceAttributes(),
 	}
 }
 

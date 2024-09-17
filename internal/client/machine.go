@@ -20,11 +20,11 @@ type MachinesResult struct {
 }
 
 type Machine struct {
-	ID            int64         `json:"id"`
-	UUID          uuid.UUID     `json:"uuid"`
-	Name          string        `json:"name,omitempty"`
-	Status        MachineStatus `json:"status"`
-	MachinePoolID int64         `json:"machine_pool_id,omitempty"`
+	ID            int64     `json:"id"`
+	UUID          uuid.UUID `json:"uuid"`
+	Name          string    `json:"name,omitempty"`
+	Status        string    `json:"status"`
+	MachinePoolID int64     `json:"machine_pool_id,omitempty"`
 }
 
 type MachineCreateInput struct {
@@ -37,15 +37,6 @@ type MachineUpdateInput struct {
 	Name          string `json:"name,omitempty"`
 	MachinePoolID int64  `json:"machine_pool_id,omitempty"`
 }
-
-type MachineStatus string
-
-const (
-	MachineStatusPreregistered   MachineStatus = "preregistered"
-	MachineStatusReadyUnassigned MachineStatus = "ready_unassigned"
-	MachineStatusReady           MachineStatus = "ready"
-	MachineStatusUpdating        MachineStatus = "updating"
-)
 
 func (c *Client) Machine() *MachineRequest {
 	return &MachineRequest{

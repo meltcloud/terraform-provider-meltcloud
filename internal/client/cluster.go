@@ -14,13 +14,20 @@ type ClusterResult struct {
 	Operation *Operation `json:"operation,omitempty"`
 }
 
+type ClustersResult struct {
+	Clusters []*Cluster `json:"clusters"`
+}
+
 type Cluster struct {
-	ID                 int64                     `json:"id"`
-	Name               string                    `json:"name"`
-	ControlPlaneStatus ClusterControlPlaneStatus `json:"control_plane_status"`
-	UserVersion        string                    `json:"user_version"`
-	PatchVersion       string                    `json:"patch_version"`
-	KubeConfig         string                    `json:"kubeconfig"`
+	ID                 int64  `json:"id"`
+	Name               string `json:"name"`
+	ControlPlaneStatus string `json:"control_plane_status"`
+	UserVersion        string `json:"user_version"`
+	PatchVersion       string `json:"patch_version"`
+	KubeConfig         string `json:"kubeconfig"`
+	PodCIDR            string `json:"pod_cidr"`
+	ServiceCIDR        string `json:"service_cidr"`
+	DNSServiceIP       string `json:"dns_service_ip"`
 }
 
 type ClusterCreateInput struct {
@@ -35,18 +42,29 @@ type ClusterUpdateInput struct {
 	UserVersion string `json:"user_version,omitempty"`
 }
 
-type ClusterControlPlaneStatus string
-
-const (
-	ClusterStatusPending  ClusterControlPlaneStatus = "pending"
-	ClusterStatusReady    ClusterControlPlaneStatus = "ready"
-	ClusterStatusUpdating ClusterControlPlaneStatus = "updating"
-)
-
 func (c *Client) Cluster() *ClusterRequest {
 	return &ClusterRequest{
 		client: c,
 	}
+}
+
+func (mr *ClusterRequest) List(ctx context.Context) (*ClustersResult, *Error) {
+	clientRequest := &ClientRequest{
+		Path:   "clusters",
+		Result: &ClustersResult{},
+	}
+
+	result, err := mr.client.Get(ctx, clientRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	clustersResult, ok := result.(*ClustersResult)
+	if !ok {
+		return nil, &ErrorTypeAssert
+	}
+
+	return clustersResult, nil
 }
 
 func (mr *ClusterRequest) Get(ctx context.Context, id int64) (*ClusterResult, *Error) {

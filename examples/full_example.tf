@@ -37,6 +37,14 @@ resource "meltcloud_cluster" "example" {
   dns_service_ip = "10.96.0.10"
 }
 
+data "meltcloud_cluster" "example_id" {
+  id = meltcloud_cluster.example.id
+}
+
+data "meltcloud_cluster" "example_name" {
+  name = meltcloud_cluster.example.name
+}
+
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
