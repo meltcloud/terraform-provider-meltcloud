@@ -55,7 +55,7 @@ resource "local_sensitive_file" "kubeconfig" {
   file_permission = "0600"
 }
 
-# create a machine pool with
+# create a machine pool for equinix workers
 resource "meltcloud_machine_pool" "equinix" {
   cluster_id = meltcloud_cluster.equinix.id
 
