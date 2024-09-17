@@ -15,14 +15,18 @@ type IPXEBootArtifactResult struct {
 	Operation        *Operation        `json:"operation,omitempty"`
 }
 
+type IPXEBootArtifactsResult struct {
+	IPXEBootArtifacts []*IPXEBootArtifact `json:"ipxe_boot_artifacts"`
+}
+
 type IPXEBootArtifact struct {
-	ID             int64                  `json:"id"`
-	Name           string                 `json:"name"`
-	ExpiresAt      time.Time              `json:"expires_at"`
-	Status         IPXEBootArtifactStatus `json:"status"`
-	DownloadURLISO string                 `json:"download_url_iso"`
-	DownloadURLPXE string                 `json:"download_url_pxe"`
-	DownloadURLEFI string                 `json:"download_url_efi"`
+	ID             int64     `json:"id"`
+	Name           string    `json:"name"`
+	ExpiresAt      time.Time `json:"expires_at"`
+	Status         string    `json:"status"`
+	DownloadURLISO string    `json:"download_url_iso"`
+	DownloadURLPXE string    `json:"download_url_pxe"`
+	DownloadURLEFI string    `json:"download_url_efi"`
 }
 
 type IPXEBootArtifactCreateInput struct {
@@ -30,17 +34,29 @@ type IPXEBootArtifactCreateInput struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
-type IPXEBootArtifactStatus string
-
-const (
-	IPXEBootArtifactStatusPending IPXEBootArtifactStatus = "pending"
-	IPXEBootArtifactStatusReady   IPXEBootArtifactStatus = "ready"
-)
-
 func (c *Client) IPXEBootArtifact() *IPXEBootArtifactRequest {
 	return &IPXEBootArtifactRequest{
 		client: c,
 	}
+}
+
+func (mr *IPXEBootArtifactRequest) List(ctx context.Context) (*IPXEBootArtifactsResult, *Error) {
+	clientRequest := &ClientRequest{
+		Path:   "ipxe_boot_artifacts",
+		Result: &IPXEBootArtifactsResult{},
+	}
+
+	result, err := mr.client.Get(ctx, clientRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	iPXEBootArtifactsResult, ok := result.(*IPXEBootArtifactsResult)
+	if !ok {
+		return nil, &ErrorTypeAssert
+	}
+
+	return iPXEBootArtifactsResult, nil
 }
 
 func (mr *IPXEBootArtifactRequest) Get(ctx context.Context, id int64) (*IPXEBootArtifactResult, *Error) {

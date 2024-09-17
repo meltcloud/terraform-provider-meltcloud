@@ -42,49 +42,55 @@ func (r *IPXEBootArtifactResource) Metadata(ctx context.Context, req resource.Me
 	resp.TypeName = req.ProviderTypeName + "_ipxe_boot_artifact"
 }
 
-func (r *IPXEBootArtifactResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		MarkdownDescription: "An [iPXE Boot Artifact](https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html) contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization:",
+const ipxeBootArtifactDesc string = "An [iPXE Boot Artifact](https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html) contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization."
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				Computed:            true,
-				MarkdownDescription: "Internal ID of the iPXE Boot Artifact",
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "Name of the iPXE Boot Artifact, not case-sensitive. Must be unique within the organization.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"expires_at": schema.StringAttribute{
-				CustomType:          timetypes.RFC3339Type{},
-				MarkdownDescription: "Timestamp when the artifact should expire",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"download_url_iso": schema.StringAttribute{
-				MarkdownDescription: "URL to download the ISO",
-				Computed:            true,
-				Sensitive:           true,
-			},
-			"download_url_pxe": schema.StringAttribute{
-				MarkdownDescription: "URL to download the PCBIOS artifact (.undionly)",
-				Computed:            true,
-				Sensitive:           true,
-			},
-			"download_url_efi": schema.StringAttribute{
-				MarkdownDescription: "URL to download the EFI boot artifact",
-				Computed:            true,
-				Sensitive:           true,
+func iPXEBootArtifactResourceAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"id": schema.Int64Attribute{
+			Computed:            true,
+			MarkdownDescription: "Internal ID of the iPXE Boot Artifact",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.UseStateForUnknown(),
 			},
 		},
+		"name": schema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: "Name of the iPXE Boot Artifact, not case-sensitive. Must be unique within the organization.",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
+		},
+		"expires_at": schema.StringAttribute{
+			CustomType:          timetypes.RFC3339Type{},
+			MarkdownDescription: "Timestamp when the artifact should expire",
+			Required:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
+		},
+		"download_url_iso": schema.StringAttribute{
+			MarkdownDescription: "URL to download the ISO",
+			Computed:            true,
+			Sensitive:           true,
+		},
+		"download_url_pxe": schema.StringAttribute{
+			MarkdownDescription: "URL to download the PCBIOS artifact (.undionly)",
+			Computed:            true,
+			Sensitive:           true,
+		},
+		"download_url_efi": schema.StringAttribute{
+			MarkdownDescription: "URL to download the EFI boot artifact",
+			Computed:            true,
+			Sensitive:           true,
+		},
+	}
+}
+
+func (r *IPXEBootArtifactResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: ipxeBootArtifactDesc,
+
+		Attributes: iPXEBootArtifactResourceAttributes(),
 	}
 }
 

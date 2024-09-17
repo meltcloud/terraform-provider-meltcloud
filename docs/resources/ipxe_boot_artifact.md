@@ -3,12 +3,12 @@
 page_title: "meltcloud_ipxe_boot_artifact Resource - meltcloud"
 subcategory: ""
 description: |-
-  An iPXE Boot Artifact https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization:
+  An iPXE Boot Artifact https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization.
 ---
 
 # meltcloud_ipxe_boot_artifact (Resource)
 
-An [iPXE Boot Artifact](https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html) contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization:
+An [iPXE Boot Artifact](https://meltcloud.io/docs/guides/boot-config/create-ipxe-boot-artifacts.html) contains a set of bootable images with an X509 client certificate to securely boot into your meltcloud organization.
 
 ## Example Usage
 

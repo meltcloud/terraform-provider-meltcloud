@@ -24,6 +24,14 @@ resource "meltcloud_ipxe_boot_artifact" "example" {
   expires_at = time_offset.in_a_year.rfc3339
 }
 
+data "meltcloud_ipxe_boot_artifact" "example_id" {
+  id = meltcloud_ipxe_boot_artifact.example.id
+}
+
+data "meltcloud_ipxe_boot_artifact" "example_name" {
+  name = meltcloud_ipxe_boot_artifact.example.name
+}
+
 resource "meltcloud_ipxe_chain_url" "example" {
   name       = "my-chain-url"
   expires_at = time_offset.in_a_year.rfc3339
