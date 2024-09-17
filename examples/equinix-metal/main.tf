@@ -17,11 +17,11 @@ terraform {
       version = "3.6.3"
     }
     local = {
-      source = "hashicorp/local"
+      source  = "hashicorp/local"
       version = "2.5.2"
     }
     helm = {
-      source = "hashicorp/helm"
+      source  = "hashicorp/helm"
       version = "2.15.0"
     }
   }
@@ -59,8 +59,8 @@ resource "local_sensitive_file" "kubeconfig" {
 resource "meltcloud_machine_pool" "equinix" {
   cluster_id = meltcloud_cluster.equinix.id
 
-  name                = "equinix-pool"
-  version             = "1.30"
+  name    = "equinix-pool"
+  version = "1.30"
 
   # equinix has the ephemeral disk on /dev/sda
   primary_disk_device = "/dev/sda"
@@ -96,9 +96,9 @@ resource "equinix_metal_device" "equinix01" {
   billing_cycle    = "hourly"
 
   # adapt to your project
-  project_id       = "f46295d8-833a-4b96-a5e5-8e85ce2d471d"
-  always_pxe       = "true"
-  user_data        = provider::meltcloud::customize_uuid_in_ipxe_script(meltcloud_ipxe_chain_url.equinix.script, meltcloud_machine.equinix01.uuid)
+  project_id = "f46295d8-833a-4b96-a5e5-8e85ce2d471d"
+  always_pxe = "true"
+  user_data  = provider::meltcloud::customize_uuid_in_ipxe_script(meltcloud_ipxe_chain_url.equinix.script, meltcloud_machine.equinix01.uuid)
 }
 
 provider "helm" {
