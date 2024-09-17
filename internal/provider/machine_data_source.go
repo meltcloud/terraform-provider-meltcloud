@@ -121,7 +121,7 @@ func (d *MachineDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		}
 
 		for _, m := range result.Machines {
-			if strings.ToLower(data.UUID.ValueString()) == strings.ToLower(m.UUID.String()) {
+			if strings.EqualFold(data.UUID.ValueString(), m.UUID.String()) {
 				machine = m
 				break
 			}
