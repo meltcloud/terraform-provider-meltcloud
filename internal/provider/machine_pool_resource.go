@@ -48,70 +48,80 @@ func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.Metadat
 	resp.TypeName = req.ProviderTypeName + "_machine_pool"
 }
 
-func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		MarkdownDescription: "A [Machine Pool](https://meltcloud.io/docs/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) " +
-			"which share a set of common configuration such as Kubelet version, disk or network configuration.\n\n" +
-			"~> Be aware that changing the version or the primary_disk_device will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).",
+const machinePoolDesc = "A [Machine Pool](https://meltcloud.io/docs/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) " +
+	"which share a set of common configuration such as Kubelet version, disk or network configuration."
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				Computed:            true,
-				MarkdownDescription: "Internal ID of the Machine Pool on meltcloud",
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
-			},
-			"cluster_id": schema.Int64Attribute{
-				MarkdownDescription: "ID of the associated cluster",
-				Required:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
-				},
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the machine pool",
-				Required:            true,
-			},
-			"primary_disk_device": schema.StringAttribute{
-				MarkdownDescription: "Name of the primary disk of the machine, i.e. /dev/vda",
-				Required:            true,
-			},
-			"version": schema.StringAttribute{
-				MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
-				Required:            true,
-			},
-			"patch_version": schema.StringAttribute{
-				MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
-				Computed:            true,
+func machinePoolResourceAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"id": schema.Int64Attribute{
+			Computed:            true,
+			MarkdownDescription: "Internal ID of the Machine Pool on meltcloud",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.UseStateForUnknown(),
 			},
 		},
+		"cluster_id": schema.Int64Attribute{
+			MarkdownDescription: "ID of the associated cluster",
+			Required:            true,
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.RequiresReplace(),
+			},
+		},
+		"name": schema.StringAttribute{
+			MarkdownDescription: "Name of the machine pool",
+			Required:            true,
+		},
+		"primary_disk_device": schema.StringAttribute{
+			MarkdownDescription: "Name of the primary disk of the machine, i.e. /dev/vda",
+			Required:            true,
+		},
+		"version": schema.StringAttribute{
+			MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
+			Required:            true,
+		},
+		"patch_version": schema.StringAttribute{
+			MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
+			Computed:            true,
+		},
+	}
+}
+
+func networkConfigurationResourceAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"type": schema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: "The network type - must be 'native' or 'bond'",
+		},
+
+		"interfaces": schema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: "Interface name (for network type native), wildcard or comma-separated list of interfaces (for network type bond)",
+		},
+
+		"vlan_mode": schema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: "The VLAN mode - must be 'default' or 'trunk'",
+		},
+
+		"vlans": schema.StringAttribute{
+			Optional:            true,
+			Computed:            false,
+			MarkdownDescription: "Comma-separated list of VLAN-IDs (required for VLAN mode trunk)",
+		},
+	}
+}
+
+func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: machinePoolDesc + "\n\n" +
+			"~> Be aware that changing the version or the primary_disk_device will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).",
+
+		Attributes: machinePoolResourceAttributes(),
 
 		Blocks: map[string]schema.Block{
 			"network_configuration": schema.ListNestedBlock{
 				NestedObject: schema.NestedBlockObject{
-					Attributes: map[string]schema.Attribute{
-						"type": schema.StringAttribute{
-							Required:            true,
-							MarkdownDescription: "The network type - must be 'native' or 'bond'",
-						},
-
-						"interfaces": schema.StringAttribute{
-							Required:            true,
-							MarkdownDescription: "Interface name (for network type native), wildcard or comma-separated list of interfaces (for network type bond)",
-						},
-
-						"vlan_mode": schema.StringAttribute{
-							Required:            true,
-							MarkdownDescription: "The VLAN mode - must be 'default' or 'trunk'",
-						},
-
-						"vlans": schema.StringAttribute{
-							Optional:            true,
-							Computed:            false,
-							MarkdownDescription: "Comma-separated list of VLAN-IDs (required for VLAN mode trunk)",
-						},
-					},
+					Attributes: networkConfigurationResourceAttributes(),
 				},
 			},
 		},
@@ -179,7 +189,7 @@ func (r *MachinePoolResource) networkConfigurationInput(networkConfigurations []
 			Type:       networkConfiguration.Type.ValueString(),
 			Interfaces: networkConfiguration.Interfaces.ValueString(),
 			VLANMode:   networkConfiguration.VLANMode.ValueString(),
-			VLANS:      networkConfiguration.VLANs.ValueString(),
+			VLANs:      networkConfiguration.VLANs.ValueString(),
 		})
 	}
 	return networkConfigurationInput

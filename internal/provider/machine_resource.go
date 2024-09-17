@@ -40,13 +40,34 @@ func (r *MachineResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_machine"
 }
 
-const (
-	machineDesc          string = "[Machines](https://meltcloud.io/docs/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform."
-	machineIDDesc        string = "Internal ID of the Machine in meltcloud"
-	machineUUIDDesc      string = "UUID of the Machine"
-	machineNameDesc      string = "Name of the Machine"
-	machineMachinePoolID string = "ID of the associated machine pool"
-)
+const machineDesc string = "[Machines](https://meltcloud.io/docs/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform."
+
+func machineResourceAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"id": schema.Int64Attribute{
+			Computed:            true,
+			MarkdownDescription: "Internal ID of the Machine in meltcloud",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.UseStateForUnknown(),
+			},
+		},
+		"uuid": schema.StringAttribute{
+			MarkdownDescription: "UUID of the Machine",
+			Required:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
+		},
+		"name": schema.StringAttribute{
+			MarkdownDescription: "Name of the Machine",
+			Optional:            true,
+		},
+		"machine_pool_id": schema.Int64Attribute{
+			MarkdownDescription: "ID of the associated machine pool",
+			Optional:            true,
+		},
+	}
+}
 
 func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
@@ -54,30 +75,7 @@ func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest
 			"This resource [pre-registers](https://meltcloud.io/docs/guides/machines/intro.html#pre-register) Machines for a later boot.\n\n" +
 			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).",
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				Computed:            true,
-				MarkdownDescription: machineIDDesc,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
-			},
-			"uuid": schema.StringAttribute{
-				MarkdownDescription: machineUUIDDesc,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: machineNameDesc,
-				Optional:            true,
-			},
-			"machine_pool_id": schema.Int64Attribute{
-				MarkdownDescription: machineMachinePoolID,
-				Optional:            true,
-			},
-		},
+		Attributes: machineResourceAttributes(),
 	}
 }
 

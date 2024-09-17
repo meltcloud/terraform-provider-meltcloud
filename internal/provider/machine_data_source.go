@@ -47,7 +47,7 @@ func (d *MachineDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 
 		Attributes: map[string]schema.Attribute{
 			"uuid": schema.StringAttribute{
-				MarkdownDescription: machineUUIDDesc,
+				MarkdownDescription: machineResourceAttributes()["uuid"].GetMarkdownDescription(),
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
@@ -55,7 +55,7 @@ func (d *MachineDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				},
 			},
 			"id": schema.Int64Attribute{
-				MarkdownDescription: machineIDDesc,
+				MarkdownDescription: machineResourceAttributes()["id"].GetMarkdownDescription(),
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.Int64{
@@ -63,11 +63,11 @@ func (d *MachineDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: machineNameDesc,
+				MarkdownDescription: machineResourceAttributes()["name"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"machine_pool_id": schema.Int64Attribute{
-				MarkdownDescription: machineMachinePoolID,
+				MarkdownDescription: machineResourceAttributes()["machine_pool_id"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"status": schema.StringAttribute{

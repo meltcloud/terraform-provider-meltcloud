@@ -15,10 +15,13 @@ type MachinePoolResult struct {
 }
 
 type MachinePool struct {
-	ID           int64  `json:"id"`
-	Name         string `json:"name"`
-	UserVersion  string `json:"user_version"`
-	PatchVersion string `json:"patch_version"`
+	ID                    int64                  `json:"id"`
+	Name                  string                 `json:"name"`
+	UserVersion           string                 `json:"user_version"`
+	PatchVersion          string                 `json:"patch_version"`
+	PrimaryDiskDevice     string                 `json:"primary_disk_device"`
+	Status                string                 `json:"status"`
+	NetworkConfigurations []NetworkConfiguration `json:"network_configurations"`
 }
 
 type MachinePoolCreateInput struct {
@@ -32,7 +35,7 @@ type NetworkConfiguration struct {
 	Type       string `json:"net_type"`
 	Interfaces string `json:"interfaces"`
 	VLANMode   string `json:"vlan_mode"`
-	VLANS      string `json:"vlans"`
+	VLANs      string `json:"vlans"`
 }
 
 type MachinePoolUpdateInput struct {

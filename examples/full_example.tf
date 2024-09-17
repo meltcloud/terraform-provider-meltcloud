@@ -43,6 +43,24 @@ resource "meltcloud_machine_pool" "example" {
   name                = "pool1"
   version             = "1.29"
   primary_disk_device = "/dev/vda"
+
+  network_configuration {
+    type       = "bond"
+    interfaces = "eth*"
+    vlan_mode  = "trunk"
+    vlans      = "100,200"
+  }
+
+  network_configuration {
+    type       = "native"
+    interfaces = "ens0"
+    vlan_mode  = "default"
+  }
+}
+
+data "meltcloud_machine_pool" "example_id" {
+  cluster_id = meltcloud_cluster.example.id
+  id         = meltcloud_machine_pool.example.id
 }
 
 resource "meltcloud_machine" "node1" {
