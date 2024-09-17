@@ -80,8 +80,7 @@ func (p *MeltcloudProvider) Configure(ctx context.Context, req provider.Configur
 	if data.Endpoint.IsNull() {
 		var found bool
 		if endpoint, found = os.LookupEnv("MELTCLOUD_ENDPOINT"); !found {
-			resp.Diagnostics.AddError("Config Error", "either MELTCLOUD_ENDPOINT or endpoint in provider config must be set")
-			return
+			endpoint = "https://app.meltcloud.io"
 		}
 	} else {
 		endpoint = data.Endpoint.ValueString()
