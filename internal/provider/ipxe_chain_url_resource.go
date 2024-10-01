@@ -28,8 +28,8 @@ type IPXEChainURLResource struct {
 	client *client.Client
 }
 
-// IPXEBChainURLResourceModel describes the resource data model.
-type IPXEBChainURLResourceModel struct {
+// IPXEChainURLResourceModel describes the resource data model.
+type IPXEChainURLResourceModel struct {
 	ID        types.Int64       `tfsdk:"id"`
 	Name      types.String      `tfsdk:"name"`
 	ExpiresAt timetypes.RFC3339 `tfsdk:"expires_at"`
@@ -109,7 +109,7 @@ func (r *IPXEChainURLResource) Configure(ctx context.Context, req resource.Confi
 }
 
 func (r *IPXEChainURLResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data IPXEBChainURLResourceModel
+	var data IPXEChainURLResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
@@ -140,7 +140,7 @@ func (r *IPXEChainURLResource) Create(ctx context.Context, req resource.CreateRe
 }
 
 func (r *IPXEChainURLResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data IPXEBChainURLResourceModel
+	var data IPXEChainURLResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
@@ -163,7 +163,7 @@ func (r *IPXEChainURLResource) Update(ctx context.Context, req resource.UpdateRe
 }
 
 func (r *IPXEChainURLResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data IPXEBChainURLResourceModel
+	var data IPXEChainURLResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
