@@ -56,9 +56,11 @@ resource "local_sensitive_file" "ipxe_iso" {
 
 ### Read-Only
 
-- `download_url_efi` (String, Sensitive) URL to download the EFI boot artifact
+- `download_url_efi_amd64` (String, Sensitive) URL to download the amd64 EFI boot artifact
+- `download_url_efi_arm64` (String, Sensitive) URL to download the arm64 EFI boot artifact
 - `download_url_iso` (String, Sensitive) URL to download the ISO
 - `download_url_pxe` (String, Sensitive) URL to download the PCBIOS artifact (.undionly)
+- `download_url_raw_amd64` (String, Sensitive) URL to download the amd64 RAW boot artifact
 - `id` (Number) Internal ID of the iPXE Boot Artifact
 
 ## Import
