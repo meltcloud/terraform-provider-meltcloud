@@ -110,6 +110,7 @@ func (p *MeltcloudProvider) Resources(ctx context.Context) []func() resource.Res
 		NewMachineResource,
 		NewIPXEBootArtifactResource,
 		NewIPXEChainURLResource,
+		NewUEFIHTTPBootURLResource,
 	}
 }
 
@@ -120,6 +121,7 @@ func (p *MeltcloudProvider) DataSources(ctx context.Context) []func() datasource
 		NewMachineDataSource,
 		NewiPXEBootArtifactDataSource,
 		NewiPXEChainURLDataSource,
+		NewUEFIHTTPBootURLDataSource,
 	}
 }
 

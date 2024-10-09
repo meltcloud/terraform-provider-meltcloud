@@ -36,6 +36,24 @@ data "meltcloud_ipxe_boot_artifact" "example_name" {
   name = meltcloud_ipxe_boot_artifact.example.name
 }
 
+resource "meltcloud_uefi_http_boot_url" "example" {
+  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
+  protocols             = "http_and_https"
+
+  name       = "my-boot-url"
+  expires_at = time_offset.in_a_year.rfc3339
+}
+
+data "meltcloud_uefi_http_boot_url" "example_id" {
+  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
+  id                    = meltcloud_uefi_http_boot_url.example.id
+}
+
+data "meltcloud_uefi_http_boot_url" "example_name" {
+  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
+  name                  = meltcloud_uefi_http_boot_url.example.name
+}
+
 resource "meltcloud_ipxe_chain_url" "example" {
   name       = "my-chain-url"
   expires_at = time_offset.in_a_year.rfc3339
