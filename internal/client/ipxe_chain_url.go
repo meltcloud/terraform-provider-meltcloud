@@ -12,7 +12,6 @@ type IPXEChainURLRequest struct {
 
 type IPXEChainURLResult struct {
 	IPXEChainURL *IPXEChainURL `json:"ipxe_chain_url"`
-	Operation    *Operation    `json:"operation,omitempty"`
 }
 
 type IPXEChainURLsResult struct {
