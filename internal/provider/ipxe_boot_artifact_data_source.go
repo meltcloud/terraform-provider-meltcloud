@@ -34,9 +34,9 @@ type IPXEBootArtifactDataSourceModel struct {
 	ExpiresAt           timetypes.RFC3339 `tfsdk:"expires_at"`
 	DownloadURLISO      types.String      `tfsdk:"download_url_iso"`
 	DownloadURLPXE      types.String      `tfsdk:"download_url_pxe"`
-	DownloadURLEFIAmd64 types.String      `tfsdk:"download_url_efi_amd64"`
-	DownloadURLEFIArm64 types.String      `tfsdk:"download_url_efi_arm64"`
-	DownloadURLRawAmd64 types.String      `tfsdk:"download_url_raw_amd64"`
+	DownloadURLEFIAMD64 types.String      `tfsdk:"download_url_efi_amd64"`
+	DownloadURLEFIARM64 types.String      `tfsdk:"download_url_efi_arm64"`
+	DownloadURLRawAMD64 types.String      `tfsdk:"download_url_raw_amd64"`
 }
 
 func (d *IPXEBootArtifactDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -163,9 +163,9 @@ func (d *IPXEBootArtifactDataSource) Read(ctx context.Context, req datasource.Re
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(iPXEBootArtifact.ExpiresAt)
 	data.DownloadURLISO = types.StringValue(iPXEBootArtifact.DownloadURLISO)
 	data.DownloadURLPXE = types.StringValue(iPXEBootArtifact.DownloadURLPXE)
-	data.DownloadURLEFIAmd64 = types.StringValue(iPXEBootArtifact.DownloadURLEFIAmd64)
-	data.DownloadURLEFIArm64 = types.StringValue(iPXEBootArtifact.DownloadURLEFIArm64)
-	data.DownloadURLRawAmd64 = types.StringValue(iPXEBootArtifact.DownloadURLRawAmd64)
+	data.DownloadURLEFIAMD64 = types.StringValue(iPXEBootArtifact.DownloadURLEFIAMD64)
+	data.DownloadURLEFIARM64 = types.StringValue(iPXEBootArtifact.DownloadURLEFIARM64)
+	data.DownloadURLRawAMD64 = types.StringValue(iPXEBootArtifact.DownloadURLRawAMD64)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

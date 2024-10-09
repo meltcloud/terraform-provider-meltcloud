@@ -26,9 +26,9 @@ type IPXEBootArtifact struct {
 	Status              string    `json:"status"`
 	DownloadURLISO      string    `json:"download_url_iso"`
 	DownloadURLPXE      string    `json:"download_url_pxe"`
-	DownloadURLEFIAmd64 string    `json:"download_url_efi_amd64"`
-	DownloadURLEFIArm64 string    `json:"download_url_efi_arm64"`
-	DownloadURLRawAmd64 string    `json:"download_url_raw_amd64"`
+	DownloadURLEFIAMD64 string    `json:"download_url_efi_amd64"`
+	DownloadURLEFIARM64 string    `json:"download_url_efi_arm64"`
+	DownloadURLRawAMD64 string    `json:"download_url_raw_amd64"`
 }
 
 type IPXEBootArtifactCreateInput struct {
