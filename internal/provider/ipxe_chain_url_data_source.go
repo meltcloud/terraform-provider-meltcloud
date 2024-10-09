@@ -16,18 +16,18 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ datasource.DataSource = &iPXEChainURLDataSource{}
+var _ datasource.DataSource = &IPXEChainURLDataSource{}
 
-func NewiPXEChainURLDataSource() datasource.DataSource {
-	return &iPXEChainURLDataSource{}
+func NewIPXEChainURLDataSource() datasource.DataSource {
+	return &IPXEChainURLDataSource{}
 }
 
-// iPXEChainURLDataSource defines the data source implementation.
-type iPXEChainURLDataSource struct {
+// IPXEChainURLDataSource defines the data source implementation.
+type IPXEChainURLDataSource struct {
 	client *client.Client
 }
 
-type iPXEChainURLDataSourceModel struct {
+type IPXEChainURLDataSourceModel struct {
 	ID        types.Int64       `tfsdk:"id"`
 	Name      types.String      `tfsdk:"name"`
 	ExpiresAt timetypes.RFC3339 `tfsdk:"expires_at"`
@@ -35,11 +35,11 @@ type iPXEChainURLDataSourceModel struct {
 	Script    types.String      `tfsdk:"script"`
 }
 
-func (d *iPXEChainURLDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *IPXEChainURLDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_ipxe_chain_url"
 }
 
-func (d *iPXEChainURLDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *IPXEChainURLDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: iPXEChainURLDesc,
 
@@ -79,7 +79,7 @@ func (d *iPXEChainURLDataSource) Schema(ctx context.Context, req datasource.Sche
 	}
 }
 
-func (d *iPXEChainURLDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *IPXEChainURLDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
@@ -99,8 +99,8 @@ func (d *iPXEChainURLDataSource) Configure(ctx context.Context, req datasource.C
 	d.client = client
 }
 
-func (d *iPXEChainURLDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data iPXEChainURLDataSourceModel
+func (d *IPXEChainURLDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data IPXEChainURLDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return

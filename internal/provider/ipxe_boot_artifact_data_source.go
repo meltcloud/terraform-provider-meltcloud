@@ -16,18 +16,18 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ datasource.DataSource = &iPXEBootArtifactDataSource{}
+var _ datasource.DataSource = &IPXEBootArtifactDataSource{}
 
-func NewiPXEBootArtifactDataSource() datasource.DataSource {
-	return &iPXEBootArtifactDataSource{}
+func NewIPXEBootArtifactDataSource() datasource.DataSource {
+	return &IPXEBootArtifactDataSource{}
 }
 
-// iPXEBootArtifactDataSource defines the data source implementation.
-type iPXEBootArtifactDataSource struct {
+// IPXEBootArtifactDataSource defines the data source implementation.
+type IPXEBootArtifactDataSource struct {
 	client *client.Client
 }
 
-type iPXEBootArtifactDataSourceModel struct {
+type IPXEBootArtifactDataSourceModel struct {
 	ID             types.Int64       `tfsdk:"id"`
 	Name           types.String      `tfsdk:"name"`
 	Status         types.String      `tfsdk:"status"`
@@ -37,11 +37,11 @@ type iPXEBootArtifactDataSourceModel struct {
 	DownloadURLEFI types.String      `tfsdk:"download_url_efi"`
 }
 
-func (d *iPXEBootArtifactDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *IPXEBootArtifactDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_ipxe_boot_artifact"
 }
 
-func (d *iPXEBootArtifactDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *IPXEBootArtifactDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: iPXEBootArtifactDesc,
 
@@ -90,7 +90,7 @@ func (d *iPXEBootArtifactDataSource) Schema(ctx context.Context, req datasource.
 	}
 }
 
-func (d *iPXEBootArtifactDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *IPXEBootArtifactDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
@@ -110,8 +110,8 @@ func (d *iPXEBootArtifactDataSource) Configure(ctx context.Context, req datasour
 	d.client = client
 }
 
-func (d *iPXEBootArtifactDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data iPXEBootArtifactDataSourceModel
+func (d *IPXEBootArtifactDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data IPXEBootArtifactDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
