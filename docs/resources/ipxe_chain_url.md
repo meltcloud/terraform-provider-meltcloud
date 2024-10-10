@@ -65,6 +65,6 @@ output "ipxe_chain_script" {
 Import is supported using the following syntax:
 
 ```shell
-# Resource can be imported by specifying the numeric identifier.
-terraform import meltcloud_ipxe_chain_url.example 123
+# Resource can be imported by using the resource path as displayed in the URL
+terraform import meltcloud_ipxe_chain_url.example ipxe_chain_urls/1
 ```

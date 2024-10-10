@@ -73,6 +73,6 @@ resource "meltcloud_machine" "node2" {
 Import is supported using the following syntax:
 
 ```shell
-# Resource can be imported by specifying the numeric identifier.
-terraform import meltcloud_machine.example 123
+# Resource can be imported by using the resource path as displayed in the URL
+terraform import meltcloud_machine.example machines/123
 ```
