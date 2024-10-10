@@ -97,7 +97,7 @@ func networkConfigurationResourceAttributes() map[string]schema.Attribute {
 
 		"interfaces": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "Interface name (for network type native), wildcard or comma-separated list of interfaces (for network type bond)",
+			MarkdownDescription: "Interface name (for network type native), wildcard or space-separated list of interfaces (for network type bond)",
 		},
 
 		"vlan_mode": schema.StringAttribute{

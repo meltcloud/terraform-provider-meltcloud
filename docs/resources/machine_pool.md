@@ -66,7 +66,7 @@ resource "meltcloud_machine_pool" "example" {
 
 Required:
 
-- `interfaces` (String) Interface name (for network type native), wildcard or comma-separated list of interfaces (for network type bond)
+- `interfaces` (String) Interface name (for network type native), wildcard or space-separated list of interfaces (for network type bond)
 - `type` (String) The network type - must be 'native' or 'bond'
 - `vlan_mode` (String) The VLAN mode - must be 'default' or 'trunk'
 
