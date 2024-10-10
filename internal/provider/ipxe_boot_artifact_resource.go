@@ -32,12 +32,14 @@ type IPXEBootArtifactResource struct {
 
 // IPXEBootArtifactResourceModel describes the resource data model.
 type IPXEBootArtifactResourceModel struct {
-	ID             types.Int64       `tfsdk:"id"`
-	Name           types.String      `tfsdk:"name"`
-	ExpiresAt      timetypes.RFC3339 `tfsdk:"expires_at"`
-	DownloadURLISO types.String      `tfsdk:"download_url_iso"`
-	DownloadURLPXE types.String      `tfsdk:"download_url_pxe"`
-	DownloadURLEFI types.String      `tfsdk:"download_url_efi"`
+	ID                  types.Int64       `tfsdk:"id"`
+	Name                types.String      `tfsdk:"name"`
+	ExpiresAt           timetypes.RFC3339 `tfsdk:"expires_at"`
+	DownloadURLISO      types.String      `tfsdk:"download_url_iso"`
+	DownloadURLPXE      types.String      `tfsdk:"download_url_pxe"`
+	DownloadURLEFIAMD64 types.String      `tfsdk:"download_url_efi_amd64"`
+	DownloadURLEFIARM64 types.String      `tfsdk:"download_url_efi_arm64"`
+	DownloadURLRawAMD64 types.String      `tfsdk:"download_url_raw_amd64"`
 }
 
 func (r *IPXEBootArtifactResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -80,8 +82,18 @@ func iPXEBootArtifactResourceAttributes() map[string]schema.Attribute {
 			Computed:            true,
 			Sensitive:           true,
 		},
-		"download_url_efi": schema.StringAttribute{
-			MarkdownDescription: "URL to download the EFI boot artifact",
+		"download_url_efi_amd64": schema.StringAttribute{
+			MarkdownDescription: "URL to download the amd64 EFI boot artifact",
+			Computed:            true,
+			Sensitive:           true,
+		},
+		"download_url_efi_arm64": schema.StringAttribute{
+			MarkdownDescription: "URL to download the arm64 EFI boot artifact",
+			Computed:            true,
+			Sensitive:           true,
+		},
+		"download_url_raw_amd64": schema.StringAttribute{
+			MarkdownDescription: "URL to download the amd64 Raw boot artifact",
 			Computed:            true,
 			Sensitive:           true,
 		},
@@ -130,12 +142,12 @@ func (r *IPXEBootArtifactResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	ipxeBootArtifactCreateInput := &client.IPXEBootArtifactCreateInput{
+	iPXEBootArtifactCreateInput := &client.IPXEBootArtifactCreateInput{
 		ExpiresAt: expiresAt.UTC(),
 		Name:      name,
 	}
 
-	result, err := r.client.IPXEBootArtifact().Create(ctx, ipxeBootArtifactCreateInput)
+	result, err := r.client.IPXEBootArtifact().Create(ctx, iPXEBootArtifactCreateInput)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create ipxe boot artifact, got error: %s", err))
 		return
@@ -160,7 +172,9 @@ func (r *IPXEBootArtifactResource) Create(ctx context.Context, req resource.Crea
 	data.ID = types.Int64Value(result.IPXEBootArtifact.ID)
 	data.DownloadURLISO = types.StringValue(result.IPXEBootArtifact.DownloadURLISO)
 	data.DownloadURLPXE = types.StringValue(result.IPXEBootArtifact.DownloadURLPXE)
-	data.DownloadURLEFI = types.StringValue(result.IPXEBootArtifact.DownloadURLEFI)
+	data.DownloadURLEFIAMD64 = types.StringValue(result.IPXEBootArtifact.DownloadURLEFIAMD64)
+	data.DownloadURLEFIARM64 = types.StringValue(result.IPXEBootArtifact.DownloadURLEFIARM64)
+	data.DownloadURLRawAMD64 = types.StringValue(result.IPXEBootArtifact.DownloadURLRawAMD64)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -183,7 +197,9 @@ func (r *IPXEBootArtifactResource) Read(ctx context.Context, req resource.ReadRe
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(result.IPXEBootArtifact.ExpiresAt.UTC())
 	data.DownloadURLISO = types.StringValue(result.IPXEBootArtifact.DownloadURLISO)
 	data.DownloadURLPXE = types.StringValue(result.IPXEBootArtifact.DownloadURLPXE)
-	data.DownloadURLEFI = types.StringValue(result.IPXEBootArtifact.DownloadURLEFI)
+	data.DownloadURLEFIAMD64 = types.StringValue(result.IPXEBootArtifact.DownloadURLEFIAMD64)
+	data.DownloadURLEFIARM64 = types.StringValue(result.IPXEBootArtifact.DownloadURLEFIARM64)
+	data.DownloadURLRawAMD64 = types.StringValue(result.IPXEBootArtifact.DownloadURLRawAMD64)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

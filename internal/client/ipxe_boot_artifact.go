@@ -20,13 +20,15 @@ type IPXEBootArtifactsResult struct {
 }
 
 type IPXEBootArtifact struct {
-	ID             int64     `json:"id"`
-	Name           string    `json:"name"`
-	ExpiresAt      time.Time `json:"expires_at"`
-	Status         string    `json:"status"`
-	DownloadURLISO string    `json:"download_url_iso"`
-	DownloadURLPXE string    `json:"download_url_pxe"`
-	DownloadURLEFI string    `json:"download_url_efi"`
+	ID                  int64     `json:"id"`
+	Name                string    `json:"name"`
+	ExpiresAt           time.Time `json:"expires_at"`
+	Status              string    `json:"status"`
+	DownloadURLISO      string    `json:"download_url_iso"`
+	DownloadURLPXE      string    `json:"download_url_pxe"`
+	DownloadURLEFIAMD64 string    `json:"download_url_efi_amd64"`
+	DownloadURLEFIARM64 string    `json:"download_url_efi_arm64"`
+	DownloadURLRawAMD64 string    `json:"download_url_raw_amd64"`
 }
 
 type IPXEBootArtifactCreateInput struct {

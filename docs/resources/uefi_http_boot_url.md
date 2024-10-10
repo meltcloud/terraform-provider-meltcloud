@@ -67,8 +67,10 @@ output "uefi_https_boot_url" {
 
 ### Read-Only
 
-- `http_url` (String, Sensitive) HTTP URL of the UEFI HTTP Boot URL. Is null if protocols is set to https_only.
-- `https_url` (String, Sensitive) HTTPS URL of the UEFI HTTP Boot URL. Is null if protocols is set to http_only.
+- `http_url_amd64` (String, Sensitive) HTTP URL of the UEFI HTTP Boot URL for the amd64 architecture. Is null if protocols is set to https_only.
+- `http_url_arm64` (String, Sensitive) HTTP URL of the UEFI HTTP Boot URL for the arm64 architecture. Is null if protocols is set to https_only.
+- `https_url_amd64` (String, Sensitive) HTTPS URL of the UEFI HTTP Boot URL for the amd64 architecture. Is null if protocols is set to http_only.
+- `https_url_arm64` (String, Sensitive) HTTPS URL of the UEFI HTTP Boot URL for the arm64 architecture. Is null if protocols is set to http_only.
 - `id` (Number) Internal ID of the UEFI HTTP Boot URL on meltcloud
 
 ## Import

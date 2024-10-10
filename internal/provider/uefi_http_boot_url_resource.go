@@ -35,11 +35,13 @@ type UEFIHTTPBootURLResourceModel struct {
 	ID                 types.Int64 `tfsdk:"id"`
 	IPXEBootArtifactID types.Int64 `tfsdk:"ipxe_boot_artifact_id"`
 
-	Name      types.String      `tfsdk:"name"`
-	ExpiresAt timetypes.RFC3339 `tfsdk:"expires_at"`
-	Protocols types.String      `tfsdk:"protocols"`
-	HTTPURL   types.String      `tfsdk:"http_url"`
-	HTTPSURL  types.String      `tfsdk:"https_url"`
+	Name          types.String      `tfsdk:"name"`
+	ExpiresAt     timetypes.RFC3339 `tfsdk:"expires_at"`
+	Protocols     types.String      `tfsdk:"protocols"`
+	HTTPURLAMD64  types.String      `tfsdk:"http_url_amd64"`
+	HTTPURLARM64  types.String      `tfsdk:"http_url_arm64"`
+	HTTPSURLAMD64 types.String      `tfsdk:"https_url_amd64"`
+	HTTPSURLARM64 types.String      `tfsdk:"https_url_arm64"`
 }
 
 func (r *UEFIHTTPBootURLResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -86,13 +88,23 @@ func uefiHTTPBootURLResourceAttributes() map[string]schema.Attribute {
 				stringplanmodifier.RequiresReplace(),
 			},
 		},
-		"http_url": schema.StringAttribute{
-			MarkdownDescription: "HTTP URL of the UEFI HTTP Boot URL. Is null if protocols is set to https_only.",
+		"http_url_amd64": schema.StringAttribute{
+			MarkdownDescription: "HTTP URL of the UEFI HTTP Boot URL for the amd64 architecture. Is null if protocols is set to https_only.",
 			Computed:            true,
 			Sensitive:           true,
 		},
-		"https_url": schema.StringAttribute{
-			MarkdownDescription: "HTTPS URL of the UEFI HTTP Boot URL. Is null if protocols is set to http_only.",
+		"http_url_arm64": schema.StringAttribute{
+			MarkdownDescription: "HTTP URL of the UEFI HTTP Boot URL for the arm64 architecture. Is null if protocols is set to https_only.",
+			Computed:            true,
+			Sensitive:           true,
+		},
+		"https_url_amd64": schema.StringAttribute{
+			MarkdownDescription: "HTTPS URL of the UEFI HTTP Boot URL for the amd64 architecture. Is null if protocols is set to http_only.",
+			Computed:            true,
+			Sensitive:           true,
+		},
+		"https_url_arm64": schema.StringAttribute{
+			MarkdownDescription: "HTTPS URL of the UEFI HTTP Boot URL for the arm64 architecture. Is null if protocols is set to http_only.",
 			Computed:            true,
 			Sensitive:           true,
 		},
@@ -153,8 +165,10 @@ func (r *UEFIHTTPBootURLResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	data.ID = types.Int64Value(result.UEFIHTTPBootURL.ID)
-	data.HTTPURL = types.StringValue(result.UEFIHTTPBootURL.HTTPURL)
-	data.HTTPSURL = types.StringValue(result.UEFIHTTPBootURL.HTTPSURL)
+	data.HTTPURLAMD64 = types.StringValue(result.UEFIHTTPBootURL.HTTPURLAMD64)
+	data.HTTPURLARM64 = types.StringValue(result.UEFIHTTPBootURL.HTTPURLARM64)
+	data.HTTPSURLAMD64 = types.StringValue(result.UEFIHTTPBootURL.HTTPSURLAMD64)
+	data.HTTPSURLARM64 = types.StringValue(result.UEFIHTTPBootURL.HTTPSURLARM64)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -176,8 +190,10 @@ func (r *UEFIHTTPBootURLResource) Read(ctx context.Context, req resource.ReadReq
 	data.Name = types.StringValue(result.UEFIHTTPBootURL.Name)
 	data.Protocols = types.StringValue(result.UEFIHTTPBootURL.Protocols)
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(result.UEFIHTTPBootURL.ExpiresAt.UTC())
-	data.HTTPURL = types.StringValue(result.UEFIHTTPBootURL.HTTPURL)
-	data.HTTPSURL = types.StringValue(result.UEFIHTTPBootURL.HTTPSURL)
+	data.HTTPURLAMD64 = types.StringValue(result.UEFIHTTPBootURL.HTTPURLAMD64)
+	data.HTTPURLARM64 = types.StringValue(result.UEFIHTTPBootURL.HTTPURLARM64)
+	data.HTTPSURLAMD64 = types.StringValue(result.UEFIHTTPBootURL.HTTPSURLAMD64)
+	data.HTTPSURLARM64 = types.StringValue(result.UEFIHTTPBootURL.HTTPSURLARM64)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

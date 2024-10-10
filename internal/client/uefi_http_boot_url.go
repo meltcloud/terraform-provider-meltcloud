@@ -19,12 +19,14 @@ type UEFIHTTPBootURLsResult struct {
 }
 
 type UEFIHTTPBootURL struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Protocols string    `json:"protocols"`
-	HTTPURL   string    `json:"http_url"`
-	HTTPSURL  string    `json:"https_url"`
+	ID            int64     `json:"id"`
+	Name          string    `json:"name"`
+	ExpiresAt     time.Time `json:"expires_at"`
+	Protocols     string    `json:"protocols"`
+	HTTPURLAMD64  string    `json:"http_url_amd64"`
+	HTTPSURLAMD64 string    `json:"https_url_amd64"`
+	HTTPURLARM64  string    `json:"http_url_arm64"`
+	HTTPSURLARM64 string    `json:"https_url_arm64"`
 }
 
 type UEFIHTTPBootURLCreateInput struct {

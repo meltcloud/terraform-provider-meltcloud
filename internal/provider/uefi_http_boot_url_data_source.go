@@ -31,11 +31,13 @@ type UEFIHTTPBootURLDataSourceModel struct {
 	ID                 types.Int64 `tfsdk:"id"`
 	IPXEBootArtifactID types.Int64 `tfsdk:"ipxe_boot_artifact_id"`
 
-	Name      types.String      `tfsdk:"name"`
-	ExpiresAt timetypes.RFC3339 `tfsdk:"expires_at"`
-	Protocols types.String      `tfsdk:"protocols"`
-	HTTPURL   types.String      `tfsdk:"http_url"`
-	HTTPSURL  types.String      `tfsdk:"https_url"`
+	Name          types.String      `tfsdk:"name"`
+	ExpiresAt     timetypes.RFC3339 `tfsdk:"expires_at"`
+	Protocols     types.String      `tfsdk:"protocols"`
+	HTTPURLAMD64  types.String      `tfsdk:"http_url_amd64"`
+	HTTPURLARM64  types.String      `tfsdk:"http_url_arm64"`
+	HTTPSURLAMD64 types.String      `tfsdk:"https_url_amd64"`
+	HTTPSURLARM64 types.String      `tfsdk:"https_url_arm64"`
 }
 
 func (d *UEFIHTTPBootURLDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -76,13 +78,23 @@ func (d *UEFIHTTPBootURLDataSource) Schema(ctx context.Context, req datasource.S
 				MarkdownDescription: uefiHTTPBootURLResourceAttributes()["expires_at"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"http_url": schema.StringAttribute{
-				MarkdownDescription: uefiHTTPBootURLResourceAttributes()["http_url"].GetMarkdownDescription(),
+			"http_url_amd64": schema.StringAttribute{
+				MarkdownDescription: uefiHTTPBootURLResourceAttributes()["http_url_amd64"].GetMarkdownDescription(),
 				Computed:            true,
 				Sensitive:           true,
 			},
-			"https_url": schema.StringAttribute{
-				MarkdownDescription: uefiHTTPBootURLResourceAttributes()["https_url"].GetMarkdownDescription(),
+			"http_url_arm64": schema.StringAttribute{
+				MarkdownDescription: uefiHTTPBootURLResourceAttributes()["http_url_arm64"].GetMarkdownDescription(),
+				Computed:            true,
+				Sensitive:           true,
+			},
+			"https_url_amd64": schema.StringAttribute{
+				MarkdownDescription: uefiHTTPBootURLResourceAttributes()["https_url_amd64"].GetMarkdownDescription(),
+				Computed:            true,
+				Sensitive:           true,
+			},
+			"https_url_arm64": schema.StringAttribute{
+				MarkdownDescription: uefiHTTPBootURLResourceAttributes()["https_url_arm64"].GetMarkdownDescription(),
 				Computed:            true,
 				Sensitive:           true,
 			},
@@ -149,8 +161,10 @@ func (d *UEFIHTTPBootURLDataSource) Read(ctx context.Context, req datasource.Rea
 	data.Name = types.StringValue(uefiHTTPBootURL.Name)
 	data.Protocols = types.StringValue(uefiHTTPBootURL.Protocols)
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(uefiHTTPBootURL.ExpiresAt)
-	data.HTTPURL = types.StringValue(uefiHTTPBootURL.HTTPURL)
-	data.HTTPSURL = types.StringValue(uefiHTTPBootURL.HTTPSURL)
+	data.HTTPURLAMD64 = types.StringValue(uefiHTTPBootURL.HTTPURLAMD64)
+	data.HTTPURLARM64 = types.StringValue(uefiHTTPBootURL.HTTPURLARM64)
+	data.HTTPSURLAMD64 = types.StringValue(uefiHTTPBootURL.HTTPSURLAMD64)
+	data.HTTPSURLARM64 = types.StringValue(uefiHTTPBootURL.HTTPSURLARM64)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
