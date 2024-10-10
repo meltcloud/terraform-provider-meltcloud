@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"regexp"
+	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
@@ -171,6 +173,9 @@ func (r *UEFIHTTPBootURLResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
+	data.Name = types.StringValue(result.UEFIHTTPBootURL.Name)
+	data.Protocols = types.StringValue(result.UEFIHTTPBootURL.Protocols)
+	data.ExpiresAt = timetypes.NewRFC3339TimeValue(result.UEFIHTTPBootURL.ExpiresAt.UTC())
 	data.HTTPURL = types.StringValue(result.UEFIHTTPBootURL.HTTPURL)
 	data.HTTPSURL = types.StringValue(result.UEFIHTTPBootURL.HTTPSURL)
 
@@ -196,6 +201,31 @@ func (r *UEFIHTTPBootURLResource) Delete(ctx context.Context, req resource.Delet
 	}
 }
 
+var uefiHTTPBootURLImportIDPattern = regexp.MustCompile(`ipxe_boot_artifacts/(\d+)/uefi_http_boot_urls/(\d+)`)
+
 func (r *UEFIHTTPBootURLResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	match := uefiHTTPBootURLImportIDPattern.FindStringSubmatch(req.ID)
+	if len(match) != 3 {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("ID does not follow format: %s", uefiHTTPBootURLImportIDPattern.String()))
+		return
+	}
+
+	ipxeBootArtifactID, err := strconv.ParseInt(match[1], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Invalid ipxe boot artifact ID: %s", err))
+		return
+	}
+
+	id, err := strconv.ParseInt(match[2], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Invalid ID: %s", err))
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("ipxe_boot_artifact_id"), ipxeBootArtifactID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

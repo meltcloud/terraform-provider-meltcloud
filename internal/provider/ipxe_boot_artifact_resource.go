@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"regexp"
+	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
@@ -177,6 +179,8 @@ func (r *IPXEBootArtifactResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
+	data.Name = types.StringValue(result.IPXEBootArtifact.Name)
+	data.ExpiresAt = timetypes.NewRFC3339TimeValue(result.IPXEBootArtifact.ExpiresAt.UTC())
 	data.DownloadURLISO = types.StringValue(result.IPXEBootArtifact.DownloadURLISO)
 	data.DownloadURLPXE = types.StringValue(result.IPXEBootArtifact.DownloadURLPXE)
 	data.DownloadURLEFI = types.StringValue(result.IPXEBootArtifact.DownloadURLEFI)
@@ -203,6 +207,24 @@ func (r *IPXEBootArtifactResource) Delete(ctx context.Context, req resource.Dele
 	}
 }
 
+var iPXEBootArtifactImportIDPattern = regexp.MustCompile(`ipxe_boot_artifacts/(\d+)`)
+
 func (r *IPXEBootArtifactResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	match := iPXEBootArtifactImportIDPattern.FindStringSubmatch(req.ID)
+	if len(match) != 2 {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("ID does not follow format: %s", iPXEBootArtifactImportIDPattern.String()))
+		return
+	}
+
+	id, err := strconv.ParseInt(match[1], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Invalid ID: %s", err))
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

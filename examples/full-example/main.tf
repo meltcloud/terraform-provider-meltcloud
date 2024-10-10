@@ -41,7 +41,7 @@ resource "meltcloud_uefi_http_boot_url" "example" {
   protocols             = "http_and_https"
 
   name       = "my-boot-url"
-  expires_at = time_offset.in_a_year.rfc3339
+  expires_at = time_offset.in_a_year.base_rfc3339
 }
 
 data "meltcloud_uefi_http_boot_url" "example_id" {

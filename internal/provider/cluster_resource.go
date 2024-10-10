@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"regexp"
+	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 	"terraform-provider-meltcloud/internal/kubernetes"
 )
@@ -195,6 +197,8 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	data.ID = types.Int64Value(clusterGetResult.Cluster.ID)
+	data.Name = types.StringValue(clusterGetResult.Cluster.Name)
+	data.Version = types.StringValue(clusterGetResult.Cluster.UserVersion)
 	data.PatchVersion = types.StringValue(clusterGetResult.Cluster.PatchVersion)
 	data.KubeConfigRaw = types.StringValue(clusterGetResult.Cluster.KubeConfig)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -226,6 +230,9 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.Name = types.StringValue(result.Cluster.Name)
 	data.Version = types.StringValue(result.Cluster.UserVersion)
 	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
+	data.PodCIDR = types.StringValue(result.Cluster.PodCIDR)
+	data.ServiceCIDR = types.StringValue(result.Cluster.ServiceCIDR)
+	data.DNSServiceIP = types.StringValue(result.Cluster.DNSServiceIP)
 	data.KubeConfigRaw = types.StringValue(result.Cluster.KubeConfig)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
@@ -308,6 +315,24 @@ func (r *ClusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 }
 
+var clusterImportIDPattern = regexp.MustCompile(`clusters/(\d+)`)
+
 func (r *ClusterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	match := clusterImportIDPattern.FindStringSubmatch(req.ID)
+	if len(match) != 2 {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("ID does not follow format: %s", clusterImportIDPattern.String()))
+		return
+	}
+
+	id, err := strconv.ParseInt(match[1], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Invalid ID: %s", err))
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"regexp"
+	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
@@ -153,7 +155,10 @@ func (r *IPXEChainURLResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
+	data.Name = types.StringValue(result.IPXEChainURL.Name)
+	data.ExpiresAt = timetypes.NewRFC3339TimeValue(result.IPXEChainURL.ExpiresAt.UTC())
 	data.URL = types.StringValue(result.IPXEChainURL.URL)
+	data.Script = types.StringValue(result.IPXEChainURL.Script)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -177,6 +182,24 @@ func (r *IPXEChainURLResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 }
 
+var iPXEChainURLImportIDPattern = regexp.MustCompile(`ipxe_chain_urls/(\d+)`)
+
 func (r *IPXEChainURLResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	match := iPXEChainURLImportIDPattern.FindStringSubmatch(req.ID)
+	if len(match) != 2 {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("ID does not follow format: %s", iPXEChainURLImportIDPattern.String()))
+		return
+	}
+
+	id, err := strconv.ParseInt(match[1], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Invalid ID: %s", err))
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

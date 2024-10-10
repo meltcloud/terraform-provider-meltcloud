@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"regexp"
+	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -144,6 +146,7 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
+	data.UUID = types.StringValue(result.Machine.UUID.String())
 	data.Name = types.StringValue(result.Machine.Name)
 	data.MachinePoolID = types.Int64Value(result.Machine.MachinePoolID)
 
@@ -201,6 +204,24 @@ func (r *MachineResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 }
 
+var machineImportIDPattern = regexp.MustCompile(`machines/(\d+)`)
+
 func (r *MachineResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	match := machineImportIDPattern.FindStringSubmatch(req.ID)
+	if len(match) != 2 {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("ID does not follow format: %s", machineImportIDPattern.String()))
+		return
+	}
+
+	id, err := strconv.ParseInt(match[1], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Invalid ID: %s", err))
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"regexp"
+	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -210,8 +212,24 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	data.Name = types.StringValue(result.MachinePool.Name)
+	data.PrimaryDiskDevice = types.StringValue(result.MachinePool.PrimaryDiskDevice)
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
+
+	var networkConfigurations []NetworkConfigurationResourceModel
+	for _, networkConfiguration := range result.MachinePool.NetworkConfigurations {
+		networkConfigurations = append(networkConfigurations, NetworkConfigurationResourceModel{
+			Type:       types.StringValue(networkConfiguration.Type),
+			Interfaces: types.StringValue(networkConfiguration.Interfaces),
+			VLANMode:   types.StringValue(networkConfiguration.VLANMode),
+			VLANs:      types.StringValue(networkConfiguration.VLANs),
+		})
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_configuration"), networkConfigurations)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -279,6 +297,31 @@ func (r *MachinePoolResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 }
 
+var machinePoolImportIDPattern = regexp.MustCompile(`clusters/(\d+)/machine_pools/(\d+)`)
+
 func (r *MachinePoolResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	match := machinePoolImportIDPattern.FindStringSubmatch(req.ID)
+	if len(match) != 3 {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("ID does not follow format: %s", machinePoolImportIDPattern.String()))
+		return
+	}
+
+	clusterID, err := strconv.ParseInt(match[1], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Invalid cluster ID: %s", err))
+		return
+	}
+
+	id, err := strconv.ParseInt(match[2], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Invalid ID: %s", err))
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("cluster_id"), clusterID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
