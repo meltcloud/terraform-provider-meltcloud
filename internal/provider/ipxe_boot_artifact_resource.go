@@ -142,12 +142,12 @@ func (r *IPXEBootArtifactResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	ipxeBootArtifactCreateInput := &client.IPXEBootArtifactCreateInput{
+	iPXEBootArtifactCreateInput := &client.IPXEBootArtifactCreateInput{
 		ExpiresAt: expiresAt.UTC(),
 		Name:      name,
 	}
 
-	result, err := r.client.IPXEBootArtifact().Create(ctx, ipxeBootArtifactCreateInput)
+	result, err := r.client.IPXEBootArtifact().Create(ctx, iPXEBootArtifactCreateInput)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create ipxe boot artifact, got error: %s", err))
 		return
