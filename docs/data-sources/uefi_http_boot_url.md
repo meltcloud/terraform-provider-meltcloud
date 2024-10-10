@@ -41,6 +41,8 @@ data "meltcloud_uefi_http_boot_url" "example_name" {
 ### Read-Only
 
 - `expires_at` (String) Timestamp when the URL should expire
-- `http_url` (String, Sensitive) HTTP URL of the UEFI HTTP Boot URL. Is null if protocols is set to https_only.
-- `https_url` (String, Sensitive) HTTPS URL of the UEFI HTTP Boot URL. Is null if protocols is set to http_only.
+- `http_url_amd64` (String, Sensitive) HTTP URL of the UEFI HTTP Boot URL for the amd64 architecture. Is null if protocols is set to https_only.
+- `http_url_arm64` (String, Sensitive) HTTP URL of the UEFI HTTP Boot URL for the arm64 architecture. Is null if protocols is set to https_only.
+- `https_url_amd64` (String, Sensitive) HTTPS URL of the UEFI HTTP Boot URL for the amd64 architecture. Is null if protocols is set to http_only.
+- `https_url_arm64` (String, Sensitive) HTTPS URL of the UEFI HTTP Boot URL for the arm64 architecture. Is null if protocols is set to http_only.
 - `protocols` (String) Protocols to support. Must be either http_only, https_only or http_and_https.
