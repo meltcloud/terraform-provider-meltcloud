@@ -28,4 +28,14 @@ resource "meltcloud_machine" "node1" {
 resource "meltcloud_machine" "node2" {
   uuid = "8d8fd677-db06-4acf-ac34-920b950ddbe5"
   name = "meltcloud-node02"
+
+  label {
+    key   = "topology.kubernetes.io/region"
+    value = "ch"
+  }
+
+  label {
+    key   = "topology.kubernetes.io/zone"
+    value = "az1"
+  }
 }

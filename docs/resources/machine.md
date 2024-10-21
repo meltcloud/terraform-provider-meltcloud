@@ -49,6 +49,16 @@ resource "meltcloud_machine" "node1" {
 resource "meltcloud_machine" "node2" {
   uuid = "8d8fd677-db06-4acf-ac34-920b950ddbe5"
   name = "meltcloud-node02"
+
+  label {
+    key   = "topology.kubernetes.io/region"
+    value = "ch"
+  }
+
+  label {
+    key   = "topology.kubernetes.io/zone"
+    value = "az1"
+  }
 }
 ```
 
@@ -61,12 +71,21 @@ resource "meltcloud_machine" "node2" {
 
 ### Optional
 
+- `label` (Block List) (see [below for nested schema](#nestedblock--label))
 - `machine_pool_id` (Number) ID of the associated machine pool
 - `name` (String) Name of the Machine
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the Machine in meltcloud
+
+<a id="nestedblock--label"></a>
+### Nested Schema for `label`
+
+Required:
+
+- `key` (String) The key of the label, for example 'topology.kubernetes.io/zone'
+- `value` (String) The value of the label, for example 'my-zone-1'
 
 ## Import
 

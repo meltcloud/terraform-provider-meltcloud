@@ -122,6 +122,16 @@ resource "meltcloud_machine" "node1" {
   name = "meltcloud-node01"
 
   machine_pool_id = meltcloud_machine_pool.example.id
+
+  label {
+    key   = "topology.kubernetes.io/region"
+    value = "ch"
+  }
+
+  label {
+    key   = "topology.kubernetes.io/zone"
+    value = "az3"
+  }
 }
 
 data "meltcloud_machine" "example_id" {

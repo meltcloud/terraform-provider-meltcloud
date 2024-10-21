@@ -25,17 +25,25 @@ type Machine struct {
 	Name          string    `json:"name,omitempty"`
 	Status        string    `json:"status"`
 	MachinePoolID int64     `json:"machine_pool_id,omitempty"`
+	Labels        []Label   `json:"labels,omitempty"`
 }
 
 type MachineCreateInput struct {
 	UUID          uuid.UUID `json:"uuid"`
 	Name          string    `json:"name,omitempty"`
 	MachinePoolID int64     `json:"machine_pool_id,omitempty"`
+	Labels        []Label   `json:"labels,omitempty"`
+}
+
+type Label struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type MachineUpdateInput struct {
-	Name          string `json:"name,omitempty"`
-	MachinePoolID int64  `json:"machine_pool_id,omitempty"`
+	Name          string  `json:"name,omitempty"`
+	MachinePoolID int64   `json:"machine_pool_id,omitempty"`
+	Labels        []Label `json:"labels,omitempty"`
 }
 
 func (c *Client) Machine() *MachineRequest {

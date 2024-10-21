@@ -31,10 +31,16 @@ type MachineDataSource struct {
 type MachineDataSourceModel struct {
 	UUID types.String `tfsdk:"uuid"`
 
-	ID            types.Int64  `tfsdk:"id"`
-	Name          types.String `tfsdk:"name"`
-	MachinePoolID types.Int64  `tfsdk:"machine_pool_id"`
-	Status        types.String `tfsdk:"status"`
+	ID            types.Int64            `tfsdk:"id"`
+	Name          types.String           `tfsdk:"name"`
+	MachinePoolID types.Int64            `tfsdk:"machine_pool_id"`
+	Status        types.String           `tfsdk:"status"`
+	Labels        []LabelDataSourceModel `tfsdk:"labels"`
+}
+
+type LabelDataSourceModel struct {
+	Key   types.String `tfsdk:"key"`
+	Value types.String `tfsdk:"value"`
 }
 
 func (d *MachineDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -73,6 +79,21 @@ func (d *MachineDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			"status": schema.StringAttribute{
 				MarkdownDescription: "Status of the Machine",
 				Computed:            true,
+			},
+			"labels": schema.ListNestedAttribute{
+				Computed: true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"key": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: labelResourceAttributes()["key"].GetMarkdownDescription(),
+						},
+						"value": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: labelResourceAttributes()["value"].GetMarkdownDescription(),
+						},
+					},
+				},
 			},
 		},
 	}
@@ -131,6 +152,13 @@ func (d *MachineDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Could not find machine by UUID %s", data.UUID.ValueString()))
 			return
 		}
+	}
+
+	for _, label := range machine.Labels {
+		data.Labels = append(data.Labels, LabelDataSourceModel{
+			Key:   types.StringValue(label.Key),
+			Value: types.StringValue(label.Value),
+		})
 	}
 
 	data.ID = types.Int64Value(machine.ID)

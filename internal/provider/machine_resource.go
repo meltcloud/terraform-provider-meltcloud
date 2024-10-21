@@ -36,6 +36,12 @@ type MachineResourceModel struct {
 	UUID          types.String `tfsdk:"uuid"`
 	Name          types.String `tfsdk:"name"`
 	MachinePoolID types.Int64  `tfsdk:"machine_pool_id"`
+	Labels        types.List   `tfsdk:"label"`
+}
+
+type LabelResourceModel struct {
+	Key   types.String `tfsdk:"key"`
+	Value types.String `tfsdk:"value"`
 }
 
 func (r *MachineResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -71,6 +77,20 @@ func machineResourceAttributes() map[string]schema.Attribute {
 	}
 }
 
+func labelResourceAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"key": schema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: "The key of the label, for example 'topology.kubernetes.io/zone'",
+		},
+
+		"value": schema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: "The value of the label, for example 'my-zone-1'",
+		},
+	}
+}
+
 func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machineDesc + "\n\n" +
@@ -78,6 +98,14 @@ func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest
 			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).",
 
 		Attributes: machineResourceAttributes(),
+
+		Blocks: map[string]schema.Block{
+			"label": schema.ListNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+					Attributes: labelResourceAttributes(),
+				},
+			},
+		},
 	}
 }
 
@@ -115,10 +143,18 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	var labels []LabelResourceModel
+	diags := data.Labels.ElementsAs(ctx, &labels, false)
+	resp.Diagnostics.Append(diags...)
+	if diags.HasError() {
+		return
+	}
+
 	machineCreateInput := &client.MachineCreateInput{
 		UUID:          uuid,
 		Name:          data.Name.ValueString(),
 		MachinePoolID: data.MachinePoolID.ValueInt64(),
+		Labels:        r.labelInput(labels),
 	}
 
 	result, err2 := r.client.Machine().Create(ctx, machineCreateInput)
@@ -155,6 +191,19 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.Name = types.StringValue(result.Machine.Name)
 	data.MachinePoolID = types.Int64Value(result.Machine.MachinePoolID)
 
+	var labels []LabelResourceModel
+	for _, label := range result.Machine.Labels {
+		labels = append(labels, LabelResourceModel{
+			Key:   types.StringValue(label.Key),
+			Value: types.StringValue(label.Value),
+		})
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("label"), labels)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -166,9 +215,17 @@ func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	var labels []LabelResourceModel
+	diags := data.Labels.ElementsAs(ctx, &labels, false)
+	resp.Diagnostics.Append(diags...)
+	if diags.HasError() {
+		return
+	}
+
 	machineUpdateInput := &client.MachineUpdateInput{
 		Name:          data.Name.ValueString(),
 		MachinePoolID: data.MachinePoolID.ValueInt64(),
+		Labels:        r.labelInput(labels),
 	}
 
 	result, err := r.client.Machine().Update(ctx, data.ID.ValueInt64(), machineUpdateInput)
@@ -229,4 +286,15 @@ func (r *MachineResource) ImportState(ctx context.Context, req resource.ImportSt
 	if resp.Diagnostics.HasError() {
 		return
 	}
+}
+
+func (r *MachineResource) labelInput(labels []LabelResourceModel) []client.Label {
+	var labelInput []client.Label
+	for _, label := range labels {
+		labelInput = append(labelInput, client.Label{
+			Key:   label.Key.ValueString(),
+			Value: label.Value.ValueString(),
+		})
+	}
+	return labelInput
 }
