@@ -151,6 +151,11 @@ func (r *IPXEChainURLResource) Read(ctx context.Context, req resource.ReadReques
 
 	result, err := r.client.IPXEChainURL().Get(ctx, data.ID.ValueInt64())
 	if err != nil {
+		if err.HTTPStatusCode == 404 {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read ipxe chain url, got error: %s", err))
 		return
 	}

@@ -189,6 +189,11 @@ func (r *IPXEBootArtifactResource) Read(ctx context.Context, req resource.ReadRe
 
 	result, err := r.client.IPXEBootArtifact().Get(ctx, data.ID.ValueInt64())
 	if err != nil {
+		if err.HTTPStatusCode == 404 {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read ipxe boot artifact, got error: %s", err))
 		return
 	}

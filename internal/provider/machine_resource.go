@@ -142,6 +142,11 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	result, err := r.client.Machine().Get(ctx, data.ID.ValueInt64())
 	if err != nil {
+		if err.HTTPStatusCode == 404 {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read machine, got error: %s", err))
 		return
 	}

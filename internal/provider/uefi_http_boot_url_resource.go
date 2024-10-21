@@ -183,6 +183,11 @@ func (r *UEFIHTTPBootURLResource) Read(ctx context.Context, req resource.ReadReq
 
 	result, err := r.client.UEFIHTTPBootURL().Get(ctx, data.IPXEBootArtifactID.ValueInt64(), data.ID.ValueInt64())
 	if err != nil {
+		if err.HTTPStatusCode == 404 {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read boot url, got error: %s", err))
 		return
 	}
