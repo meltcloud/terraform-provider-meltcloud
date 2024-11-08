@@ -55,6 +55,7 @@ resource "meltcloud_machine_pool" "example" {
 ### Optional
 
 - `network_configuration` (Block List) (see [below for nested schema](#nestedblock--network_configuration))
+- `reuse_existing_root_partition` (Boolean) Reuse existing Partition for the ephemeral root
 
 ### Read-Only
 

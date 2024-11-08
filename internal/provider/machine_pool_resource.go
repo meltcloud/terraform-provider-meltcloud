@@ -34,6 +34,7 @@ type MachinePoolResourceModel struct {
 	ClusterId             types.Int64  `tfsdk:"cluster_id"`
 	Name                  types.String `tfsdk:"name"`
 	PrimaryDiskDevice     types.String `tfsdk:"primary_disk_device"`
+	ReuseRootPartition    types.Bool   `tfsdk:"reuse_existing_root_partition"`
 	Version               types.String `tfsdk:"version"`
 	PatchVersion          types.String `tfsdk:"patch_version"`
 	NetworkConfigurations types.List   `tfsdk:"network_configuration"`
@@ -76,6 +77,10 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 		"primary_disk_device": schema.StringAttribute{
 			MarkdownDescription: "Name of the primary disk of the machine, i.e. /dev/vda",
 			Required:            true,
+		},
+		"reuse_existing_root_partition": schema.BoolAttribute{
+			MarkdownDescription: "Reuse existing Partition for the ephemeral root",
+			Optional:            true,
 		},
 		"version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
@@ -168,6 +173,7 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
 		Name:                  data.Name.ValueString(),
 		PrimaryDiskDevice:     data.PrimaryDiskDevice.ValueString(),
+		ReuseRootPartition:    data.ReuseRootPartition.ValueBool(),
 		UserVersion:           data.Version.ValueString(),
 		NetworkConfigurations: r.networkConfigurationInput(networkConfigurations),
 	}
@@ -218,6 +224,7 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 
 	data.Name = types.StringValue(result.MachinePool.Name)
 	data.PrimaryDiskDevice = types.StringValue(result.MachinePool.PrimaryDiskDevice)
+	data.ReuseRootPartition = types.BoolValue(result.MachinePool.ReuseRootPartition)
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 
@@ -257,6 +264,7 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
 		Name:                  data.Name.ValueString(),
 		PrimaryDiskDevice:     data.PrimaryDiskDevice.ValueString(),
+		ReuseRootPartition:    data.ReuseRootPartition.ValueBool(),
 		UserVersion:           data.Version.ValueString(),
 		NetworkConfigurations: r.networkConfigurationInput(networkConfigurations),
 	}
