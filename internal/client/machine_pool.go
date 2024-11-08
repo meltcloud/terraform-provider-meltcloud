@@ -15,22 +15,22 @@ type MachinePoolResult struct {
 }
 
 type MachinePool struct {
-	ID                    int64                  `json:"id"`
-	Name                  string                 `json:"name"`
-	UserVersion           string                 `json:"user_version"`
-	PatchVersion          string                 `json:"patch_version"`
-	PrimaryDiskDevice     string                 `json:"primary_disk_device"`
-	ReuseRootPartition    bool                   `json:"reuse_existing_root_partition"`
-	Status                string                 `json:"status"`
-	NetworkConfigurations []NetworkConfiguration `json:"network_configurations"`
+	ID                         int64                  `json:"id"`
+	Name                       string                 `json:"name"`
+	UserVersion                string                 `json:"user_version"`
+	PatchVersion               string                 `json:"patch_version"`
+	PrimaryDiskDevice          string                 `json:"primary_disk_device"`
+	ReuseExistingRootPartition bool                   `json:"reuse_existing_root_partition"`
+	Status                     string                 `json:"status"`
+	NetworkConfigurations      []NetworkConfiguration `json:"network_configurations"`
 }
 
 type MachinePoolCreateInput struct {
-	Name                  string                 `json:"name"`
-	UserVersion           string                 `json:"user_version"`
-	PrimaryDiskDevice     string                 `json:"primary_disk_device"`
-	ReuseRootPartition    bool                   `json:"reuse_existing_root_partition"`
-	NetworkConfigurations []NetworkConfiguration `json:"network_configurations"`
+	Name                       string                 `json:"name"`
+	UserVersion                string                 `json:"user_version"`
+	PrimaryDiskDevice          string                 `json:"primary_disk_device"`
+	ReuseExistingRootPartition bool                   `json:"reuse_existing_root_partition"`
+	NetworkConfigurations      []NetworkConfiguration `json:"network_configurations"`
 }
 
 type NetworkConfiguration struct {
@@ -41,11 +41,11 @@ type NetworkConfiguration struct {
 }
 
 type MachinePoolUpdateInput struct {
-	Name                  string                 `json:"name"`
-	UserVersion           string                 `json:"user_version"`
-	PrimaryDiskDevice     string                 `json:"primary_disk_device"`
-	ReuseRootPartition    bool                   `json:"reuse_existing_root_partition"`
-	NetworkConfigurations []NetworkConfiguration `json:"network_configurations"`
+	Name                       string                 `json:"name"`
+	UserVersion                string                 `json:"user_version"`
+	PrimaryDiskDevice          string                 `json:"primary_disk_device"`
+	ReuseExistingRootPartition bool                   `json:"reuse_existing_root_partition"`
+	NetworkConfigurations      []NetworkConfiguration `json:"network_configurations"`
 }
 
 func (c *Client) MachinePool() *MachinePoolRequest {
