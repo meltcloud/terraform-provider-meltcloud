@@ -49,12 +49,12 @@ resource "meltcloud_machine_pool" "example" {
 
 - `cluster_id` (Number) ID of the associated cluster
 - `name` (String) Name of the machine pool
-- `primary_disk_device` (String) Name of the primary disk of the machine, i.e. /dev/vda
 - `version` (String) Kubernetes minor version of the machine pool (Kubelet)
 
 ### Optional
 
 - `network_configuration` (Block List) (see [below for nested schema](#nestedblock--network_configuration))
+- `primary_disk_device` (String) Name of the primary disk of the machine, i.e. /dev/vda
 - `reuse_existing_root_partition` (Boolean) Reuse existing Partition for the ephemeral root
 
 ### Read-Only

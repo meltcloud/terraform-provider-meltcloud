@@ -3,7 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
@@ -76,11 +80,21 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 		},
 		"primary_disk_device": schema.StringAttribute{
 			MarkdownDescription: "Name of the primary disk of the machine, i.e. /dev/vda",
-			Required:            true,
+			Computed:            true,
+			Optional:            true,
+			Default:             stringdefault.StaticString(""),
 		},
 		"reuse_existing_root_partition": schema.BoolAttribute{
 			MarkdownDescription: "Reuse existing Partition for the ephemeral root",
 			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
+			Validators: []validator.Bool{
+				boolvalidator.Equals(true),
+				boolvalidator.ExactlyOneOf(path.Expressions{
+					path.MatchRoot("primary_disk_device"),
+				}...),
+			},
 		},
 		"version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
