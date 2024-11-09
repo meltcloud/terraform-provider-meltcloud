@@ -93,6 +93,7 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 				boolvalidator.Equals(true),
 				boolvalidator.ExactlyOneOf(path.Expressions{
 					path.MatchRoot("primary_disk_device"),
+					path.MatchRoot("reuse_existing_root_partition"),
 				}...),
 			},
 		},
