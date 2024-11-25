@@ -3,7 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
@@ -30,13 +34,14 @@ type MachinePoolResource struct {
 
 // MachinePoolResourceModel describes the resource data model.
 type MachinePoolResourceModel struct {
-	ID                    types.Int64  `tfsdk:"id"`
-	ClusterId             types.Int64  `tfsdk:"cluster_id"`
-	Name                  types.String `tfsdk:"name"`
-	PrimaryDiskDevice     types.String `tfsdk:"primary_disk_device"`
-	Version               types.String `tfsdk:"version"`
-	PatchVersion          types.String `tfsdk:"patch_version"`
-	NetworkConfigurations types.List   `tfsdk:"network_configuration"`
+	ID                         types.Int64  `tfsdk:"id"`
+	ClusterId                  types.Int64  `tfsdk:"cluster_id"`
+	Name                       types.String `tfsdk:"name"`
+	PrimaryDiskDevice          types.String `tfsdk:"primary_disk_device"`
+	ReuseExistingRootPartition types.Bool   `tfsdk:"reuse_existing_root_partition"`
+	Version                    types.String `tfsdk:"version"`
+	PatchVersion               types.String `tfsdk:"patch_version"`
+	NetworkConfigurations      types.List   `tfsdk:"network_configuration"`
 }
 
 type NetworkConfigurationResourceModel struct {
@@ -75,7 +80,22 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 		},
 		"primary_disk_device": schema.StringAttribute{
 			MarkdownDescription: "Name of the primary disk of the machine, i.e. /dev/vda",
-			Required:            true,
+			Computed:            true,
+			Optional:            true,
+			Default:             stringdefault.StaticString(""),
+		},
+		"reuse_existing_root_partition": schema.BoolAttribute{
+			MarkdownDescription: "Reuse existing Partition for the ephemeral root",
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
+			Validators: []validator.Bool{
+				boolvalidator.Equals(true),
+				boolvalidator.ExactlyOneOf(path.Expressions{
+					path.MatchRoot("primary_disk_device"),
+					path.MatchRoot("reuse_existing_root_partition"),
+				}...),
+			},
 		},
 		"version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
@@ -166,10 +186,11 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
-		Name:                  data.Name.ValueString(),
-		PrimaryDiskDevice:     data.PrimaryDiskDevice.ValueString(),
-		UserVersion:           data.Version.ValueString(),
-		NetworkConfigurations: r.networkConfigurationInput(networkConfigurations),
+		Name:                       data.Name.ValueString(),
+		PrimaryDiskDevice:          data.PrimaryDiskDevice.ValueString(),
+		ReuseExistingRootPartition: data.ReuseExistingRootPartition.ValueBool(),
+		UserVersion:                data.Version.ValueString(),
+		NetworkConfigurations:      r.networkConfigurationInput(networkConfigurations),
 	}
 
 	result, err := r.client.MachinePool().Create(ctx, data.ClusterId.ValueInt64(), machinePoolCreateInput)
@@ -218,6 +239,7 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 
 	data.Name = types.StringValue(result.MachinePool.Name)
 	data.PrimaryDiskDevice = types.StringValue(result.MachinePool.PrimaryDiskDevice)
+	data.ReuseExistingRootPartition = types.BoolValue(result.MachinePool.ReuseExistingRootPartition)
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 
@@ -255,10 +277,11 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
-		Name:                  data.Name.ValueString(),
-		PrimaryDiskDevice:     data.PrimaryDiskDevice.ValueString(),
-		UserVersion:           data.Version.ValueString(),
-		NetworkConfigurations: r.networkConfigurationInput(networkConfigurations),
+		Name:                       data.Name.ValueString(),
+		PrimaryDiskDevice:          data.PrimaryDiskDevice.ValueString(),
+		ReuseExistingRootPartition: data.ReuseExistingRootPartition.ValueBool(),
+		UserVersion:                data.Version.ValueString(),
+		NetworkConfigurations:      r.networkConfigurationInput(networkConfigurations),
 	}
 
 	result, err := r.client.MachinePool().Update(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64(), machinePoolUpdateInput)

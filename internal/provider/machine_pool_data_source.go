@@ -24,14 +24,15 @@ type MachinePoolDataSource struct {
 
 // MachinePoolDataSourceModel describes the data source data model.
 type MachinePoolDataSourceModel struct {
-	ID                    types.Int64                           `tfsdk:"id"`
-	ClusterID             types.Int64                           `tfsdk:"cluster_id"`
-	Name                  types.String                          `tfsdk:"name"`
-	PrimaryDiskDevice     types.String                          `tfsdk:"primary_disk_device"`
-	Version               types.String                          `tfsdk:"version"`
-	PatchVersion          types.String                          `tfsdk:"patch_version"`
-	Status                types.String                          `tfsdk:"status"`
-	NetworkConfigurations []NetworkConfigurationDataSourceModel `tfsdk:"network_configurations"`
+	ID                         types.Int64                           `tfsdk:"id"`
+	ClusterID                  types.Int64                           `tfsdk:"cluster_id"`
+	Name                       types.String                          `tfsdk:"name"`
+	PrimaryDiskDevice          types.String                          `tfsdk:"primary_disk_device"`
+	ReuseExistingRootPartition types.Bool                            `tfsdk:"reuse_existing_root_partition"`
+	Version                    types.String                          `tfsdk:"version"`
+	PatchVersion               types.String                          `tfsdk:"patch_version"`
+	Status                     types.String                          `tfsdk:"status"`
+	NetworkConfigurations      []NetworkConfigurationDataSourceModel `tfsdk:"network_configurations"`
 }
 
 type NetworkConfigurationDataSourceModel struct {
@@ -64,6 +65,10 @@ func (d *MachinePoolDataSource) Schema(ctx context.Context, req datasource.Schem
 			},
 			"primary_disk_device": schema.StringAttribute{
 				MarkdownDescription: machinePoolResourceAttributes()["primary_disk_device"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"reuse_existing_root_partition": schema.BoolAttribute{
+				MarkdownDescription: machinePoolResourceAttributes()["reuse_existing_root_partition"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"version": schema.StringAttribute{
@@ -153,6 +158,7 @@ func (d *MachinePoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	data.ID = types.Int64Value(result.MachinePool.ID)
 	data.Name = types.StringValue(result.MachinePool.Name)
 	data.PrimaryDiskDevice = types.StringValue(result.MachinePool.PrimaryDiskDevice)
+	data.ReuseExistingRootPartition = types.BoolValue(result.MachinePool.ReuseExistingRootPartition)
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 	data.Status = types.StringValue(result.MachinePool.Status)
