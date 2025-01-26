@@ -38,6 +38,7 @@ data "meltcloud_cluster" "example_name" {
 - `dns_service_ip` (String) IP for the DNS service
 - `kubeconfig` (Attributes, Sensitive) (see [below for nested schema](#nestedatt--kubeconfig))
 - `kubeconfig_raw` (String, Sensitive)
+- `kubeconfig_user_raw` (String)
 - `patch_version` (String) Kubernetes patch version of the cluster control plane
 - `pod_cidr` (String) CIDR for the Kubernetes Pods
 - `service_cidr` (String) CIDR for the Kubernetes Services

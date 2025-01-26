@@ -39,6 +39,7 @@ type ClusterDataSourceModel struct {
 	DNSServiceIP       types.String               `tfsdk:"dns_service_ip"`
 	KubeConfigRaw      types.String               `tfsdk:"kubeconfig_raw"`
 	KubeConfig         *KubeConfigDataSourceModel `tfsdk:"kubeconfig"`
+	KubeConfigUserRaw  types.String               `tfsdk:"kubeconfig_user_raw"`
 }
 
 type KubeConfigDataSourceModel struct {
@@ -100,6 +101,7 @@ func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				Computed:            true,
 			},
 			"kubeconfig": schema.SingleNestedAttribute{
+				MarkdownDescription: clusterResourceAttributes()["kubeconfig"].GetMarkdownDescription(),
 				Attributes: map[string]schema.Attribute{
 					"host": schema.StringAttribute{
 						Computed:  true,
@@ -130,8 +132,14 @@ func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				Sensitive: true,
 			},
 			"kubeconfig_raw": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+				MarkdownDescription: clusterResourceAttributes()["kubeconfig_raw"].GetMarkdownDescription(),
+				Computed:            true,
+				Sensitive:           true,
+			},
+			"kubeconfig_user_raw": schema.StringAttribute{
+				MarkdownDescription: clusterResourceAttributes()["kubeconfig_user_raw"].GetMarkdownDescription(),
+				Computed:            true,
+				Sensitive:           false,
 			},
 		},
 	}
@@ -209,6 +217,7 @@ func (d *ClusterDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	data.ServiceCIDR = types.StringValue(cluster.ServiceCIDR)
 	data.DNSServiceIP = types.StringValue(cluster.DNSServiceIP)
 	data.KubeConfigRaw = types.StringValue(cluster.KubeConfig)
+	data.KubeConfigUserRaw = types.StringValue(cluster.KubeConfigUser)
 
 	kubeConfigDataModel, kErr := d.getKubeConfigResourceModel(cluster.KubeConfig)
 	if kErr != nil {

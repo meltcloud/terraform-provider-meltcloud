@@ -62,8 +62,9 @@ resource "helm_release" "cilium" {
 ### Read-Only
 
 - `id` (Number) Internal ID of the Cluster in meltcloud
-- `kubeconfig` (Attributes, Sensitive) (see [below for nested schema](#nestedatt--kubeconfig))
-- `kubeconfig_raw` (String, Sensitive)
+- `kubeconfig` (Attributes, Sensitive) Kubeconfig values for the admin user (see [below for nested schema](#nestedatt--kubeconfig))
+- `kubeconfig_raw` (String, Sensitive) Kubeconfig file for the admin user
+- `kubeconfig_user_raw` (String) Kubeconfig file for the regular (OIDC) users
 - `patch_version` (String) Kubernetes patch version of the cluster control plane
 
 <a id="nestedatt--kubeconfig"></a>

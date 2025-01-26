@@ -25,6 +25,7 @@ type Cluster struct {
 	UserVersion        string `json:"user_version"`
 	PatchVersion       string `json:"patch_version"`
 	KubeConfig         string `json:"kubeconfig"`
+	KubeConfigUser     string `json:"kubeconfig_user"`
 	PodCIDR            string `json:"pod_cidr"`
 	ServiceCIDR        string `json:"service_cidr"`
 	DNSServiceIP       string `json:"dns_service_ip"`
