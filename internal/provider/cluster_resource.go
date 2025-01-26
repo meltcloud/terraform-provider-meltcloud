@@ -31,15 +31,16 @@ type ClusterResource struct {
 
 // ClusterResourceModel describes the resource data model.
 type ClusterResourceModel struct {
-	ID            types.Int64  `tfsdk:"id"`
-	Name          types.String `tfsdk:"name"`
-	Version       types.String `tfsdk:"version"`
-	PatchVersion  types.String `tfsdk:"patch_version"`
-	PodCIDR       types.String `tfsdk:"pod_cidr"`
-	ServiceCIDR   types.String `tfsdk:"service_cidr"`
-	DNSServiceIP  types.String `tfsdk:"dns_service_ip"`
-	KubeConfigRaw types.String `tfsdk:"kubeconfig_raw"`
-	KubeConfig    types.Object `tfsdk:"kubeconfig"`
+	ID                types.Int64  `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
+	Version           types.String `tfsdk:"version"`
+	PatchVersion      types.String `tfsdk:"patch_version"`
+	PodCIDR           types.String `tfsdk:"pod_cidr"`
+	ServiceCIDR       types.String `tfsdk:"service_cidr"`
+	DNSServiceIP      types.String `tfsdk:"dns_service_ip"`
+	KubeConfigRaw     types.String `tfsdk:"kubeconfig_raw"`
+	KubeConfig        types.Object `tfsdk:"kubeconfig"`
+	KubeConfigUserRaw types.String `tfsdk:"kubeconfig_user_raw"`
 }
 
 type KubeConfigResourceModel struct {
@@ -94,6 +95,7 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			Required:            true,
 		},
 		"kubeconfig": schema.SingleNestedAttribute{
+			Description: "Kubeconfig values for the admin user",
 			Attributes: map[string]schema.Attribute{
 				"host": schema.StringAttribute{
 					Computed:  true,
@@ -124,8 +126,14 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			Sensitive: true,
 		},
 		"kubeconfig_raw": schema.StringAttribute{
-			Computed:  true,
-			Sensitive: true,
+			Description: "Kubeconfig file for the admin user",
+			Computed:    true,
+			Sensitive:   true,
+		},
+		"kubeconfig_user_raw": schema.StringAttribute{
+			Description: "Kubeconfig file for the regular (OIDC) users",
+			Computed:    true,
+			Sensitive:   false,
 		},
 	}
 }
@@ -201,6 +209,7 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	data.Version = types.StringValue(clusterGetResult.Cluster.UserVersion)
 	data.PatchVersion = types.StringValue(clusterGetResult.Cluster.PatchVersion)
 	data.KubeConfigRaw = types.StringValue(clusterGetResult.Cluster.KubeConfig)
+	data.KubeConfigUserRaw = types.StringValue(clusterGetResult.Cluster.KubeConfigUser)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(clusterGetResult.Cluster.KubeConfig)
@@ -239,6 +248,7 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.ServiceCIDR = types.StringValue(result.Cluster.ServiceCIDR)
 	data.DNSServiceIP = types.StringValue(result.Cluster.DNSServiceIP)
 	data.KubeConfigRaw = types.StringValue(result.Cluster.KubeConfig)
+	data.KubeConfigUserRaw = types.StringValue(result.Cluster.KubeConfigUser)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(result.Cluster.KubeConfig)
