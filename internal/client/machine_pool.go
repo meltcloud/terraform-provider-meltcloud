@@ -22,6 +22,7 @@ type MachinePool struct {
 	PrimaryDiskDevice          string                 `json:"primary_disk_device"`
 	ReuseExistingRootPartition bool                   `json:"reuse_existing_root_partition"`
 	Status                     string                 `json:"status"`
+	NetworkProfileID           *int64                 `json:"network_profile_id"`
 	NetworkConfigurations      []NetworkConfiguration `json:"network_configurations"`
 }
 
@@ -30,6 +31,7 @@ type MachinePoolCreateInput struct {
 	UserVersion                string                 `json:"user_version"`
 	PrimaryDiskDevice          string                 `json:"primary_disk_device"`
 	ReuseExistingRootPartition bool                   `json:"reuse_existing_root_partition"`
+	NetworkProfileID           *int64                 `json:"network_profile_id"`
 	NetworkConfigurations      []NetworkConfiguration `json:"network_configurations"`
 }
 
@@ -45,6 +47,7 @@ type MachinePoolUpdateInput struct {
 	UserVersion                string                 `json:"user_version"`
 	PrimaryDiskDevice          string                 `json:"primary_disk_device"`
 	ReuseExistingRootPartition bool                   `json:"reuse_existing_root_partition"`
+	NetworkProfileID           *int64                 `json:"network_profile_id"`
 	NetworkConfigurations      []NetworkConfiguration `json:"network_configurations"`
 }
 

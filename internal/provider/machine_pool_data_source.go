@@ -32,6 +32,7 @@ type MachinePoolDataSourceModel struct {
 	Version                    types.String                          `tfsdk:"version"`
 	PatchVersion               types.String                          `tfsdk:"patch_version"`
 	Status                     types.String                          `tfsdk:"status"`
+	NetworkProfileID           types.Int64                           `tfsdk:"network_profile_id"`
 	NetworkConfigurations      []NetworkConfigurationDataSourceModel `tfsdk:"network_configurations"`
 }
 
@@ -81,6 +82,10 @@ func (d *MachinePoolDataSource) Schema(ctx context.Context, req datasource.Schem
 			},
 			"status": schema.StringAttribute{
 				MarkdownDescription: "Status of the Machine Pool",
+				Computed:            true,
+			},
+			"network_profile_id": schema.Int64Attribute{
+				MarkdownDescription: machinePoolResourceAttributes()["network_profile_id"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"network_configurations": schema.ListNestedAttribute{
@@ -156,6 +161,11 @@ func (d *MachinePoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	data.ID = types.Int64Value(result.MachinePool.ID)
+	if result.MachinePool.NetworkProfileID == nil {
+		data.NetworkProfileID = types.Int64Null()
+	} else {
+		data.NetworkProfileID = types.Int64Value(*result.MachinePool.NetworkProfileID)
+	}
 	data.Name = types.StringValue(result.MachinePool.Name)
 	data.PrimaryDiskDevice = types.StringValue(result.MachinePool.PrimaryDiskDevice)
 	data.ReuseExistingRootPartition = types.BoolValue(result.MachinePool.ReuseExistingRootPartition)

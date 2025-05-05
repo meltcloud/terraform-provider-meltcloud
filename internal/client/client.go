@@ -3,8 +3,9 @@ package client
 import (
 	"context"
 	"fmt"
+
+	"github.com/go-resty/resty/v2"
 )
-import "github.com/go-resty/resty/v2"
 
 const apiPath string = "/api/v1/"
 
@@ -81,7 +82,7 @@ func (c *Client) Get(ctx context.Context, cr *ClientRequest) (interface{}, *Erro
 			return nil, &ErrorTypeAssert
 		}
 
-		return nil, err
+		return nil, c.handleNonJSONErrors(resp, err)
 	}
 
 	if hasResult {
@@ -114,7 +115,7 @@ func (c *Client) Post(ctx context.Context, cr *ClientRequest) (interface{}, *Err
 			return nil, &ErrorTypeAssert
 		}
 
-		return nil, err
+		return nil, c.handleNonJSONErrors(resp, err)
 	}
 
 	return resp.Result(), nil
@@ -167,7 +168,7 @@ func (c *Client) PostWithoutBody(ctx context.Context, cr *ClientRequest) (interf
 			return nil, &ErrorTypeAssert
 		}
 
-		return nil, err
+		return nil, c.handleNonJSONErrors(resp, err)
 	}
 
 	return resp.Result(), nil
@@ -195,7 +196,7 @@ func (c *Client) Put(ctx context.Context, cr *ClientRequest) (interface{}, *Erro
 			return nil, &ErrorTypeAssert
 		}
 
-		return nil, err
+		return nil, c.handleNonJSONErrors(resp, err)
 	}
 
 	return resp.Result(), nil
@@ -224,8 +225,23 @@ func (c *Client) Delete(ctx context.Context, cr *ClientRequest) (interface{}, *E
 			return nil, &ErrorTypeAssert
 		}
 
-		return nil, err
+		return nil, c.handleNonJSONErrors(resp, err)
 	}
 
 	return resp.Result(), nil
+}
+
+func (c *Client) handleNonJSONErrors(resp *resty.Response, err *Error) *Error {
+	// there are some cases where the API doesn't respond with a proper json response:
+	// - if nginx fails the cert validation (or other errors like 502, max body exceeded etc.)
+	// - if foundry is in dev mode and throws an error
+	// in both cases, we get a html response. try to make sense out of this error.
+	if err.HTTPStatusCode == 0 {
+		return &Error{
+			HTTPStatusCode: resp.StatusCode(),
+			Message:        resp.Status(),
+		}
+	}
+
+	return err
 }

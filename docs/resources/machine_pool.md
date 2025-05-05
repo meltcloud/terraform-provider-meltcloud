@@ -54,6 +54,7 @@ resource "meltcloud_machine_pool" "example" {
 ### Optional
 
 - `network_configuration` (Block List) (see [below for nested schema](#nestedblock--network_configuration))
+- `network_profile_id` (Number) ID of the network profile
 - `primary_disk_device` (String) Name of the primary disk of the machine, i.e. /dev/vda
 - `reuse_existing_root_partition` (Boolean) Reuse existing Partition for the ephemeral root
 

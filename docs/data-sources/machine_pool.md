@@ -32,6 +32,7 @@ data "meltcloud_machine_pool" "example_id" {
 
 - `name` (String) Name of the machine pool
 - `network_configurations` (Attributes List) (see [below for nested schema](#nestedatt--network_configurations))
+- `network_profile_id` (Number) ID of the network profile
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
 - `primary_disk_device` (String) Name of the primary disk of the machine, i.e. /dev/vda
 - `reuse_existing_root_partition` (Boolean) Reuse existing Partition for the ephemeral root

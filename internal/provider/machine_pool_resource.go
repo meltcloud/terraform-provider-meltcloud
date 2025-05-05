@@ -3,14 +3,15 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
+	"terraform-provider-meltcloud/internal/client"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"regexp"
-	"strconv"
-	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -42,6 +43,7 @@ type MachinePoolResourceModel struct {
 	Version                    types.String `tfsdk:"version"`
 	PatchVersion               types.String `tfsdk:"patch_version"`
 	NetworkConfigurations      types.List   `tfsdk:"network_configuration"`
+	NetworkProfileID           types.Int64  `tfsdk:"network_profile_id"`
 }
 
 type NetworkConfigurationResourceModel struct {
@@ -104,6 +106,10 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 		"patch_version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
 			Computed:            true,
+		},
+		"network_profile_id": schema.Int64Attribute{
+			MarkdownDescription: "ID of the network profile",
+			Optional:            true,
 		},
 	}
 }
@@ -185,11 +191,18 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
+	var profileId *int64 = nil
+	if !data.NetworkProfileID.IsNull() {
+		var value = data.NetworkProfileID.ValueInt64()
+		profileId = &value
+	}
+
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
 		Name:                       data.Name.ValueString(),
 		PrimaryDiskDevice:          data.PrimaryDiskDevice.ValueString(),
 		ReuseExistingRootPartition: data.ReuseExistingRootPartition.ValueBool(),
 		UserVersion:                data.Version.ValueString(),
+		NetworkProfileID:           profileId,
 		NetworkConfigurations:      r.networkConfigurationInput(networkConfigurations),
 	}
 
@@ -238,6 +251,11 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	data.Name = types.StringValue(result.MachinePool.Name)
+	if result.MachinePool.NetworkProfileID == nil {
+		data.NetworkProfileID = types.Int64Null()
+	} else {
+		data.NetworkProfileID = types.Int64Value(*result.MachinePool.NetworkProfileID)
+	}
 	data.PrimaryDiskDevice = types.StringValue(result.MachinePool.PrimaryDiskDevice)
 	data.ReuseExistingRootPartition = types.BoolValue(result.MachinePool.ReuseExistingRootPartition)
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
@@ -276,12 +294,21 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
+	var profileId *int64
+	if data.NetworkProfileID.IsNull() {
+		profileId = nil
+	} else {
+		var value = data.NetworkProfileID.ValueInt64()
+		profileId = &value
+	}
+
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
 		Name:                       data.Name.ValueString(),
 		PrimaryDiskDevice:          data.PrimaryDiskDevice.ValueString(),
 		ReuseExistingRootPartition: data.ReuseExistingRootPartition.ValueBool(),
 		UserVersion:                data.Version.ValueString(),
 		NetworkConfigurations:      r.networkConfigurationInput(networkConfigurations),
+		NetworkProfileID:           profileId,
 	}
 
 	result, err := r.client.MachinePool().Update(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64(), machinePoolUpdateInput)
