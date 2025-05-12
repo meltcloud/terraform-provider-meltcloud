@@ -31,19 +31,9 @@ data "meltcloud_machine_pool" "example_id" {
 ### Read-Only
 
 - `name` (String) Name of the machine pool
-- `network_configurations` (Attributes List) (see [below for nested schema](#nestedatt--network_configurations))
+- `network_profile_id` (Number) ID of the network profile
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
 - `primary_disk_device` (String) Name of the primary disk of the machine, i.e. /dev/vda
 - `reuse_existing_root_partition` (Boolean) Reuse existing Partition for the ephemeral root
 - `status` (String) Status of the Machine Pool
 - `version` (String) Kubernetes minor version of the machine pool (Kubelet)
-
-<a id="nestedatt--network_configurations"></a>
-### Nested Schema for `network_configurations`
-
-Read-Only:
-
-- `interfaces` (String) Interface name (for network type native), wildcard or space-separated list of interfaces (for network type bond)
-- `type` (String) The network type - must be 'native' or 'bond'
-- `vlan_mode` (String) The VLAN mode - must be 'default' or 'trunk'
-- `vlans` (String) Comma-separated list of VLAN-IDs (required for VLAN mode trunk)

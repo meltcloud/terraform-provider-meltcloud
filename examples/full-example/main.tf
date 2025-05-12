@@ -98,17 +98,48 @@ resource "meltcloud_machine_pool" "example" {
   version             = "1.29"
   primary_disk_device = "/dev/vda"
 
-  network_configuration {
-    type       = "bond"
-    interfaces = "eth*"
-    vlan_mode  = "trunk"
-    vlans      = "100,200"
+  network_profile_id = meltcloud_network_profile.example.id
+}
+
+resource "meltcloud_network_profile" "example" {
+  name = "profile1"
+
+  vlan {
+    vlan      = 10
+    dhcp      = true
+    interface = "eth0"
   }
 
-  network_configuration {
-    type       = "native"
-    interfaces = "ens0"
-    vlan_mode  = "default"
+  vlan {
+    vlan      = 2
+    dhcp      = false
+    interface = "eth1"
+  }
+
+  bridge {
+    name      = "br0"
+    interface = "br0"
+    dhcp      = true
+  }
+
+  bridge {
+    name      = "br1"
+    interface = "br1"
+    dhcp      = false
+  }
+
+  bond {
+    name       = "james"
+    kind       = "default"
+    dhcp       = true
+    interfaces = "eth4,eth5"
+  }
+
+  bond {
+    name       = "other"
+    kind       = "lacp"
+    dhcp       = false
+    interfaces = "eth6,eth7"
   }
 }
 

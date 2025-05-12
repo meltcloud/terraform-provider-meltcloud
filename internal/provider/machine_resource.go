@@ -3,17 +3,17 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -191,6 +191,8 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.Name = types.StringValue(result.Machine.Name)
 	data.MachinePoolID = types.Int64Value(result.Machine.MachinePoolID)
 
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
 	var labels []LabelResourceModel
 	for _, label := range result.Machine.Labels {
 		labels = append(labels, LabelResourceModel{
@@ -204,7 +206,6 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
