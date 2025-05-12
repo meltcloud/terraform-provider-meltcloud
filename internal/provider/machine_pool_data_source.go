@@ -24,23 +24,15 @@ type MachinePoolDataSource struct {
 
 // MachinePoolDataSourceModel describes the data source data model.
 type MachinePoolDataSourceModel struct {
-	ID                         types.Int64                           `tfsdk:"id"`
-	ClusterID                  types.Int64                           `tfsdk:"cluster_id"`
-	Name                       types.String                          `tfsdk:"name"`
-	PrimaryDiskDevice          types.String                          `tfsdk:"primary_disk_device"`
-	ReuseExistingRootPartition types.Bool                            `tfsdk:"reuse_existing_root_partition"`
-	Version                    types.String                          `tfsdk:"version"`
-	PatchVersion               types.String                          `tfsdk:"patch_version"`
-	Status                     types.String                          `tfsdk:"status"`
-	NetworkProfileID           types.Int64                           `tfsdk:"network_profile_id"`
-	NetworkConfigurations      []NetworkConfigurationDataSourceModel `tfsdk:"network_configurations"`
-}
-
-type NetworkConfigurationDataSourceModel struct {
-	Type       types.String `tfsdk:"type"`
-	Interfaces types.String `tfsdk:"interfaces"`
-	VLANMode   types.String `tfsdk:"vlan_mode"`
-	VLANs      types.String `tfsdk:"vlans"`
+	ID                         types.Int64  `tfsdk:"id"`
+	ClusterID                  types.Int64  `tfsdk:"cluster_id"`
+	Name                       types.String `tfsdk:"name"`
+	PrimaryDiskDevice          types.String `tfsdk:"primary_disk_device"`
+	ReuseExistingRootPartition types.Bool   `tfsdk:"reuse_existing_root_partition"`
+	Version                    types.String `tfsdk:"version"`
+	PatchVersion               types.String `tfsdk:"patch_version"`
+	Status                     types.String `tfsdk:"status"`
+	NetworkProfileID           types.Int64  `tfsdk:"network_profile_id"`
 }
 
 func (d *MachinePoolDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -88,32 +80,6 @@ func (d *MachinePoolDataSource) Schema(ctx context.Context, req datasource.Schem
 				MarkdownDescription: machinePoolResourceAttributes()["network_profile_id"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"network_configurations": schema.ListNestedAttribute{
-				Computed: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"type": schema.StringAttribute{
-							Computed:            true,
-							MarkdownDescription: networkConfigurationResourceAttributes()["type"].GetMarkdownDescription(),
-						},
-
-						"interfaces": schema.StringAttribute{
-							Computed:            true,
-							MarkdownDescription: networkConfigurationResourceAttributes()["interfaces"].GetMarkdownDescription(),
-						},
-
-						"vlan_mode": schema.StringAttribute{
-							Computed:            true,
-							MarkdownDescription: networkConfigurationResourceAttributes()["vlan_mode"].GetMarkdownDescription(),
-						},
-
-						"vlans": schema.StringAttribute{
-							Computed:            true,
-							MarkdownDescription: networkConfigurationResourceAttributes()["vlans"].GetMarkdownDescription(),
-						},
-					},
-				},
-			},
 		},
 	}
 }
@@ -149,15 +115,6 @@ func (d *MachinePoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read machine pool with ID %d on cluster ID %d, got error: %s", data.ID.ValueInt64(), data.ClusterID.ValueInt64(), err))
 		return
-	}
-
-	for _, networkConfiguration := range result.MachinePool.NetworkConfigurations {
-		data.NetworkConfigurations = append(data.NetworkConfigurations, NetworkConfigurationDataSourceModel{
-			Type:       types.StringValue(networkConfiguration.Type),
-			Interfaces: types.StringValue(networkConfiguration.Interfaces),
-			VLANMode:   types.StringValue(networkConfiguration.VLANMode),
-			VLANs:      types.StringValue(networkConfiguration.VLANs),
-		})
 	}
 
 	data.ID = types.Int64Value(result.MachinePool.ID)

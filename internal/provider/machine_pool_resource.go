@@ -42,15 +42,7 @@ type MachinePoolResourceModel struct {
 	ReuseExistingRootPartition types.Bool   `tfsdk:"reuse_existing_root_partition"`
 	Version                    types.String `tfsdk:"version"`
 	PatchVersion               types.String `tfsdk:"patch_version"`
-	NetworkConfigurations      types.List   `tfsdk:"network_configuration"`
 	NetworkProfileID           types.Int64  `tfsdk:"network_profile_id"`
-}
-
-type NetworkConfigurationResourceModel struct {
-	Type       types.String `tfsdk:"type"`
-	Interfaces types.String `tfsdk:"interfaces"`
-	VLANMode   types.String `tfsdk:"vlan_mode"`
-	VLANs      types.String `tfsdk:"vlans"`
 }
 
 func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -114,45 +106,12 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 	}
 }
 
-func networkConfigurationResourceAttributes() map[string]schema.Attribute {
-	return map[string]schema.Attribute{
-		"type": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "The network type - must be 'native' or 'bond'",
-		},
-
-		"interfaces": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "Interface name (for network type native), wildcard or space-separated list of interfaces (for network type bond)",
-		},
-
-		"vlan_mode": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "The VLAN mode - must be 'default' or 'trunk'",
-		},
-
-		"vlans": schema.StringAttribute{
-			Optional:            true,
-			Computed:            false,
-			MarkdownDescription: "Comma-separated list of VLAN-IDs (required for VLAN mode trunk)",
-		},
-	}
-}
-
 func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machinePoolDesc + "\n\n" +
 			"~> Be aware that changing the version or the primary_disk_device will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).",
 
 		Attributes: machinePoolResourceAttributes(),
-
-		Blocks: map[string]schema.Block{
-			"network_configuration": schema.ListNestedBlock{
-				NestedObject: schema.NestedBlockObject{
-					Attributes: networkConfigurationResourceAttributes(),
-				},
-			},
-		},
 	}
 }
 
@@ -184,13 +143,6 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	var networkConfigurations []NetworkConfigurationResourceModel
-	diags := data.NetworkConfigurations.ElementsAs(ctx, &networkConfigurations, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
 	var profileId *int64 = nil
 	if !data.NetworkProfileID.IsNull() {
 		var value = data.NetworkProfileID.ValueInt64()
@@ -203,7 +155,6 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 		ReuseExistingRootPartition: data.ReuseExistingRootPartition.ValueBool(),
 		UserVersion:                data.Version.ValueString(),
 		NetworkProfileID:           profileId,
-		NetworkConfigurations:      r.networkConfigurationInput(networkConfigurations),
 	}
 
 	result, err := r.client.MachinePool().Create(ctx, data.ClusterId.ValueInt64(), machinePoolCreateInput)
@@ -216,19 +167,6 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-}
-
-func (r *MachinePoolResource) networkConfigurationInput(networkConfigurations []NetworkConfigurationResourceModel) []client.NetworkConfiguration {
-	var networkConfigurationInput []client.NetworkConfiguration
-	for _, networkConfiguration := range networkConfigurations {
-		networkConfigurationInput = append(networkConfigurationInput, client.NetworkConfiguration{
-			Type:       networkConfiguration.Type.ValueString(),
-			Interfaces: networkConfiguration.Interfaces.ValueString(),
-			VLANMode:   networkConfiguration.VLANMode.ValueString(),
-			VLANs:      networkConfiguration.VLANs.ValueString(),
-		})
-	}
-	return networkConfigurationInput
 }
 
 func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -261,21 +199,6 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 
-	var networkConfigurations []NetworkConfigurationResourceModel
-	for _, networkConfiguration := range result.MachinePool.NetworkConfigurations {
-		networkConfigurations = append(networkConfigurations, NetworkConfigurationResourceModel{
-			Type:       types.StringValue(networkConfiguration.Type),
-			Interfaces: types.StringValue(networkConfiguration.Interfaces),
-			VLANMode:   types.StringValue(networkConfiguration.VLANMode),
-			VLANs:      types.StringValue(networkConfiguration.VLANs),
-		})
-	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_configuration"), networkConfigurations)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -284,13 +207,6 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	var networkConfigurations []NetworkConfigurationResourceModel
-	diags := data.NetworkConfigurations.ElementsAs(ctx, &networkConfigurations, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
 		return
 	}
 
@@ -307,7 +223,6 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 		PrimaryDiskDevice:          data.PrimaryDiskDevice.ValueString(),
 		ReuseExistingRootPartition: data.ReuseExistingRootPartition.ValueBool(),
 		UserVersion:                data.Version.ValueString(),
-		NetworkConfigurations:      r.networkConfigurationInput(networkConfigurations),
 		NetworkProfileID:           profileId,
 	}
 

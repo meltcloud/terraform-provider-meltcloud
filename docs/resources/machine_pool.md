@@ -32,13 +32,6 @@ resource "meltcloud_machine_pool" "example" {
   name                = "pool1"
   version             = "1.29"
   primary_disk_device = "/dev/vda"
-
-  network_configuration {
-    type       = "bond"
-    interfaces = "eth*"
-    vlan_mode  = "trunk"
-    vlans      = "100,200"
-  }
 }
 ```
 
@@ -53,7 +46,6 @@ resource "meltcloud_machine_pool" "example" {
 
 ### Optional
 
-- `network_configuration` (Block List) (see [below for nested schema](#nestedblock--network_configuration))
 - `network_profile_id` (Number) ID of the network profile
 - `primary_disk_device` (String) Name of the primary disk of the machine, i.e. /dev/vda
 - `reuse_existing_root_partition` (Boolean) Reuse existing Partition for the ephemeral root
@@ -62,19 +54,6 @@ resource "meltcloud_machine_pool" "example" {
 
 - `id` (Number) Internal ID of the Machine Pool on meltcloud
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
-
-<a id="nestedblock--network_configuration"></a>
-### Nested Schema for `network_configuration`
-
-Required:
-
-- `interfaces` (String) Interface name (for network type native), wildcard or space-separated list of interfaces (for network type bond)
-- `type` (String) The network type - must be 'native' or 'bond'
-- `vlan_mode` (String) The VLAN mode - must be 'default' or 'trunk'
-
-Optional:
-
-- `vlans` (String) Comma-separated list of VLAN-IDs (required for VLAN mode trunk)
 
 ## Import
 
