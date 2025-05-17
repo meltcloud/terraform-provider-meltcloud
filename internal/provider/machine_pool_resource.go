@@ -211,11 +211,8 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	var profileId *int64
-	if data.NetworkProfileID.IsNull() {
-		profileId = nil
-	} else {
-		var value = data.NetworkProfileID.ValueInt64()
-		profileId = &value
+	if !data.NetworkProfileID.IsNull() && !data.NetworkProfileID.IsUnknown() {
+		profileId = data.NetworkProfileID.ValueInt64Pointer()
 	}
 
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
