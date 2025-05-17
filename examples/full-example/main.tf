@@ -23,6 +23,23 @@ resource "time_offset" "in_a_year" {
   offset_days = 365
 }
 
+resource "meltcloud_enrollment_image" "example" {
+  name                         = "my-image"
+  expires_at                   = time_offset.in_a_year.rfc3339
+  install_disk_device          = "/dev/vda"
+  install_disk_force_overwrite = true
+  vlan                         = 101
+  enable_http                  = true
+}
+
+data "meltcloud_enrollment_image" "example_id" {
+  id = meltcloud_enrollment_image.example.id
+}
+
+data "meltcloud_enrollment_image" "example_name" {
+  name = meltcloud_enrollment_image.example.name
+}
+
 resource "meltcloud_ipxe_boot_artifact" "example" {
   name       = "my-artifact"
   expires_at = time_offset.in_a_year.rfc3339
@@ -68,11 +85,6 @@ data "meltcloud_ipxe_chain_url" "example_name" {
 }
 
 resource "random_uuid" "machine_override" {
-}
-
-output "customized_ipxe_script" {
-  sensitive = true
-  value     = provider::meltcloud::customize_uuid_in_ipxe_script(meltcloud_ipxe_chain_url.example.script, random_uuid.machine_override.result)
 }
 
 resource "meltcloud_cluster" "example" {
