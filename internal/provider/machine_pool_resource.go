@@ -117,16 +117,16 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	var profileId *int64 = nil
+	var profileID *int64 = nil
 	if !data.NetworkProfileID.IsNull() {
 		var value = data.NetworkProfileID.ValueInt64()
-		profileId = &value
+		profileID = &value
 	}
 
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
 		Name:             data.Name.ValueString(),
 		UserVersion:      data.Version.ValueString(),
-		NetworkProfileID: profileId,
+		NetworkProfileID: profileID,
 	}
 
 	result, err := r.client.MachinePool().Create(ctx, data.ClusterId.ValueInt64(), machinePoolCreateInput)
@@ -180,15 +180,15 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	var profileId *int64
+	var profileID *int64
 	if !data.NetworkProfileID.IsNull() && !data.NetworkProfileID.IsUnknown() {
-		profileId = data.NetworkProfileID.ValueInt64Pointer()
+		profileID = data.NetworkProfileID.ValueInt64Pointer()
 	}
 
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
 		Name:             data.Name.ValueString(),
 		UserVersion:      data.Version.ValueString(),
-		NetworkProfileID: profileId,
+		NetworkProfileID: profileID,
 	}
 
 	result, err := r.client.MachinePool().Update(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64(), machinePoolUpdateInput)
