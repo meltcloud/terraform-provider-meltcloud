@@ -4,14 +4,14 @@ page_title: "meltcloud_machine_pool Resource - meltcloud"
 subcategory: ""
 description: |-
   A Machine Pool https://meltcloud.io/docs/guides/machine-pools/create.html is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
-  ~> Be aware that changing the version or the primary_disk_device will cause a new Revision that will be applied immediately, causing a reboot of all Machines https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions.
+  ~> Be aware that changing the version or the network profile will cause a new Revision that will be applied immediately, causing a reboot of all Machines https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions.
 ---
 
 # meltcloud_machine_pool (Resource)
 
 A [Machine Pool](https://meltcloud.io/docs/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
 
-~> Be aware that changing the version or the primary_disk_device will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).
+~> Be aware that changing the version or the network profile will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).
 
 ## Example Usage
 
@@ -29,9 +29,8 @@ resource "meltcloud_cluster" "example" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name                = "pool1"
-  version             = "1.29"
-  primary_disk_device = "/dev/vda"
+  name    = "pool1"
+  version = "1.29"
 }
 ```
 
@@ -47,8 +46,6 @@ resource "meltcloud_machine_pool" "example" {
 ### Optional
 
 - `network_profile_id` (Number) ID of the network profile
-- `primary_disk_device` (String) Name of the primary disk of the machine, i.e. /dev/vda
-- `reuse_existing_root_partition` (Boolean) Reuse existing Partition for the ephemeral root
 
 ### Read-Only
 

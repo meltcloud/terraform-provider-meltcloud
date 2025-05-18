@@ -61,30 +61,29 @@ resource "meltcloud_machine_pool" "equinix" {
 
   name    = "equinix-pool"
   version = "1.30"
-
-  # equinix has the ephemeral disk on /dev/sda
-  primary_disk_device = "/dev/sda"
-}
-
-resource "random_uuid" "machine" {
 }
 
 # pre-register the machine on meltcloud and assign it to the pool
 resource "meltcloud_machine" "equinix01" {
   machine_pool_id = meltcloud_machine_pool.equinix.id
 
-  uuid = random_uuid.machine.result
+  uuid = equinix_metal_device.equinix01.id
   name = "melt-equinix-01"
+
+  // TODO this currently won't work unless we implement update_existing = true
 }
 
-# create ipxe chain url for boot
-resource "time_offset" "in_a_year" {
-  offset_days = 365
+# create enrollment image for boot
+resource "time_offset" "in_a_day" {
+  offset_days = 1
 }
 
-resource "meltcloud_ipxe_chain_url" "equinix" {
+resource "meltcloud_enrollment_image" "equinix" {
   name       = "equinix"
-  expires_at = time_offset.in_a_year.rfc3339
+  expires_at = time_offset.in_a_day.rfc3339
+
+  # equinix has the ephemeral disk on /dev/sda
+  install_disk_device = "/dev/sda"
 }
 
 # create a bare metal machine!
@@ -98,7 +97,7 @@ resource "equinix_metal_device" "equinix01" {
   # adapt to your project
   project_id = "f46295d8-833a-4b96-a5e5-8e85ce2d471d"
   always_pxe = "true"
-  user_data  = provider::meltcloud::customize_uuid_in_ipxe_script(meltcloud_ipxe_chain_url.equinix.script, meltcloud_machine.equinix01.uuid)
+  user_data  = meltcloud_enrollment_image.equinix.ipxe_script_https_amd64
 }
 
 provider "helm" {

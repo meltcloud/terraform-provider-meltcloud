@@ -7,15 +7,10 @@ import (
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -35,14 +30,12 @@ type MachinePoolResource struct {
 
 // MachinePoolResourceModel describes the resource data model.
 type MachinePoolResourceModel struct {
-	ID                         types.Int64  `tfsdk:"id"`
-	ClusterId                  types.Int64  `tfsdk:"cluster_id"`
-	Name                       types.String `tfsdk:"name"`
-	PrimaryDiskDevice          types.String `tfsdk:"primary_disk_device"`
-	ReuseExistingRootPartition types.Bool   `tfsdk:"reuse_existing_root_partition"`
-	Version                    types.String `tfsdk:"version"`
-	PatchVersion               types.String `tfsdk:"patch_version"`
-	NetworkProfileID           types.Int64  `tfsdk:"network_profile_id"`
+	ID               types.Int64  `tfsdk:"id"`
+	ClusterId        types.Int64  `tfsdk:"cluster_id"`
+	Name             types.String `tfsdk:"name"`
+	Version          types.String `tfsdk:"version"`
+	PatchVersion     types.String `tfsdk:"patch_version"`
+	NetworkProfileID types.Int64  `tfsdk:"network_profile_id"`
 }
 
 func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -72,25 +65,6 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Name of the machine pool",
 			Required:            true,
 		},
-		"primary_disk_device": schema.StringAttribute{
-			MarkdownDescription: "Name of the primary disk of the machine, i.e. /dev/vda",
-			Computed:            true,
-			Optional:            true,
-			Default:             stringdefault.StaticString(""),
-		},
-		"reuse_existing_root_partition": schema.BoolAttribute{
-			MarkdownDescription: "Reuse existing Partition for the ephemeral root",
-			Optional:            true,
-			Computed:            true,
-			Default:             booldefault.StaticBool(false),
-			Validators: []validator.Bool{
-				boolvalidator.Equals(true),
-				boolvalidator.ExactlyOneOf(path.Expressions{
-					path.MatchRoot("primary_disk_device"),
-					path.MatchRoot("reuse_existing_root_partition"),
-				}...),
-			},
-		},
 		"version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
 			Required:            true,
@@ -109,7 +83,7 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machinePoolDesc + "\n\n" +
-			"~> Be aware that changing the version or the primary_disk_device will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).",
+			"~> Be aware that changing the version or the network profile will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).",
 
 		Attributes: machinePoolResourceAttributes(),
 	}
@@ -150,11 +124,9 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
-		Name:                       data.Name.ValueString(),
-		PrimaryDiskDevice:          data.PrimaryDiskDevice.ValueString(),
-		ReuseExistingRootPartition: data.ReuseExistingRootPartition.ValueBool(),
-		UserVersion:                data.Version.ValueString(),
-		NetworkProfileID:           profileId,
+		Name:             data.Name.ValueString(),
+		UserVersion:      data.Version.ValueString(),
+		NetworkProfileID: profileId,
 	}
 
 	result, err := r.client.MachinePool().Create(ctx, data.ClusterId.ValueInt64(), machinePoolCreateInput)
@@ -194,8 +166,6 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 	} else {
 		data.NetworkProfileID = types.Int64Value(*result.MachinePool.NetworkProfileID)
 	}
-	data.PrimaryDiskDevice = types.StringValue(result.MachinePool.PrimaryDiskDevice)
-	data.ReuseExistingRootPartition = types.BoolValue(result.MachinePool.ReuseExistingRootPartition)
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 
@@ -211,19 +181,14 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	var profileId *int64
-	if data.NetworkProfileID.IsNull() {
-		profileId = nil
-	} else {
-		var value = data.NetworkProfileID.ValueInt64()
-		profileId = &value
+	if !data.NetworkProfileID.IsNull() && !data.NetworkProfileID.IsUnknown() {
+		profileId = data.NetworkProfileID.ValueInt64Pointer()
 	}
 
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
-		Name:                       data.Name.ValueString(),
-		PrimaryDiskDevice:          data.PrimaryDiskDevice.ValueString(),
-		ReuseExistingRootPartition: data.ReuseExistingRootPartition.ValueBool(),
-		UserVersion:                data.Version.ValueString(),
-		NetworkProfileID:           profileId,
+		Name:             data.Name.ValueString(),
+		UserVersion:      data.Version.ValueString(),
+		NetworkProfileID: profileId,
 	}
 
 	result, err := r.client.MachinePool().Update(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64(), machinePoolUpdateInput)
