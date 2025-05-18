@@ -15,30 +15,24 @@ type MachinePoolResult struct {
 }
 
 type MachinePool struct {
-	ID                         int64  `json:"id"`
-	Name                       string `json:"name"`
-	UserVersion                string `json:"user_version"`
-	PatchVersion               string `json:"patch_version"`
-	PrimaryDiskDevice          string `json:"primary_disk_device"`
-	ReuseExistingRootPartition bool   `json:"reuse_existing_root_partition"`
-	Status                     string `json:"status"`
-	NetworkProfileID           *int64 `json:"network_profile_id"`
+	ID               int64  `json:"id"`
+	Name             string `json:"name"`
+	UserVersion      string `json:"user_version"`
+	PatchVersion     string `json:"patch_version"`
+	Status           string `json:"status"`
+	NetworkProfileID *int64 `json:"network_profile_id"`
 }
 
 type MachinePoolCreateInput struct {
-	Name                       string `json:"name"`
-	UserVersion                string `json:"user_version"`
-	PrimaryDiskDevice          string `json:"primary_disk_device"`
-	ReuseExistingRootPartition bool   `json:"reuse_existing_root_partition"`
-	NetworkProfileID           *int64 `json:"network_profile_id"`
+	Name             string `json:"name"`
+	UserVersion      string `json:"user_version"`
+	NetworkProfileID *int64 `json:"network_profile_id"`
 }
 
 type MachinePoolUpdateInput struct {
-	Name                       string `json:"name"`
-	UserVersion                string `json:"user_version"`
-	PrimaryDiskDevice          string `json:"primary_disk_device"`
-	ReuseExistingRootPartition bool   `json:"reuse_existing_root_partition"`
-	NetworkProfileID           *int64 `json:"network_profile_id"`
+	Name             string `json:"name"`
+	UserVersion      string `json:"user_version"`
+	NetworkProfileID *int64 `json:"network_profile_id"`
 }
 
 func (c *Client) MachinePool() *MachinePoolRequest {
