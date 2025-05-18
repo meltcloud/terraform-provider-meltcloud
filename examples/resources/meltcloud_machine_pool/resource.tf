@@ -11,7 +11,6 @@ resource "meltcloud_cluster" "example" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name                = "pool1"
-  version             = "1.29"
-  primary_disk_device = "/dev/vda"
+  name    = "pool1"
+  version = "1.29"
 }

@@ -1,3 +1,2 @@
-ipxe.iso
 *.kubeconfig
 .terraform.lock.hcl

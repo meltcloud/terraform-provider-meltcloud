@@ -40,52 +40,6 @@ data "meltcloud_enrollment_image" "example_name" {
   name = meltcloud_enrollment_image.example.name
 }
 
-resource "meltcloud_ipxe_boot_artifact" "example" {
-  name       = "my-artifact"
-  expires_at = time_offset.in_a_year.rfc3339
-}
-
-data "meltcloud_ipxe_boot_artifact" "example_id" {
-  id = meltcloud_ipxe_boot_artifact.example.id
-}
-
-data "meltcloud_ipxe_boot_artifact" "example_name" {
-  name = meltcloud_ipxe_boot_artifact.example.name
-}
-
-resource "meltcloud_uefi_http_boot_url" "example" {
-  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
-  protocols             = "http_and_https"
-
-  name       = "my-boot-url"
-  expires_at = time_offset.in_a_year.base_rfc3339
-}
-
-data "meltcloud_uefi_http_boot_url" "example_id" {
-  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
-  id                    = meltcloud_uefi_http_boot_url.example.id
-}
-
-data "meltcloud_uefi_http_boot_url" "example_name" {
-  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
-  name                  = meltcloud_uefi_http_boot_url.example.name
-}
-
-resource "meltcloud_ipxe_chain_url" "example" {
-  name       = "my-chain-url"
-  expires_at = time_offset.in_a_year.rfc3339
-}
-
-data "meltcloud_ipxe_chain_url" "example_id" {
-  id = meltcloud_ipxe_chain_url.example.id
-}
-
-data "meltcloud_ipxe_chain_url" "example_name" {
-  name = meltcloud_ipxe_chain_url.example.name
-}
-
-resource "random_uuid" "machine_override" {
-}
 
 resource "meltcloud_cluster" "example" {
   name           = "melt03"
@@ -106,9 +60,8 @@ data "meltcloud_cluster" "example_name" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name                = "pool1"
-  version             = "1.29"
-  primary_disk_device = "/dev/vda"
+  name    = "pool1"
+  version = "1.29"
 
   network_profile_id = meltcloud_network_profile.example.id
 }

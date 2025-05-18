@@ -109,9 +109,6 @@ func (p *MeltcloudProvider) Resources(ctx context.Context) []func() resource.Res
 		NewMachinePoolResource,
 		NewMachineResource,
 		NewEnrollmentImageResource,
-		NewIPXEBootArtifactResource,
-		NewIPXEChainURLResource,
-		NewUEFIHTTPBootURLResource,
 		NewNetworkProfileResource,
 	}
 }
@@ -122,17 +119,12 @@ func (p *MeltcloudProvider) DataSources(ctx context.Context) []func() datasource
 		NewMachinePoolDataSource,
 		NewMachineDataSource,
 		NewEnrollmentImageDataSource,
-		NewIPXEBootArtifactDataSource,
-		NewIPXEChainURLDataSource,
-		NewUEFIHTTPBootURLDataSource,
 		NewNetworkProfileDataSource,
 	}
 }
 
 func (p *MeltcloudProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewCustomizeUUIDInIPXEScriptFunction,
-	}
+	return []func() function.Function{}
 }
 
 func New(version string) func() provider.Provider {
