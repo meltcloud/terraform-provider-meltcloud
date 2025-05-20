@@ -42,11 +42,13 @@ data "meltcloud_enrollment_image" "example_name" {
 
 
 resource "meltcloud_cluster" "example" {
-  name           = "melt03"
-  version        = "1.30"
-  pod_cidr       = "10.36.0.0/16"
-  service_cidr   = "10.96.0.0/16"
-  dns_service_ip = "10.96.0.10"
+  name             = "melt03"
+  version          = "1.30"
+  pod_cidr         = "10.36.0.0/16"
+  service_cidr     = "10.96.0.0/16"
+  dns_service_ip   = "10.96.0.10"
+  addon_core_dns   = false
+  addon_kube_proxy = false
 }
 
 data "meltcloud_cluster" "example_id" {

@@ -34,6 +34,8 @@ data "meltcloud_cluster" "example_name" {
 
 ### Read-Only
 
+- `addon_core_dns` (String) Enable CoreDNS Addon
+- `addon_kube_proxy` (String) Enable kube-proxy Addon
 - `control_plane_status` (String) Control Plane Status of the Cluster
 - `dns_service_ip` (String) IP for the DNS service
 - `kubeconfig` (Attributes, Sensitive) (see [below for nested schema](#nestedatt--kubeconfig))
