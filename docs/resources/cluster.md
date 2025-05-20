@@ -59,6 +59,11 @@ resource "helm_release" "cilium" {
 - `service_cidr` (String) CIDR for the Kubernetes Services
 - `version` (String) Kubernetes minor version of the cluster control plane
 
+### Optional
+
+- `addon_core_dns` (Boolean) Enable CoreDNS Addon
+- `addon_kube_proxy` (Boolean) Enable KubeProxy Addon
+
 ### Read-Only
 
 - `id` (Number) Internal ID of the Cluster in meltcloud

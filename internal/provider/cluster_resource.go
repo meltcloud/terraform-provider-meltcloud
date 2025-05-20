@@ -38,6 +38,8 @@ type ClusterResourceModel struct {
 	PodCIDR           types.String `tfsdk:"pod_cidr"`
 	ServiceCIDR       types.String `tfsdk:"service_cidr"`
 	DNSServiceIP      types.String `tfsdk:"dns_service_ip"`
+	AddonKubeProxy    types.Bool   `tfsdk:"addon_kube_proxy"`
+	AddonCoreDNS      types.Bool   `tfsdk:"addon_core_dns"`
 	KubeConfigRaw     types.String `tfsdk:"kubeconfig_raw"`
 	KubeConfig        types.Object `tfsdk:"kubeconfig"`
 	KubeConfigUserRaw types.String `tfsdk:"kubeconfig_user_raw"`
@@ -93,6 +95,14 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 		"dns_service_ip": schema.StringAttribute{
 			MarkdownDescription: "IP for the DNS service",
 			Required:            true,
+		},
+		"addon_kube_proxy": schema.BoolAttribute{
+			MarkdownDescription: "Enable KubeProxy Addon",
+			Optional:            true,
+		},
+		"addon_core_dns": schema.BoolAttribute{
+			MarkdownDescription: "Enable CoreDNS Addon",
+			Optional:            true,
 		},
 		"kubeconfig": schema.SingleNestedAttribute{
 			Description: "Kubeconfig values for the admin user",
@@ -174,12 +184,25 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	var addonKubeProxy *bool
+	if !data.AddonKubeProxy.IsNull() && !data.AddonKubeProxy.IsUnknown() {
+		v := data.AddonKubeProxy.ValueBool()
+		addonKubeProxy = &v
+	}
+
+	var addonCoreDNS *bool
+	if !data.AddonCoreDNS.IsNull() && !data.AddonCoreDNS.IsUnknown() {
+		v := data.AddonCoreDNS.ValueBool()
+		addonCoreDNS = &v
+	}
 	clusterCreateInput := &client.ClusterCreateInput{
-		Name:         data.Name.ValueString(),
-		UserVersion:  data.Version.ValueString(),
-		PodCIDR:      data.PodCIDR.ValueString(),
-		ServiceCIDR:  data.ServiceCIDR.ValueString(),
-		DNSServiceIP: data.DNSServiceIP.ValueString(),
+		Name:           data.Name.ValueString(),
+		UserVersion:    data.Version.ValueString(),
+		PodCIDR:        data.PodCIDR.ValueString(),
+		ServiceCIDR:    data.ServiceCIDR.ValueString(),
+		DNSServiceIP:   data.DNSServiceIP.ValueString(),
+		AddonKubeProxy: addonKubeProxy,
+		AddonCoreDNS:   addonCoreDNS,
 	}
 
 	clusterCreateResult, err := r.client.Cluster().Create(ctx, clusterCreateInput)
@@ -247,6 +270,8 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.PodCIDR = types.StringValue(result.Cluster.PodCIDR)
 	data.ServiceCIDR = types.StringValue(result.Cluster.ServiceCIDR)
 	data.DNSServiceIP = types.StringValue(result.Cluster.DNSServiceIP)
+	data.AddonKubeProxy = types.BoolValue(result.Cluster.AddonKubeProxy)
+	data.AddonCoreDNS = types.BoolValue(result.Cluster.AddonCoreDNS)
 	data.KubeConfigRaw = types.StringValue(result.Cluster.KubeConfig)
 	data.KubeConfigUserRaw = types.StringValue(result.Cluster.KubeConfigUser)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
