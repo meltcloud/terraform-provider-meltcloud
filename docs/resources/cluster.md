@@ -62,7 +62,7 @@ resource "helm_release" "cilium" {
 ### Optional
 
 - `addon_core_dns` (Boolean) Enable CoreDNS Addon
-- `addon_kube_proxy` (Boolean) Enable KubeProxy Addon
+- `addon_kube_proxy` (Boolean) Enable kube-proxy Addon
 
 ### Read-Only
 
