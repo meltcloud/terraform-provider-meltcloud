@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -101,17 +100,11 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Enable kube-proxy Addon",
 			Optional:            true,
 			Computed:            true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.RequiresReplace(),
-			},
 		},
 		"addon_core_dns": schema.BoolAttribute{
 			MarkdownDescription: "Enable CoreDNS Addon",
 			Optional:            true,
 			Computed:            true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.RequiresReplace(),
-			},
 		},
 		"kubeconfig": schema.SingleNestedAttribute{
 			Description: "Kubeconfig values for the admin user",
@@ -235,7 +228,9 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	data.ID = types.Int64Value(clusterGetResult.Cluster.ID)
-	r.setValues(clusterCreateResult.Cluster, &data)
+	data.Version = types.StringValue(clusterGetResult.Cluster.UserVersion)
+	data.PatchVersion = types.StringValue(clusterGetResult.Cluster.PatchVersion)
+	r.setValues(clusterGetResult.Cluster, &data)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(clusterGetResult.Cluster.KubeConfig)
@@ -269,6 +264,8 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.PodCIDR = types.StringValue(result.Cluster.PodCIDR)
 	data.ServiceCIDR = types.StringValue(result.Cluster.ServiceCIDR)
 	data.DNSServiceIP = types.StringValue(result.Cluster.DNSServiceIP)
+	data.Version = types.StringValue(result.Cluster.UserVersion)
+	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
 	r.setValues(result.Cluster, &data)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
@@ -284,8 +281,6 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 func (r *ClusterResource) setValues(result *client.Cluster, data *ClusterResourceModel) {
 	data.Name = types.StringValue(result.Name)
-	data.Version = types.StringValue(result.UserVersion)
-	data.PatchVersion = types.StringValue(result.PatchVersion)
 	data.AddonKubeProxy = types.BoolValue(result.AddonKubeProxy)
 	data.AddonCoreDNS = types.BoolValue(result.AddonCoreDNS)
 	data.KubeConfigRaw = types.StringValue(result.KubeConfig)
@@ -338,12 +333,21 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 			return
 		}
-		data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
-	} else {
-		data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
 	}
-
+	r.setValues(result.Cluster, &data)
+	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(result.Cluster.KubeConfig)
+	if kErr != nil {
+		resp.Diagnostics.AddError("Client Error", kErr.Error())
+		return
+	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	diags := resp.State.SetAttribute(ctx, path.Root("kubeconfig"), kubeConfigResourceModel)
+	resp.Diagnostics.Append(diags...)
+
 }
 
 func (r *ClusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
