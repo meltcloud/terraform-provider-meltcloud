@@ -266,6 +266,9 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 		return
 	}
+	data.PodCIDR = types.StringValue(result.Cluster.PodCIDR)
+	data.ServiceCIDR = types.StringValue(result.Cluster.ServiceCIDR)
+	data.DNSServiceIP = types.StringValue(result.Cluster.DNSServiceIP)
 	r.setValues(result.Cluster, &data)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
@@ -283,9 +286,6 @@ func (r *ClusterResource) setValues(result *client.Cluster, data *ClusterResourc
 	data.Name = types.StringValue(result.Name)
 	data.Version = types.StringValue(result.UserVersion)
 	data.PatchVersion = types.StringValue(result.PatchVersion)
-	data.PodCIDR = types.StringValue(result.PodCIDR)
-	data.ServiceCIDR = types.StringValue(result.ServiceCIDR)
-	data.DNSServiceIP = types.StringValue(result.DNSServiceIP)
 	data.AddonKubeProxy = types.BoolValue(result.AddonKubeProxy)
 	data.AddonCoreDNS = types.BoolValue(result.AddonCoreDNS)
 	data.KubeConfigRaw = types.StringValue(result.KubeConfig)
