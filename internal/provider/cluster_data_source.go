@@ -37,6 +37,8 @@ type ClusterDataSourceModel struct {
 	PodCIDR            types.String               `tfsdk:"pod_cidr"`
 	ServiceCIDR        types.String               `tfsdk:"service_cidr"`
 	DNSServiceIP       types.String               `tfsdk:"dns_service_ip"`
+	AddonKubeProxy     types.Bool                 `tfsdk:"addon_kube_proxy"`
+	AddonCoreDNS       types.Bool                 `tfsdk:"addon_core_dns"`
 	KubeConfigRaw      types.String               `tfsdk:"kubeconfig_raw"`
 	KubeConfig         *KubeConfigDataSourceModel `tfsdk:"kubeconfig"`
 	KubeConfigUserRaw  types.String               `tfsdk:"kubeconfig_user_raw"`
@@ -98,6 +100,14 @@ func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 			"dns_service_ip": schema.StringAttribute{
 				MarkdownDescription: clusterResourceAttributes()["dns_service_ip"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"addon_kube_proxy": schema.StringAttribute{
+				MarkdownDescription: clusterResourceAttributes()["addon_kube_proxy"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"addon_core_dns": schema.StringAttribute{
+				MarkdownDescription: clusterResourceAttributes()["addon_core_dns"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"kubeconfig": schema.SingleNestedAttribute{
@@ -216,6 +226,8 @@ func (d *ClusterDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	data.PodCIDR = types.StringValue(cluster.PodCIDR)
 	data.ServiceCIDR = types.StringValue(cluster.ServiceCIDR)
 	data.DNSServiceIP = types.StringValue(cluster.DNSServiceIP)
+	data.AddonKubeProxy = types.BoolValue(cluster.AddonKubeProxy)
+	data.AddonCoreDNS = types.BoolValue(cluster.AddonCoreDNS)
 	data.KubeConfigRaw = types.StringValue(cluster.KubeConfig)
 	data.KubeConfigUserRaw = types.StringValue(cluster.KubeConfigUser)
 
