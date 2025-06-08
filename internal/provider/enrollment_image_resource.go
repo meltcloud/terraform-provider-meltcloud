@@ -55,7 +55,7 @@ func (r *EnrollmentImageResource) Metadata(ctx context.Context, req resource.Met
 	resp.TypeName = req.ProviderTypeName + "_enrollment_image"
 }
 
-const enrollmentImageDesc string = "An [Enrollment Image](https://meltcloud.io/docs/guides/boot-config/enrollment-image.html) creates bootable images to enroll your Machines into your meltcloud organization."
+const enrollmentImageDesc string = "An [Enrollment Image](https://docs.meltcloud.io/guides/boot-config/enrollment-image.html) creates bootable images to enroll your Machines into your meltcloud organization."
 
 func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

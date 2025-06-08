@@ -3,12 +3,12 @@
 page_title: "meltcloud_machine Data Source - meltcloud"
 subcategory: ""
 description: |-
-  Machines https://meltcloud.io/docs/guides/machines/intro.html are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
+  Machines https://docs.meltcloud.io/guides/machines/intro.html are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
 ---
 
 # meltcloud_machine (Data Source)
 
-[Machines](https://meltcloud.io/docs/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
+[Machines](https://docs.meltcloud.io/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
 
 ## Example Usage
 
