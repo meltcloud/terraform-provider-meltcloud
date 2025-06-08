@@ -3,15 +3,15 @@
 page_title: "meltcloud_machine_pool Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Machine Pool https://meltcloud.io/docs/guides/machine-pools/create.html is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
-  ~> Be aware that changing the version or the network profile will cause a new Revision that will be applied immediately, causing a reboot of all Machines https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions.
+  A Machine Pool https://docs.meltcloud.io/guides/machine-pools/create.html is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
+  ~> Be aware that changing the version or the network profile will cause a new Revision that will be applied immediately, causing a reboot of all Machines https://docs.meltcloud.io/guides/machine-pools/upgrade.html#revisions.
 ---
 
 # meltcloud_machine_pool (Resource)
 
-A [Machine Pool](https://meltcloud.io/docs/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
+A [Machine Pool](https://docs.meltcloud.io/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
 
-~> Be aware that changing the version or the network profile will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).
+~> Be aware that changing the version or the network profile will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://docs.meltcloud.io/guides/machine-pools/upgrade.html#revisions).
 
 ## Example Usage
 

@@ -3,12 +3,12 @@
 page_title: "meltcloud_cluster Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Cluster https://meltcloud.io/docs/guides/clusters/create.html in meltcloud consists of a Kubernetes Control Plane and associated objects like Machine Pools https://meltcloud.io/docs/guides/machine-pools/create.html (which hold assigned Machines https://meltcloud.io/docs/guides/machine-pools/intro.html).
+  A Cluster https://docs.meltcloud.io/guides/clusters/create.html in meltcloud consists of a Kubernetes Control Plane and associated objects like Machine Pools https://docs.meltcloud.io/guides/machine-pools/create.html (which hold assigned Machines https://docs.meltcloud.io/guides/machine-pools/intro.html).
 ---
 
 # meltcloud_cluster (Data Source)
 
-A [Cluster](https://meltcloud.io/docs/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://meltcloud.io/docs/guides/machine-pools/create.html) (which hold assigned [Machines](https://meltcloud.io/docs/guides/machine-pools/intro.html)).
+A [Cluster](https://docs.meltcloud.io/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://docs.meltcloud.io/guides/machine-pools/create.html) (which hold assigned [Machines](https://docs.meltcloud.io/guides/machine-pools/intro.html)).
 
 ## Example Usage
 

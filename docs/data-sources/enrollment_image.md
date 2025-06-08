@@ -3,12 +3,12 @@
 page_title: "meltcloud_enrollment_image Data Source - meltcloud"
 subcategory: ""
 description: |-
-  An Enrollment Image https://meltcloud.io/docs/guides/boot-config/enrollment-image.html creates bootable images to enroll your Machines into your meltcloud organization.
+  An Enrollment Image https://docs.meltcloud.io/guides/boot-config/enrollment-image.html creates bootable images to enroll your Machines into your meltcloud organization.
 ---
 
 # meltcloud_enrollment_image (Data Source)
 
-An [Enrollment Image](https://meltcloud.io/docs/guides/boot-config/enrollment-image.html) creates bootable images to enroll your Machines into your meltcloud organization.
+An [Enrollment Image](https://docs.meltcloud.io/guides/boot-config/enrollment-image.html) creates bootable images to enroll your Machines into your meltcloud organization.
 
 ## Example Usage
 

@@ -42,7 +42,7 @@ func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.Metadat
 	resp.TypeName = req.ProviderTypeName + "_machine_pool"
 }
 
-const machinePoolDesc = "A [Machine Pool](https://meltcloud.io/docs/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) " +
+const machinePoolDesc = "A [Machine Pool](https://docs.meltcloud.io/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) " +
 	"which share a set of common configuration such as Kubelet version, disk or network configuration."
 
 func machinePoolResourceAttributes() map[string]schema.Attribute {
@@ -83,7 +83,7 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machinePoolDesc + "\n\n" +
-			"~> Be aware that changing the version or the network profile will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).",
+			"~> Be aware that changing the version or the network profile will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://docs.meltcloud.io/guides/machine-pools/upgrade.html#revisions).",
 
 		Attributes: machinePoolResourceAttributes(),
 	}
