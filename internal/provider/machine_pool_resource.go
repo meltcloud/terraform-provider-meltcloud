@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
@@ -11,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -30,27 +30,19 @@ type MachinePoolResource struct {
 
 // MachinePoolResourceModel describes the resource data model.
 type MachinePoolResourceModel struct {
-	ID                    types.Int64  `tfsdk:"id"`
-	ClusterId             types.Int64  `tfsdk:"cluster_id"`
-	Name                  types.String `tfsdk:"name"`
-	PrimaryDiskDevice     types.String `tfsdk:"primary_disk_device"`
-	Version               types.String `tfsdk:"version"`
-	PatchVersion          types.String `tfsdk:"patch_version"`
-	NetworkConfigurations types.List   `tfsdk:"network_configuration"`
-}
-
-type NetworkConfigurationResourceModel struct {
-	Type       types.String `tfsdk:"type"`
-	Interfaces types.String `tfsdk:"interfaces"`
-	VLANMode   types.String `tfsdk:"vlan_mode"`
-	VLANs      types.String `tfsdk:"vlans"`
+	ID               types.Int64  `tfsdk:"id"`
+	ClusterId        types.Int64  `tfsdk:"cluster_id"`
+	Name             types.String `tfsdk:"name"`
+	Version          types.String `tfsdk:"version"`
+	PatchVersion     types.String `tfsdk:"patch_version"`
+	NetworkProfileID types.Int64  `tfsdk:"network_profile_id"`
 }
 
 func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_machine_pool"
 }
 
-const machinePoolDesc = "A [Machine Pool](https://meltcloud.io/docs/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) " +
+const machinePoolDesc = "A [Machine Pool](https://docs.meltcloud.io/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) " +
 	"which share a set of common configuration such as Kubelet version, disk or network configuration."
 
 func machinePoolResourceAttributes() map[string]schema.Attribute {
@@ -73,10 +65,6 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Name of the machine pool",
 			Required:            true,
 		},
-		"primary_disk_device": schema.StringAttribute{
-			MarkdownDescription: "Name of the primary disk of the machine, i.e. /dev/vda",
-			Required:            true,
-		},
 		"version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
 			Required:            true,
@@ -85,30 +73,9 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
 			Computed:            true,
 		},
-	}
-}
-
-func networkConfigurationResourceAttributes() map[string]schema.Attribute {
-	return map[string]schema.Attribute{
-		"type": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "The network type - must be 'native' or 'bond'",
-		},
-
-		"interfaces": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "Interface name (for network type native), wildcard or space-separated list of interfaces (for network type bond)",
-		},
-
-		"vlan_mode": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "The VLAN mode - must be 'default' or 'trunk'",
-		},
-
-		"vlans": schema.StringAttribute{
+		"network_profile_id": schema.Int64Attribute{
+			MarkdownDescription: "ID of the network profile",
 			Optional:            true,
-			Computed:            false,
-			MarkdownDescription: "Comma-separated list of VLAN-IDs (required for VLAN mode trunk)",
 		},
 	}
 }
@@ -116,17 +83,9 @@ func networkConfigurationResourceAttributes() map[string]schema.Attribute {
 func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machinePoolDesc + "\n\n" +
-			"~> Be aware that changing the version or the primary_disk_device will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).",
+			"~> Be aware that changing the version or the network profile will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://docs.meltcloud.io/guides/machine-pools/upgrade.html#revisions).",
 
 		Attributes: machinePoolResourceAttributes(),
-
-		Blocks: map[string]schema.Block{
-			"network_configuration": schema.ListNestedBlock{
-				NestedObject: schema.NestedBlockObject{
-					Attributes: networkConfigurationResourceAttributes(),
-				},
-			},
-		},
 	}
 }
 
@@ -158,18 +117,16 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	var networkConfigurations []NetworkConfigurationResourceModel
-	diags := data.NetworkConfigurations.ElementsAs(ctx, &networkConfigurations, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
-		return
+	var profileID *int64 = nil
+	if !data.NetworkProfileID.IsNull() {
+		var value = data.NetworkProfileID.ValueInt64()
+		profileID = &value
 	}
 
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
-		Name:                  data.Name.ValueString(),
-		PrimaryDiskDevice:     data.PrimaryDiskDevice.ValueString(),
-		UserVersion:           data.Version.ValueString(),
-		NetworkConfigurations: r.networkConfigurationInput(networkConfigurations),
+		Name:             data.Name.ValueString(),
+		UserVersion:      data.Version.ValueString(),
+		NetworkProfileID: profileID,
 	}
 
 	result, err := r.client.MachinePool().Create(ctx, data.ClusterId.ValueInt64(), machinePoolCreateInput)
@@ -182,19 +139,6 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-}
-
-func (r *MachinePoolResource) networkConfigurationInput(networkConfigurations []NetworkConfigurationResourceModel) []client.NetworkConfiguration {
-	var networkConfigurationInput []client.NetworkConfiguration
-	for _, networkConfiguration := range networkConfigurations {
-		networkConfigurationInput = append(networkConfigurationInput, client.NetworkConfiguration{
-			Type:       networkConfiguration.Type.ValueString(),
-			Interfaces: networkConfiguration.Interfaces.ValueString(),
-			VLANMode:   networkConfiguration.VLANMode.ValueString(),
-			VLANs:      networkConfiguration.VLANs.ValueString(),
-		})
-	}
-	return networkConfigurationInput
 }
 
 func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -217,24 +161,13 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	data.Name = types.StringValue(result.MachinePool.Name)
-	data.PrimaryDiskDevice = types.StringValue(result.MachinePool.PrimaryDiskDevice)
+	if result.MachinePool.NetworkProfileID == nil {
+		data.NetworkProfileID = types.Int64Null()
+	} else {
+		data.NetworkProfileID = types.Int64Value(*result.MachinePool.NetworkProfileID)
+	}
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
-
-	var networkConfigurations []NetworkConfigurationResourceModel
-	for _, networkConfiguration := range result.MachinePool.NetworkConfigurations {
-		networkConfigurations = append(networkConfigurations, NetworkConfigurationResourceModel{
-			Type:       types.StringValue(networkConfiguration.Type),
-			Interfaces: types.StringValue(networkConfiguration.Interfaces),
-			VLANMode:   types.StringValue(networkConfiguration.VLANMode),
-			VLANs:      types.StringValue(networkConfiguration.VLANs),
-		})
-	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_configuration"), networkConfigurations)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -247,18 +180,15 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	var networkConfigurations []NetworkConfigurationResourceModel
-	diags := data.NetworkConfigurations.ElementsAs(ctx, &networkConfigurations, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
-		return
+	var profileID *int64
+	if !data.NetworkProfileID.IsNull() && !data.NetworkProfileID.IsUnknown() {
+		profileID = data.NetworkProfileID.ValueInt64Pointer()
 	}
 
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
-		Name:                  data.Name.ValueString(),
-		PrimaryDiskDevice:     data.PrimaryDiskDevice.ValueString(),
-		UserVersion:           data.Version.ValueString(),
-		NetworkConfigurations: r.networkConfigurationInput(networkConfigurations),
+		Name:             data.Name.ValueString(),
+		UserVersion:      data.Version.ValueString(),
+		NetworkProfileID: profileID,
 	}
 
 	result, err := r.client.MachinePool().Update(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64(), machinePoolUpdateInput)

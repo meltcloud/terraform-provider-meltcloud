@@ -1,10 +1,5 @@
 package provider
 
-import (
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-)
-
 // currently unused
 //const (
 //	providerConfig = `
@@ -16,8 +11,8 @@ import (
 //`
 //)
 
-var (
-	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-		"meltcloud": providerserver.NewProtocol6WithError(New("test")()),
-	}
-)
+//var (
+//	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
+//		"meltcloud": providerserver.NewProtocol6WithError(New("test")()),
+//	}
+//)

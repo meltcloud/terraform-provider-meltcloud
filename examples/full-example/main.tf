@@ -23,64 +23,32 @@ resource "time_offset" "in_a_year" {
   offset_days = 365
 }
 
-resource "meltcloud_ipxe_boot_artifact" "example" {
-  name       = "my-artifact"
-  expires_at = time_offset.in_a_year.rfc3339
+resource "meltcloud_enrollment_image" "example" {
+  name                         = "my-image"
+  expires_at                   = time_offset.in_a_year.rfc3339
+  install_disk_device          = "/dev/vda"
+  install_disk_force_overwrite = true
+  vlan                         = 101
+  enable_http                  = true
 }
 
-data "meltcloud_ipxe_boot_artifact" "example_id" {
-  id = meltcloud_ipxe_boot_artifact.example.id
+data "meltcloud_enrollment_image" "example_id" {
+  id = meltcloud_enrollment_image.example.id
 }
 
-data "meltcloud_ipxe_boot_artifact" "example_name" {
-  name = meltcloud_ipxe_boot_artifact.example.name
+data "meltcloud_enrollment_image" "example_name" {
+  name = meltcloud_enrollment_image.example.name
 }
 
-resource "meltcloud_uefi_http_boot_url" "example" {
-  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
-  protocols             = "http_and_https"
-
-  name       = "my-boot-url"
-  expires_at = time_offset.in_a_year.base_rfc3339
-}
-
-data "meltcloud_uefi_http_boot_url" "example_id" {
-  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
-  id                    = meltcloud_uefi_http_boot_url.example.id
-}
-
-data "meltcloud_uefi_http_boot_url" "example_name" {
-  ipxe_boot_artifact_id = meltcloud_ipxe_boot_artifact.example.id
-  name                  = meltcloud_uefi_http_boot_url.example.name
-}
-
-resource "meltcloud_ipxe_chain_url" "example" {
-  name       = "my-chain-url"
-  expires_at = time_offset.in_a_year.rfc3339
-}
-
-data "meltcloud_ipxe_chain_url" "example_id" {
-  id = meltcloud_ipxe_chain_url.example.id
-}
-
-data "meltcloud_ipxe_chain_url" "example_name" {
-  name = meltcloud_ipxe_chain_url.example.name
-}
-
-resource "random_uuid" "machine_override" {
-}
-
-output "customized_ipxe_script" {
-  sensitive = true
-  value     = provider::meltcloud::customize_uuid_in_ipxe_script(meltcloud_ipxe_chain_url.example.script, random_uuid.machine_override.result)
-}
 
 resource "meltcloud_cluster" "example" {
-  name           = "melt03"
-  version        = "1.30"
-  pod_cidr       = "10.36.0.0/16"
-  service_cidr   = "10.96.0.0/16"
-  dns_service_ip = "10.96.0.10"
+  name             = "melt03"
+  version          = "1.30"
+  pod_cidr         = "10.36.0.0/16"
+  service_cidr     = "10.96.0.0/16"
+  dns_service_ip   = "10.96.0.10"
+  addon_core_dns   = false
+  addon_kube_proxy = false
 }
 
 data "meltcloud_cluster" "example_id" {
@@ -94,21 +62,51 @@ data "meltcloud_cluster" "example_name" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name                = "pool1"
-  version             = "1.29"
-  primary_disk_device = "/dev/vda"
+  name    = "pool1"
+  version = "1.29"
 
-  network_configuration {
-    type       = "bond"
-    interfaces = "eth*"
-    vlan_mode  = "trunk"
-    vlans      = "100,200"
+  network_profile_id = meltcloud_network_profile.example.id
+}
+
+resource "meltcloud_network_profile" "example" {
+  name = "profile1"
+
+  vlan {
+    vlan      = 1
+    dhcp      = false
+    interface = "workload"
   }
 
-  network_configuration {
-    type       = "native"
-    interfaces = "ens0"
-    vlan_mode  = "default"
+  vlan {
+    vlan      = 2
+    dhcp      = false
+    interface = "storage"
+  }
+
+  bridge {
+    name      = "workload.1"
+    interface = "br.workload"
+    dhcp      = true
+  }
+
+  bridge {
+    name      = "storage.2"
+    interface = "br.storage"
+    dhcp      = true
+  }
+
+  bond {
+    name       = "workload"
+    kind       = "default"
+    dhcp       = true
+    interfaces = "eth0,eth1"
+  }
+
+  bond {
+    name       = "storage"
+    kind       = "lacp"
+    dhcp       = false
+    interfaces = "eth2,eth3"
   }
 }
 

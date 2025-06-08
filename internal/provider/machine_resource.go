@@ -3,17 +3,17 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -48,7 +48,7 @@ func (r *MachineResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_machine"
 }
 
-const machineDesc string = "[Machines](https://meltcloud.io/docs/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform."
+const machineDesc string = "[Machines](https://docs.meltcloud.io/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform."
 
 func machineResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
@@ -94,8 +94,8 @@ func labelResourceAttributes() map[string]schema.Attribute {
 func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machineDesc + "\n\n" +
-			"This resource [pre-registers](https://meltcloud.io/docs/guides/machines/intro.html#pre-register) Machines for a later boot.\n\n" +
-			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).",
+			"This resource [pre-registers](https://docs.meltcloud.io/guides/machines/intro.html#pre-register) Machines for a later boot.\n\n" +
+			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://docs.meltcloud.io/guides/machines/intro.html#revisions).",
 
 		Attributes: machineResourceAttributes(),
 
@@ -191,6 +191,8 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.Name = types.StringValue(result.Machine.Name)
 	data.MachinePoolID = types.Int64Value(result.Machine.MachinePoolID)
 
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
 	var labels []LabelResourceModel
 	for _, label := range result.Machine.Labels {
 		labels = append(labels, LabelResourceModel{
@@ -204,7 +206,6 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

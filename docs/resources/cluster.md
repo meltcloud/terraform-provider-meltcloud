@@ -3,12 +3,12 @@
 page_title: "meltcloud_cluster Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Cluster https://meltcloud.io/docs/guides/clusters/create.html in meltcloud consists of a Kubernetes Control Plane and associated objects like Machine Pools https://meltcloud.io/docs/guides/machine-pools/create.html (which hold assigned Machines https://meltcloud.io/docs/guides/machine-pools/intro.html).
+  A Cluster https://docs.meltcloud.io/guides/clusters/create.html in meltcloud consists of a Kubernetes Control Plane and associated objects like Machine Pools https://docs.meltcloud.io/guides/machine-pools/create.html (which hold assigned Machines https://docs.meltcloud.io/guides/machines/intro.html).
 ---
 
 # meltcloud_cluster (Resource)
 
-A [Cluster](https://meltcloud.io/docs/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://meltcloud.io/docs/guides/machine-pools/create.html) (which hold assigned [Machines](https://meltcloud.io/docs/guides/machine-pools/intro.html)).
+A [Cluster](https://docs.meltcloud.io/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://docs.meltcloud.io/guides/machine-pools/create.html) (which hold assigned [Machines](https://docs.meltcloud.io/guides/machines/intro.html)).
 
 ## Example Usage
 
@@ -59,11 +59,17 @@ resource "helm_release" "cilium" {
 - `service_cidr` (String) CIDR for the Kubernetes Services
 - `version` (String) Kubernetes minor version of the cluster control plane
 
+### Optional
+
+- `addon_core_dns` (Boolean) Enable CoreDNS Addon
+- `addon_kube_proxy` (Boolean) Enable kube-proxy Addon
+
 ### Read-Only
 
 - `id` (Number) Internal ID of the Cluster in meltcloud
-- `kubeconfig` (Attributes, Sensitive) (see [below for nested schema](#nestedatt--kubeconfig))
-- `kubeconfig_raw` (String, Sensitive)
+- `kubeconfig` (Attributes, Sensitive) Kubeconfig values for the admin user (see [below for nested schema](#nestedatt--kubeconfig))
+- `kubeconfig_raw` (String, Sensitive) Kubeconfig file for the admin user
+- `kubeconfig_user_raw` (String) Kubeconfig file for the regular (OIDC) users
 - `patch_version` (String) Kubernetes patch version of the cluster control plane
 
 <a id="nestedatt--kubeconfig"></a>

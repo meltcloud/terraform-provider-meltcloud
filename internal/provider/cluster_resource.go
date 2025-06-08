@@ -31,15 +31,18 @@ type ClusterResource struct {
 
 // ClusterResourceModel describes the resource data model.
 type ClusterResourceModel struct {
-	ID            types.Int64  `tfsdk:"id"`
-	Name          types.String `tfsdk:"name"`
-	Version       types.String `tfsdk:"version"`
-	PatchVersion  types.String `tfsdk:"patch_version"`
-	PodCIDR       types.String `tfsdk:"pod_cidr"`
-	ServiceCIDR   types.String `tfsdk:"service_cidr"`
-	DNSServiceIP  types.String `tfsdk:"dns_service_ip"`
-	KubeConfigRaw types.String `tfsdk:"kubeconfig_raw"`
-	KubeConfig    types.Object `tfsdk:"kubeconfig"`
+	ID                types.Int64  `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
+	Version           types.String `tfsdk:"version"`
+	PatchVersion      types.String `tfsdk:"patch_version"`
+	PodCIDR           types.String `tfsdk:"pod_cidr"`
+	ServiceCIDR       types.String `tfsdk:"service_cidr"`
+	DNSServiceIP      types.String `tfsdk:"dns_service_ip"`
+	AddonKubeProxy    types.Bool   `tfsdk:"addon_kube_proxy"`
+	AddonCoreDNS      types.Bool   `tfsdk:"addon_core_dns"`
+	KubeConfigRaw     types.String `tfsdk:"kubeconfig_raw"`
+	KubeConfig        types.Object `tfsdk:"kubeconfig"`
+	KubeConfigUserRaw types.String `tfsdk:"kubeconfig_user_raw"`
 }
 
 type KubeConfigResourceModel struct {
@@ -55,7 +58,7 @@ func (r *ClusterResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_cluster"
 }
 
-const clusterDesc string = "A [Cluster](https://meltcloud.io/docs/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://meltcloud.io/docs/guides/machine-pools/create.html) (which hold assigned [Machines](https://meltcloud.io/docs/guides/machine-pools/intro.html))."
+const clusterDesc string = "A [Cluster](https://docs.meltcloud.io/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://docs.meltcloud.io/guides/machine-pools/create.html) (which hold assigned [Machines](https://docs.meltcloud.io/guides/machines/intro.html))."
 
 func clusterResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
@@ -93,7 +96,18 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "IP for the DNS service",
 			Required:            true,
 		},
+		"addon_kube_proxy": schema.BoolAttribute{
+			MarkdownDescription: "Enable kube-proxy Addon",
+			Optional:            true,
+			Computed:            true,
+		},
+		"addon_core_dns": schema.BoolAttribute{
+			MarkdownDescription: "Enable CoreDNS Addon",
+			Optional:            true,
+			Computed:            true,
+		},
 		"kubeconfig": schema.SingleNestedAttribute{
+			Description: "Kubeconfig values for the admin user",
 			Attributes: map[string]schema.Attribute{
 				"host": schema.StringAttribute{
 					Computed:  true,
@@ -124,8 +138,14 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			Sensitive: true,
 		},
 		"kubeconfig_raw": schema.StringAttribute{
-			Computed:  true,
-			Sensitive: true,
+			Description: "Kubeconfig file for the admin user",
+			Computed:    true,
+			Sensitive:   true,
+		},
+		"kubeconfig_user_raw": schema.StringAttribute{
+			Description: "Kubeconfig file for the regular (OIDC) users",
+			Computed:    true,
+			Sensitive:   false,
 		},
 	}
 }
@@ -166,12 +186,23 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	var addonKubeProxy *bool
+	if !data.AddonKubeProxy.IsNull() && !data.AddonKubeProxy.IsUnknown() {
+		addonKubeProxy = data.AddonKubeProxy.ValueBoolPointer()
+	}
+
+	var addonCoreDNS *bool
+	if !data.AddonCoreDNS.IsNull() && !data.AddonCoreDNS.IsUnknown() {
+		addonCoreDNS = data.AddonCoreDNS.ValueBoolPointer()
+	}
 	clusterCreateInput := &client.ClusterCreateInput{
-		Name:         data.Name.ValueString(),
-		UserVersion:  data.Version.ValueString(),
-		PodCIDR:      data.PodCIDR.ValueString(),
-		ServiceCIDR:  data.ServiceCIDR.ValueString(),
-		DNSServiceIP: data.DNSServiceIP.ValueString(),
+		Name:           data.Name.ValueString(),
+		UserVersion:    data.Version.ValueString(),
+		PodCIDR:        data.PodCIDR.ValueString(),
+		ServiceCIDR:    data.ServiceCIDR.ValueString(),
+		DNSServiceIP:   data.DNSServiceIP.ValueString(),
+		AddonKubeProxy: addonKubeProxy,
+		AddonCoreDNS:   addonCoreDNS,
 	}
 
 	clusterCreateResult, err := r.client.Cluster().Create(ctx, clusterCreateInput)
@@ -197,10 +228,9 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	data.ID = types.Int64Value(clusterGetResult.Cluster.ID)
-	data.Name = types.StringValue(clusterGetResult.Cluster.Name)
 	data.Version = types.StringValue(clusterGetResult.Cluster.UserVersion)
 	data.PatchVersion = types.StringValue(clusterGetResult.Cluster.PatchVersion)
-	data.KubeConfigRaw = types.StringValue(clusterGetResult.Cluster.KubeConfig)
+	r.setValues(clusterGetResult.Cluster, &data)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(clusterGetResult.Cluster.KubeConfig)
@@ -231,14 +261,12 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 		return
 	}
-
-	data.Name = types.StringValue(result.Cluster.Name)
-	data.Version = types.StringValue(result.Cluster.UserVersion)
-	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
 	data.PodCIDR = types.StringValue(result.Cluster.PodCIDR)
 	data.ServiceCIDR = types.StringValue(result.Cluster.ServiceCIDR)
 	data.DNSServiceIP = types.StringValue(result.Cluster.DNSServiceIP)
-	data.KubeConfigRaw = types.StringValue(result.Cluster.KubeConfig)
+	data.Version = types.StringValue(result.Cluster.UserVersion)
+	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
+	r.setValues(result.Cluster, &data)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(result.Cluster.KubeConfig)
@@ -249,6 +277,14 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	diags := resp.State.SetAttribute(ctx, path.Root("kubeconfig"), kubeConfigResourceModel)
 	resp.Diagnostics.Append(diags...)
+}
+
+func (r *ClusterResource) setValues(result *client.Cluster, data *ClusterResourceModel) {
+	data.Name = types.StringValue(result.Name)
+	data.AddonKubeProxy = types.BoolValue(result.AddonKubeProxy)
+	data.AddonCoreDNS = types.BoolValue(result.AddonCoreDNS)
+	data.KubeConfigRaw = types.StringValue(result.KubeConfig)
+	data.KubeConfigUserRaw = types.StringValue(result.KubeConfigUser)
 }
 
 func (r *ClusterResource) getKubeConfigResourceModel(kubeconfig string) (*KubeConfigResourceModel, error) {
@@ -297,12 +333,20 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 			return
 		}
-		data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
-	} else {
-		data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
+	}
+	r.setValues(result.Cluster, &data)
+	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(result.Cluster.KubeConfig)
+	if kErr != nil {
+		resp.Diagnostics.AddError("Client Error", kErr.Error())
+		return
 	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	diags := resp.State.SetAttribute(ctx, path.Root("kubeconfig"), kubeConfigResourceModel)
+	resp.Diagnostics.Append(diags...)
+
 }
 
 func (r *ClusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

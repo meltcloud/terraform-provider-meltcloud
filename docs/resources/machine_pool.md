@@ -3,15 +3,15 @@
 page_title: "meltcloud_machine_pool Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Machine Pool https://meltcloud.io/docs/guides/machine-pools/create.html is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
-  ~> Be aware that changing the version or the primary_disk_device will cause a new Revision that will be applied immediately, causing a reboot of all Machines https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions.
+  A Machine Pool https://docs.meltcloud.io/guides/machine-pools/create.html is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
+  ~> Be aware that changing the version or the network profile will cause a new Revision that will be applied immediately, causing a reboot of all Machines https://docs.meltcloud.io/guides/machine-pools/upgrade.html#revisions.
 ---
 
 # meltcloud_machine_pool (Resource)
 
-A [Machine Pool](https://meltcloud.io/docs/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
+A [Machine Pool](https://docs.meltcloud.io/guides/machine-pools/create.html) is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
 
-~> Be aware that changing the version or the primary_disk_device will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://meltcloud.io/docs/guides/machine-pools/upgrade.html#revisions).
+~> Be aware that changing the version or the network profile will cause a new [Revision that will be applied immediately, causing a reboot of all Machines](https://docs.meltcloud.io/guides/machine-pools/upgrade.html#revisions).
 
 ## Example Usage
 
@@ -29,16 +29,8 @@ resource "meltcloud_cluster" "example" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name                = "pool1"
-  version             = "1.29"
-  primary_disk_device = "/dev/vda"
-
-  network_configuration {
-    type       = "bond"
-    interfaces = "eth*"
-    vlan_mode  = "trunk"
-    vlans      = "100,200"
-  }
+  name    = "pool1"
+  version = "1.29"
 }
 ```
 
@@ -49,30 +41,16 @@ resource "meltcloud_machine_pool" "example" {
 
 - `cluster_id` (Number) ID of the associated cluster
 - `name` (String) Name of the machine pool
-- `primary_disk_device` (String) Name of the primary disk of the machine, i.e. /dev/vda
 - `version` (String) Kubernetes minor version of the machine pool (Kubelet)
 
 ### Optional
 
-- `network_configuration` (Block List) (see [below for nested schema](#nestedblock--network_configuration))
+- `network_profile_id` (Number) ID of the network profile
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the Machine Pool on meltcloud
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
-
-<a id="nestedblock--network_configuration"></a>
-### Nested Schema for `network_configuration`
-
-Required:
-
-- `interfaces` (String) Interface name (for network type native), wildcard or space-separated list of interfaces (for network type bond)
-- `type` (String) The network type - must be 'native' or 'bond'
-- `vlan_mode` (String) The VLAN mode - must be 'default' or 'trunk'
-
-Optional:
-
-- `vlans` (String) Comma-separated list of VLAN-IDs (required for VLAN mode trunk)
 
 ## Import
 

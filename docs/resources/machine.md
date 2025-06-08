@@ -3,18 +3,18 @@
 page_title: "meltcloud_machine Resource - meltcloud"
 subcategory: ""
 description: |-
-  Machines https://meltcloud.io/docs/guides/machines/intro.html are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
-  This resource pre-registers https://meltcloud.io/docs/guides/machines/intro.html#pre-register Machines for a later boot.
-  ~> Be aware that changing the name will cause a new Revision that will be applied immediately, causing a reboot of the Machine https://meltcloud.io/docs/guides/machines/intro.html#revisions.
+  Machines https://docs.meltcloud.io/guides/machines/intro.html are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
+  This resource pre-registers https://docs.meltcloud.io/guides/machines/intro.html#pre-register Machines for a later boot.
+  ~> Be aware that changing the name will cause a new Revision that will be applied immediately, causing a reboot of the Machine https://docs.meltcloud.io/guides/machines/intro.html#revisions.
 ---
 
 # meltcloud_machine (Resource)
 
-[Machines](https://meltcloud.io/docs/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
+[Machines](https://docs.meltcloud.io/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
 
-This resource [pre-registers](https://meltcloud.io/docs/guides/machines/intro.html#pre-register) Machines for a later boot.
+This resource [pre-registers](https://docs.meltcloud.io/guides/machines/intro.html#pre-register) Machines for a later boot.
 
-~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://meltcloud.io/docs/guides/machines/intro.html#revisions).
+~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://docs.meltcloud.io/guides/machines/intro.html#revisions).
 
 ## Example Usage
 
@@ -32,9 +32,8 @@ resource "meltcloud_cluster" "example" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name                = "pool1"
-  version             = "1.29"
-  primary_disk_device = "/dev/vda"
+  name    = "pool1"
+  version = "1.29"
 }
 
 # register a machine assigned to the pool

@@ -3,12 +3,12 @@
 page_title: "meltcloud_cluster Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Cluster https://meltcloud.io/docs/guides/clusters/create.html in meltcloud consists of a Kubernetes Control Plane and associated objects like Machine Pools https://meltcloud.io/docs/guides/machine-pools/create.html (which hold assigned Machines https://meltcloud.io/docs/guides/machine-pools/intro.html).
+  A Cluster https://docs.meltcloud.io/guides/clusters/create.html in meltcloud consists of a Kubernetes Control Plane and associated objects like Machine Pools https://docs.meltcloud.io/guides/machine-pools/create.html (which hold assigned Machines https://docs.meltcloud.io/guides/machines/intro.html).
 ---
 
 # meltcloud_cluster (Data Source)
 
-A [Cluster](https://meltcloud.io/docs/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://meltcloud.io/docs/guides/machine-pools/create.html) (which hold assigned [Machines](https://meltcloud.io/docs/guides/machine-pools/intro.html)).
+A [Cluster](https://docs.meltcloud.io/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://docs.meltcloud.io/guides/machine-pools/create.html) (which hold assigned [Machines](https://docs.meltcloud.io/guides/machines/intro.html)).
 
 ## Example Usage
 
@@ -34,10 +34,13 @@ data "meltcloud_cluster" "example_name" {
 
 ### Read-Only
 
+- `addon_core_dns` (Boolean) Enable CoreDNS Addon
+- `addon_kube_proxy` (Boolean) Enable kube-proxy Addon
 - `control_plane_status` (String) Control Plane Status of the Cluster
 - `dns_service_ip` (String) IP for the DNS service
 - `kubeconfig` (Attributes, Sensitive) (see [below for nested schema](#nestedatt--kubeconfig))
 - `kubeconfig_raw` (String, Sensitive)
+- `kubeconfig_user_raw` (String)
 - `patch_version` (String) Kubernetes patch version of the cluster control plane
 - `pod_cidr` (String) CIDR for the Kubernetes Pods
 - `service_cidr` (String) CIDR for the Kubernetes Services
