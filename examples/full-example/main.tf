@@ -72,41 +72,41 @@ resource "meltcloud_network_profile" "example" {
   name = "profile1"
 
   vlan {
-    vlan      = 10
-    dhcp      = true
-    interface = "eth0"
+    vlan      = 1
+    dhcp      = false
+    interface = "workload"
   }
 
   vlan {
     vlan      = 2
     dhcp      = false
-    interface = "eth1"
+    interface = "storage"
   }
 
   bridge {
-    name      = "br0"
-    interface = "br0"
+    name      = "workload.1"
+    interface = "br.workload"
     dhcp      = true
   }
 
   bridge {
-    name      = "br1"
-    interface = "br1"
-    dhcp      = false
+    name      = "storage.2"
+    interface = "br.storage"
+    dhcp      = true
   }
 
   bond {
-    name       = "james"
+    name       = "workload"
     kind       = "default"
     dhcp       = true
-    interfaces = "eth4,eth5"
+    interfaces = "eth0,eth1"
   }
 
   bond {
-    name       = "other"
+    name       = "storage"
     kind       = "lacp"
     dhcp       = false
-    interfaces = "eth6,eth7"
+    interfaces = "eth2,eth3"
   }
 }
 
