@@ -102,11 +102,11 @@ func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				MarkdownDescription: clusterResourceAttributes()["dns_service_ip"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"addon_kube_proxy": schema.StringAttribute{
+			"addon_kube_proxy": schema.BoolAttribute{
 				MarkdownDescription: clusterResourceAttributes()["addon_kube_proxy"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"addon_core_dns": schema.StringAttribute{
+			"addon_core_dns": schema.BoolAttribute{
 				MarkdownDescription: clusterResourceAttributes()["addon_core_dns"].GetMarkdownDescription(),
 				Computed:            true,
 			},
