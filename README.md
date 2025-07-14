@@ -8,12 +8,12 @@
 
 Instruct terraform to use the local provider:
 
-```bash 
+```bash
 cat > ~/.terraformrc <<EOF
 provider_installation {
 
   dev_overrides {
-      "registry.terraform.io/meltcloud/meltcloud" = "path/to/go/bin"
+    "registry.terraform.io/meltcloud/meltcloud" = "path/to/go/bin" # E.g. "/home/<user>/go/bin"
   }
 
   # For all other providers, install them directly from their origin provider
@@ -21,12 +21,12 @@ provider_installation {
   # the dev_overrides block, and so no other providers will be available.
   direct {}
 }
-terraform-provider
 EOF
 ```
 
 Run from CLI:
-``` 
+
+```bash
 go install
 
 cd examples/full-example
@@ -39,4 +39,3 @@ terraform apply
 or Run/Debug within Goland:
 - Run/Debug `main.go` with program arguments `-debug` and environment variables `MELTCLOUD_API_TOKEN=...`
 - Export the variables printed on stdout before running `terraform apply`
-
