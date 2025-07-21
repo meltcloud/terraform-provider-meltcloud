@@ -31,30 +31,18 @@ type NetworkProfileResource struct {
 
 // NetworkProfileResourceModel describes the resource data model.
 type NetworkProfileResourceModel struct {
-	ID      types.Int64  `tfsdk:"id"`
-	Name    types.String `tfsdk:"name"`
-	VLANs   types.List   `tfsdk:"vlan"`
-	Bridges types.List   `tfsdk:"bridge"`
-	Bonds   types.List   `tfsdk:"bond"`
+	ID    types.Int64  `tfsdk:"id"`
+	Name  types.String `tfsdk:"name"`
+	Links types.List   `tfsdk:"link"`
 }
 
-type VLANResourceModel struct {
-	VLAN      types.Int64  `tfsdk:"vlan"`
-	Interface types.String `tfsdk:"interface"`
-	DHCP      types.Bool   `tfsdk:"dhcp"`
-}
-
-type BridgeResourceModel struct {
-	Name      types.String `tfsdk:"name"`
-	Interface types.String `tfsdk:"interface"`
-	DHCP      types.Bool   `tfsdk:"dhcp"`
-}
-
-type BondResourceModel struct {
-	Name       types.String `tfsdk:"name"`
-	Interfaces types.String `tfsdk:"interfaces"`
-	Kind       types.String `tfsdk:"kind"`
-	DHCP       types.Bool   `tfsdk:"dhcp"`
+type LinkResourceModel struct {
+	Name           types.String `tfsdk:"name"`
+	Interfaces     types.List   `tfsdk:"interfaces"`
+	VLANs          types.List   `tfsdk:"vlans"`
+	HostNetworking types.Bool   `tfsdk:"host_networking"`
+	LACP           types.Bool   `tfsdk:"lacp"`
+	NativeVLAN     types.Bool   `tfsdk:"native_vlan"`
 }
 
 func (r *NetworkProfileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -79,59 +67,33 @@ func networkProfileResourceAttributes() map[string]schema.Attribute {
 	}
 }
 
-func vlanResourceAttributes() map[string]schema.Attribute {
-	return map[string]schema.Attribute{
-		"vlan": schema.Int64Attribute{
-			Required:            true,
-			MarkdownDescription: "Vlan number",
-		},
-
-		"interface": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "Interface list (systemd network config format)",
-		},
-
-		"dhcp": schema.BoolAttribute{
-			Required:            true,
-			MarkdownDescription: "Whether to use DHCP",
-		},
-	}
-}
-
-func bridgeResourceAttributes() map[string]schema.Attribute {
+func linkResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "Bridge name",
+			MarkdownDescription: "Link name",
 		},
-		"interface": schema.StringAttribute{
+		"interfaces": schema.ListAttribute{
 			Required:            true,
-			MarkdownDescription: "Interface name",
+			ElementType:         types.StringType,
+			MarkdownDescription: "List of interface names",
 		},
-		"dhcp": schema.BoolAttribute{
+		"vlans": schema.ListAttribute{
 			Required:            true,
-			MarkdownDescription: "Whether to use DHCP",
+			ElementType:         types.Int64Type,
+			MarkdownDescription: "List of VLAN IDs",
 		},
-	}
-}
-
-func bondResourceAttributes() map[string]schema.Attribute {
-	return map[string]schema.Attribute{
-		"name": schema.StringAttribute{
+		"host_networking": schema.BoolAttribute{
 			Required:            true,
-			MarkdownDescription: "Bond name",
+			MarkdownDescription: "Whether to use host networking",
 		},
-		"interfaces": schema.StringAttribute{
+		"lacp": schema.BoolAttribute{
 			Required:            true,
-			MarkdownDescription: "Interface list (systemd network config format)",
+			MarkdownDescription: "Whether to use LACP (Link Aggregation Control Protocol)",
 		},
-		"kind": schema.StringAttribute{
+		"native_vlan": schema.BoolAttribute{
 			Required:            true,
-			MarkdownDescription: "Bonding mode",
-		},
-		"dhcp": schema.BoolAttribute{
-			Required:            true,
-			MarkdownDescription: "Whether to use DHCP",
+			MarkdownDescription: "Whether to use the native VLAN",
 		},
 	}
 }
@@ -143,19 +105,9 @@ func (r *NetworkProfileResource) Schema(ctx context.Context, req resource.Schema
 		Attributes: networkProfileResourceAttributes(),
 
 		Blocks: map[string]schema.Block{
-			"vlan": schema.ListNestedBlock{
+			"link": schema.ListNestedBlock{
 				NestedObject: schema.NestedBlockObject{
-					Attributes: vlanResourceAttributes(),
-				},
-			},
-			"bridge": schema.ListNestedBlock{
-				NestedObject: schema.NestedBlockObject{
-					Attributes: bridgeResourceAttributes(),
-				},
-			},
-			"bond": schema.ListNestedBlock{
-				NestedObject: schema.NestedBlockObject{
-					Attributes: bondResourceAttributes(),
+					Attributes: linkResourceAttributes(),
 				},
 			},
 		},
@@ -190,32 +142,16 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	var vlans []VLANResourceModel
-	diags := data.VLANs.ElementsAs(ctx, &vlans, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
-	var bridges []BridgeResourceModel
-	diags = data.Bridges.ElementsAs(ctx, &bridges, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
-	var bonds []BondResourceModel
-	diags = data.Bonds.ElementsAs(ctx, &bonds, false)
+	var links []LinkResourceModel
+	diags := data.Links.ElementsAs(ctx, &links, false)
 	resp.Diagnostics.Append(diags...)
 	if diags.HasError() {
 		return
 	}
 
 	networkProfileCreateInput := &client.NetworkProfileCreateInput{
-		Name:    data.Name.ValueString(),
-		VLANs:   r.vlansInput(vlans),
-		Bridges: r.bridgesInput(bridges),
-		Bonds:   r.bondsInput(bonds),
+		Name:  data.Name.ValueString(),
+		Links: r.linksInput(ctx, links),
 	}
 
 	result, err := r.client.NetworkProfile().Create(ctx, networkProfileCreateInput)
@@ -229,41 +165,25 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *NetworkProfileResource) vlansInput(vlans []VLANResourceModel) []client.VLAN {
-	var vlansInput []client.VLAN
-	for _, networkConfiguration := range vlans {
-		vlansInput = append(vlansInput, client.VLAN{
-			VLAN:      networkConfiguration.VLAN.ValueInt64(),
-			Interface: networkConfiguration.Interface.ValueString(),
-			DHCP:      networkConfiguration.DHCP.ValueBool(),
-		})
-	}
-	return vlansInput
-}
+func (r *NetworkProfileResource) linksInput(ctx context.Context, links []LinkResourceModel) []client.Link {
+	var linksInput []client.Link
+	for _, linkConfiguration := range links {
+		var interfaces []string
+		linkConfiguration.Interfaces.ElementsAs(ctx, &interfaces, false)
 
-func (r *NetworkProfileResource) bridgesInput(bridges []BridgeResourceModel) []client.Bridge {
-	var bridgesInput []client.Bridge
-	for _, networkConfiguration := range bridges {
-		bridgesInput = append(bridgesInput, client.Bridge{
-			Name:      networkConfiguration.Name.ValueString(),
-			Interface: networkConfiguration.Interface.ValueString(),
-			DHCP:      networkConfiguration.DHCP.ValueBool(),
-		})
-	}
-	return bridgesInput
-}
+		var vlans []int64
+		linkConfiguration.VLANs.ElementsAs(ctx, &vlans, false)
 
-func (r *NetworkProfileResource) bondsInput(bonds []BondResourceModel) []client.Bond {
-	var bondsInput []client.Bond
-	for _, networkConfiguration := range bonds {
-		bondsInput = append(bondsInput, client.Bond{
-			Name:       networkConfiguration.Name.ValueString(),
-			Interfaces: networkConfiguration.Interfaces.ValueString(),
-			Kind:       networkConfiguration.Kind.ValueString(),
-			DHCP:       networkConfiguration.DHCP.ValueBool(),
+		linksInput = append(linksInput, client.Link{
+			Name:           linkConfiguration.Name.ValueString(),
+			Interfaces:     interfaces,
+			VLANs:          vlans,
+			HostNetworking: linkConfiguration.HostNetworking.ValueBool(),
+			LACP:           linkConfiguration.LACP.ValueBool(),
+			NativeVLAN:     linkConfiguration.NativeVLAN.ValueBool(),
 		})
 	}
-	return bondsInput
+	return linksInput
 }
 
 func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -288,44 +208,30 @@ func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequ
 	data.Name = types.StringValue(result.NetworkProfile.Name)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
-	var vlans []VLANResourceModel
-	for _, vlan := range result.NetworkProfile.VLANs {
-		vlans = append(vlans, VLANResourceModel{
-			VLAN:      types.Int64Value(vlan.VLAN),
-			Interface: types.StringValue(vlan.Interface),
-			DHCP:      types.BoolValue(vlan.DHCP),
+	var links []LinkResourceModel
+	for _, link := range result.NetworkProfile.Links {
+		interfacesList, diags := types.ListValueFrom(ctx, types.StringType, link.Interfaces)
+		resp.Diagnostics.Append(diags...)
+		if diags.HasError() {
+			return
+		}
+
+		vlansList, diags := types.ListValueFrom(ctx, types.Int64Type, link.VLANs)
+		resp.Diagnostics.Append(diags...)
+		if diags.HasError() {
+			return
+		}
+
+		links = append(links, LinkResourceModel{
+			Name:           types.StringValue(link.Name),
+			Interfaces:     interfacesList,
+			VLANs:          vlansList,
+			HostNetworking: types.BoolValue(link.HostNetworking),
+			LACP:           types.BoolValue(link.LACP),
+			NativeVLAN:     types.BoolValue(link.NativeVLAN),
 		})
 	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("vlan"), vlans)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	var bridges []BridgeResourceModel
-	for _, bridge := range result.NetworkProfile.Bridges {
-		bridges = append(bridges, BridgeResourceModel{
-			Name:      types.StringValue(bridge.Name),
-			Interface: types.StringValue(bridge.Interface),
-			DHCP:      types.BoolValue(bridge.DHCP),
-		})
-	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("bridge"), bridges)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	var bonds []BondResourceModel
-	for _, bond := range result.NetworkProfile.Bonds {
-		bonds = append(bonds, BondResourceModel{
-			Name:       types.StringValue(bond.Name),
-			Interfaces: types.StringValue(bond.Interfaces),
-			Kind:       types.StringValue(bond.Kind),
-			DHCP:       types.BoolValue(bond.DHCP),
-		})
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("bond"), bonds)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("link"), links)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -340,32 +246,16 @@ func (r *NetworkProfileResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	var vlans []VLANResourceModel
-	diags := data.VLANs.ElementsAs(ctx, &vlans, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
-	var bridges []BridgeResourceModel
-	diags = data.Bridges.ElementsAs(ctx, &bridges, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
-	var bonds []BondResourceModel
-	diags = data.Bonds.ElementsAs(ctx, &bonds, false)
+	var links []LinkResourceModel
+	diags := data.Links.ElementsAs(ctx, &links, false)
 	resp.Diagnostics.Append(diags...)
 	if diags.HasError() {
 		return
 	}
 
 	networkProfileUpdateInput := &client.NetworkProfileUpdateInput{
-		Name:    data.Name.ValueString(),
-		VLANs:   r.vlansInput(vlans),
-		Bridges: r.bridgesInput(bridges),
-		Bonds:   r.bondsInput(bonds),
+		Name:  data.Name.ValueString(),
+		Links: r.linksInput(ctx, links),
 	}
 
 	result, err := r.client.NetworkProfile().Update(ctx, data.ID.ValueInt64(), networkProfileUpdateInput)

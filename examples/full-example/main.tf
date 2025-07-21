@@ -11,6 +11,11 @@ terraform {
       source  = "hashicorp/random"
       version = "3.6.3"
     }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "< 3"
+    }
   }
 }
 
@@ -63,7 +68,7 @@ resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
   name    = "pool1"
-  version = "1.29"
+  version = "1.30"
 
   network_profile_id = meltcloud_network_profile.example.id
 }
@@ -71,42 +76,22 @@ resource "meltcloud_machine_pool" "example" {
 resource "meltcloud_network_profile" "example" {
   name = "profile1"
 
-  vlan {
-    vlan      = 1
-    dhcp      = false
-    interface = "workload"
+  link {
+    name            = "link0"
+    interfaces      = ["eth0", "eth1"]
+    vlans           = []
+    host_networking = false
+    lacp            = true
+    native_vlan     = false
   }
 
-  vlan {
-    vlan      = 2
-    dhcp      = false
-    interface = "storage"
-  }
-
-  bridge {
-    name      = "workload.1"
-    interface = "br.workload"
-    dhcp      = true
-  }
-
-  bridge {
-    name      = "storage.2"
-    interface = "br.storage"
-    dhcp      = true
-  }
-
-  bond {
-    name       = "workload"
-    kind       = "default"
-    dhcp       = true
-    interfaces = "eth0,eth1"
-  }
-
-  bond {
-    name       = "storage"
-    kind       = "lacp"
-    dhcp       = false
-    interfaces = "eth2,eth3"
+  link {
+    name            = "link1"
+    interfaces      = ["eth2"]
+    vlans           = [300, 301]
+    host_networking = true
+    lacp            = false
+    native_vlan     = true
   }
 }
 
