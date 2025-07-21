@@ -24,31 +24,19 @@ type NetworkProfileDataSource struct {
 
 // NetworkProfileDataSourceModel describes the data source data model.
 type NetworkProfileDataSourceModel struct {
-	ID      types.Int64             `tfsdk:"id"`
-	Name    types.String            `tfsdk:"name"`
-	Status  types.String            `tfsdk:"status"`
-	VLANs   []VLANDataSourceModel   `tfsdk:"vlans"`
-	Bridges []BridgeDataSourceModel `tfsdk:"bridges"`
-	Bonds   []BondDataSourceModel   `tfsdk:"bonds"`
+	ID     types.Int64           `tfsdk:"id"`
+	Name   types.String          `tfsdk:"name"`
+	Status types.String          `tfsdk:"status"`
+	Links  []LinkDataSourceModel `tfsdk:"links"`
 }
 
-type VLANDataSourceModel struct {
-	VLAN      types.Int64  `tfsdk:"vlan"`
-	Interface types.String `tfsdk:"interface"`
-	DHCP      types.Bool   `tfsdk:"dhcp"`
-}
-
-type BridgeDataSourceModel struct {
-	Name      types.String `tfsdk:"name"`
-	Interface types.String `tfsdk:"interface"`
-	DHCP      types.Bool   `tfsdk:"dhcp"`
-}
-
-type BondDataSourceModel struct {
-	Name       types.String `tfsdk:"name"`
-	Interfaces types.String `tfsdk:"interfaces"`
-	Kind       types.String `tfsdk:"kind"`
-	DHCP       types.Bool   `tfsdk:"dhcp"`
+type LinkDataSourceModel struct {
+	Name           types.String `tfsdk:"name"`
+	Interfaces     types.List   `tfsdk:"interfaces"`
+	VLANs          types.List   `tfsdk:"vlans"`
+	HostNetworking types.Bool   `tfsdk:"host_networking"`
+	LACP           types.Bool   `tfsdk:"lacp"`
+	NativeVLAN     types.Bool   `tfsdk:"native_vlan"`
 }
 
 func (d *NetworkProfileDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -72,65 +60,35 @@ func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.Sc
 				MarkdownDescription: "Status of the Network Profile",
 				Computed:            true,
 			},
-			"vlans": schema.ListNestedAttribute{
-				Computed: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"vlan": schema.Int64Attribute{
-							Computed:            true,
-							MarkdownDescription: vlanResourceAttributes()["vlan"].GetMarkdownDescription(),
-						},
-
-						"dhcp": schema.BoolAttribute{
-							Computed:            true,
-							MarkdownDescription: vlanResourceAttributes()["dhcp"].GetMarkdownDescription(),
-						},
-
-						"interface": schema.StringAttribute{
-							Computed:            true,
-							MarkdownDescription: vlanResourceAttributes()["interface"].GetMarkdownDescription(),
-						},
-					},
-				},
-			},
-			"bridges": schema.ListNestedAttribute{
+			"links": schema.ListNestedAttribute{
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
 							Computed:            true,
-							MarkdownDescription: bridgeResourceAttributes()["name"].GetMarkdownDescription(),
+							MarkdownDescription: linkResourceAttributes()["name"].GetMarkdownDescription(),
 						},
-						"interface": schema.StringAttribute{
+						"interfaces": schema.ListAttribute{
 							Computed:            true,
-							MarkdownDescription: bridgeResourceAttributes()["interface"].GetMarkdownDescription(),
+							ElementType:         types.StringType,
+							MarkdownDescription: linkResourceAttributes()["interfaces"].GetMarkdownDescription(),
 						},
-						"dhcp": schema.BoolAttribute{
+						"vlans": schema.ListAttribute{
 							Computed:            true,
-							MarkdownDescription: bridgeResourceAttributes()["dhcp"].GetMarkdownDescription(),
+							ElementType:         types.Int64Type,
+							MarkdownDescription: linkResourceAttributes()["vlans"].GetMarkdownDescription(),
 						},
-					},
-				},
-			},
-			"bonds": schema.ListNestedAttribute{
-				Computed: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"name": schema.StringAttribute{
+						"host_networking": schema.BoolAttribute{
 							Computed:            true,
-							MarkdownDescription: bondResourceAttributes()["name"].GetMarkdownDescription(),
+							MarkdownDescription: linkResourceAttributes()["host_networking"].GetMarkdownDescription(),
 						},
-						"interfaces": schema.StringAttribute{
+						"lacp": schema.BoolAttribute{
 							Computed:            true,
-							MarkdownDescription: bondResourceAttributes()["interfaces"].GetMarkdownDescription(),
+							MarkdownDescription: linkResourceAttributes()["lacp"].GetMarkdownDescription(),
 						},
-						"kind": schema.StringAttribute{
+						"native_vlan": schema.BoolAttribute{
 							Computed:            true,
-							MarkdownDescription: bondResourceAttributes()["kind"].GetMarkdownDescription(),
-						},
-						"dhcp": schema.BoolAttribute{
-							Computed:            true,
-							MarkdownDescription: bondResourceAttributes()["dhcp"].GetMarkdownDescription(),
+							MarkdownDescription: linkResourceAttributes()["native_vlan"].GetMarkdownDescription(),
 						},
 					},
 				},
@@ -172,28 +130,26 @@ func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	for _, vlan := range result.NetworkProfile.VLANs {
-		data.VLANs = append(data.VLANs, VLANDataSourceModel{
-			VLAN:      types.Int64Value(vlan.VLAN),
-			DHCP:      types.BoolValue(vlan.DHCP),
-			Interface: types.StringValue(vlan.Interface),
-		})
-	}
+	for _, link := range result.NetworkProfile.Links {
+		interfacesList, diags := types.ListValueFrom(ctx, types.StringType, link.Interfaces)
+		resp.Diagnostics.Append(diags...)
+		if diags.HasError() {
+			return
+		}
 
-	for _, bridge := range result.NetworkProfile.Bridges {
-		data.Bridges = append(data.Bridges, BridgeDataSourceModel{
-			Name:      types.StringValue(bridge.Name),
-			DHCP:      types.BoolValue(bridge.DHCP),
-			Interface: types.StringValue(bridge.Interface),
-		})
-	}
+		vlansList, diags := types.ListValueFrom(ctx, types.Int64Type, link.VLANs)
+		resp.Diagnostics.Append(diags...)
+		if diags.HasError() {
+			return
+		}
 
-	for _, bond := range result.NetworkProfile.Bonds {
-		data.Bonds = append(data.Bonds, BondDataSourceModel{
-			Name:       types.StringValue(bond.Name),
-			Interfaces: types.StringValue(bond.Interfaces),
-			Kind:       types.StringValue(bond.Kind),
-			DHCP:       types.BoolValue(bond.DHCP),
+		data.Links = append(data.Links, LinkDataSourceModel{
+			Name:           types.StringValue(link.Name),
+			Interfaces:     interfacesList,
+			VLANs:          vlansList,
+			HostNetworking: types.BoolValue(link.HostNetworking),
+			LACP:           types.BoolValue(link.LACP),
+			NativeVLAN:     types.BoolValue(link.NativeVLAN),
 		})
 	}
 

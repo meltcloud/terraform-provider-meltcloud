@@ -15,45 +15,29 @@ type NetworkProfileResult struct {
 }
 
 type NetworkProfile struct {
-	ID      int64    `json:"id"`
-	Name    string   `json:"name"`
-	Status  string   `json:"status"`
-	VLANs   []VLAN   `json:"vlans"`
-	Bridges []Bridge `json:"bridges"`
-	Bonds   []Bond   `json:"bonds"`
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	Links  []Link `json:"links"`
 }
 
 type NetworkProfileCreateInput struct {
-	Name    string   `json:"name"`
-	VLANs   []VLAN   `json:"vlans"`
-	Bridges []Bridge `json:"bridges"`
-	Bonds   []Bond   `json:"bonds"`
+	Name  string `json:"name"`
+	Links []Link `json:"links"`
 }
 
-type VLAN struct {
-	VLAN      int64  `json:"vlan"`
-	DHCP      bool   `json:"dhcp"`
-	Interface string `json:"interface"`
-}
-
-type Bridge struct {
-	Name      string `json:"name"`
-	Interface string `json:"interface"`
-	DHCP      bool   `json:"dhcp"`
-}
-
-type Bond struct {
-	Name       string `json:"name"`
-	Interfaces string `json:"interfaces"`
-	Kind       string `json:"kind"`
-	DHCP       bool   `json:"dhcp"`
+type Link struct {
+	Name           string   `json:"name"`
+	Interfaces     []string `json:"interfaces"`
+	VLANs          []int64  `json:"vlans"`
+	HostNetworking bool     `json:"host_networking"`
+	LACP           bool     `json:"lacp"`
+	NativeVLAN     bool     `json:"native_vlan"`
 }
 
 type NetworkProfileUpdateInput struct {
-	Name    string   `json:"name"`
-	VLANs   []VLAN   `json:"vlans"`
-	Bridges []Bridge `json:"bridges"`
-	Bonds   []Bond   `json:"bonds"`
+	Name  string `json:"name"`
+	Links []Link `json:"links"`
 }
 
 func (c *Client) NetworkProfile() *NetworkProfileRequest {

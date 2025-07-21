@@ -1,8 +1,8 @@
 # terraform-provider-meltcloud
 
 ## Quickstarts
-- [Documentation on Terraform Registry](https://registry.terraform.io/providers/meltcloud/meltcloud/latest/docs)
 
+- [Documentation on Terraform Registry](https://registry.terraform.io/providers/meltcloud/meltcloud/latest/docs)
 
 ## Local development
 
@@ -37,5 +37,10 @@ terraform apply
 ```
 
 or Run/Debug within Goland:
+
 - Run/Debug `main.go` with program arguments `-debug` and environment variables `MELTCLOUD_API_TOKEN=...`
 - Export the variables printed on stdout before running `terraform apply`
+
+## Releasing
+
+- Generate the docs: `go generate`

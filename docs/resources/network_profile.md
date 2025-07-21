@@ -16,42 +16,22 @@ A Network Profile specifies the network configuration to be used for machines in
 resource "meltcloud_network_profile" "example" {
   name = "profile1"
 
-  vlan {
-    vlan      = 1
-    dhcp      = false
-    interface = "workload"
+  link {
+    name            = "link0"
+    interfaces      = ["eth0", "eth1"]
+    vlans           = []
+    host_networking = false
+    lacp            = true
+    native_vlan     = false
   }
 
-  vlan {
-    vlan      = 2
-    dhcp      = false
-    interface = "storage"
-  }
-
-  bridge {
-    name      = "workload.1"
-    interface = "br.workload"
-    dhcp      = true
-  }
-
-  bridge {
-    name      = "storage.2"
-    interface = "br.storage"
-    dhcp      = true
-  }
-
-  bond {
-    name       = "workload"
-    kind       = "default"
-    dhcp       = true
-    interfaces = "eth0,eth1"
-  }
-
-  bond {
-    name       = "storage"
-    kind       = "lacp"
-    dhcp       = false
-    interfaces = "eth2,eth3"
+  link {
+    name            = "link1"
+    interfaces      = ["eth2"]
+    vlans           = [300, 301]
+    host_networking = true
+    lacp            = false
+    native_vlan     = true
   }
 }
 ```
@@ -65,43 +45,23 @@ resource "meltcloud_network_profile" "example" {
 
 ### Optional
 
-- `bond` (Block List) (see [below for nested schema](#nestedblock--bond))
-- `bridge` (Block List) (see [below for nested schema](#nestedblock--bridge))
-- `vlan` (Block List) (see [below for nested schema](#nestedblock--vlan))
+- `link` (Block List) (see [below for nested schema](#nestedblock--link))
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the network profile on meltcloud
 
-<a id="nestedblock--bond"></a>
-### Nested Schema for `bond`
+<a id="nestedblock--link"></a>
+### Nested Schema for `link`
 
 Required:
 
-- `dhcp` (Boolean) Whether to use DHCP
-- `interfaces` (String) Interface list (systemd network config format)
-- `kind` (String) Bonding mode
-- `name` (String) Bond name
-
-
-<a id="nestedblock--bridge"></a>
-### Nested Schema for `bridge`
-
-Required:
-
-- `dhcp` (Boolean) Whether to use DHCP
-- `interface` (String) Interface name
-- `name` (String) Bridge name
-
-
-<a id="nestedblock--vlan"></a>
-### Nested Schema for `vlan`
-
-Required:
-
-- `dhcp` (Boolean) Whether to use DHCP
-- `interface` (String) Interface list (systemd network config format)
-- `vlan` (Number) Vlan number
+- `host_networking` (Boolean) Whether to use host networking
+- `interfaces` (List of String) List of interface names
+- `lacp` (Boolean) Whether to use LACP (Link Aggregation Control Protocol)
+- `name` (String) Link name
+- `native_vlan` (Boolean) Whether to use the native VLAN
+- `vlans` (List of Number) List of VLAN IDs
 
 ## Import
 

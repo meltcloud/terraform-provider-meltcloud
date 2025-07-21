@@ -21,38 +21,18 @@ A Network Profile specifies the network configuration to be used for machines in
 
 ### Read-Only
 
-- `bonds` (Attributes List) (see [below for nested schema](#nestedatt--bonds))
-- `bridges` (Attributes List) (see [below for nested schema](#nestedatt--bridges))
+- `links` (Attributes List) (see [below for nested schema](#nestedatt--links))
 - `name` (String) Name of the network profile
 - `status` (String) Status of the Network Profile
-- `vlans` (Attributes List) (see [below for nested schema](#nestedatt--vlans))
 
-<a id="nestedatt--bonds"></a>
-### Nested Schema for `bonds`
-
-Read-Only:
-
-- `dhcp` (Boolean) Whether to use DHCP
-- `interfaces` (String) Interface list (systemd network config format)
-- `kind` (String) Bonding mode
-- `name` (String) Bond name
-
-
-<a id="nestedatt--bridges"></a>
-### Nested Schema for `bridges`
+<a id="nestedatt--links"></a>
+### Nested Schema for `links`
 
 Read-Only:
 
-- `dhcp` (Boolean) Whether to use DHCP
-- `interface` (String) Interface name
-- `name` (String) Bridge name
-
-
-<a id="nestedatt--vlans"></a>
-### Nested Schema for `vlans`
-
-Read-Only:
-
-- `dhcp` (Boolean) Whether to use DHCP
-- `interface` (String) Interface list (systemd network config format)
-- `vlan` (Number) Vlan number
+- `host_networking` (Boolean) Whether to use host networking
+- `interfaces` (List of String) List of interface names
+- `lacp` (Boolean) Whether to use LACP (Link Aggregation Control Protocol)
+- `name` (String) Link name
+- `native_vlan` (Boolean) Whether to use the native VLAN
+- `vlans` (List of Number) List of VLAN IDs
