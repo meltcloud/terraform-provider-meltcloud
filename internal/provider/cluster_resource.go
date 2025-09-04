@@ -58,7 +58,7 @@ func (r *ClusterResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_cluster"
 }
 
-const clusterDesc string = "A [Cluster](https://docs.meltcloud.io/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://docs.meltcloud.io/guides/machine-pools/create.html) (which hold assigned [Machines](https://docs.meltcloud.io/guides/machines/intro.html))."
+const clusterDesc string = "A [Cluster](https://docs.meltcloud.io/guides/clusters/create.html) in meltcloud consists of a **Kubernetes Control Plane** and associated objects like [Machine Pools](https://docs.meltcloud.io/guides/machine-pools/create.html) (which hold assigned [Machines](https://docs.meltcloud.io/concepts/machines))."
 
 func clusterResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

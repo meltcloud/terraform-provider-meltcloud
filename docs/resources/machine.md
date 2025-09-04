@@ -3,18 +3,18 @@
 page_title: "meltcloud_machine Resource - meltcloud"
 subcategory: ""
 description: |-
-  Machines https://docs.meltcloud.io/guides/machines/intro.html are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
-  This resource pre-registers https://docs.meltcloud.io/guides/machines/intro.html#pre-register Machines for a later boot.
-  ~> Be aware that changing the name will cause a new Revision that will be applied immediately, causing a reboot of the Machine https://docs.meltcloud.io/guides/machines/intro.html#revisions.
+  Machines https://docs.meltcloud.io/concepts/machines are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
+  This resource pre-registers https://docs.meltcloud.io/concepts/machines#pre-register Machines for a later boot.
+  ~> Be aware that changing the name will cause a new Revision that will be applied immediately, causing a reboot of the Machine https://docs.meltcloud.io/concepts/machines#revisions.
 ---
 
 # meltcloud_machine (Resource)
 
-[Machines](https://docs.meltcloud.io/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
+[Machines](https://docs.meltcloud.io/concepts/machines) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform.
 
-This resource [pre-registers](https://docs.meltcloud.io/guides/machines/intro.html#pre-register) Machines for a later boot.
+This resource [pre-registers](https://docs.meltcloud.io/concepts/machines#pre-register) Machines for a later boot.
 
-~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://docs.meltcloud.io/guides/machines/intro.html#revisions).
+~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://docs.meltcloud.io/concepts/machines#revisions).
 
 ## Example Usage
 

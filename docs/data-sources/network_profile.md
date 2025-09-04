@@ -3,12 +3,12 @@
 page_title: "meltcloud_network_profile Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Network Profile specifies the network configuration to be used for machines in a machine pool.
+  A Network Profile https://docs.meltcloud.io/concepts/networking/network-profiles specifies the network configuration for Machines https://docs.meltcloud.io/concepts/machines in a Machine Pool https://docs.meltcloud.io/guides/machine-pools/create.html.
 ---
 
 # meltcloud_network_profile (Data Source)
 
-A Network Profile specifies the network configuration to be used for machines in a machine pool.
+A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) specifies the network configuration for [Machines](https://docs.meltcloud.io/concepts/machines) in a [Machine Pool](https://docs.meltcloud.io/guides/machine-pools/create.html).
 
 
 
