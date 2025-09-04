@@ -357,10 +357,17 @@ func (r *ClusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	_, err := r.client.Cluster().Delete(ctx, data.ID.ValueInt64())
+	result, err := r.client.Cluster().Delete(ctx, data.ID.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete cluster, got error: %s", err))
 		return
+	}
+	if result.Operation != nil {
+		_, err = r.client.Operation().PollUntilDone(ctx, result.Operation.ID)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete cluster, got error: %s", err))
+			return
+		}
 	}
 }
 
