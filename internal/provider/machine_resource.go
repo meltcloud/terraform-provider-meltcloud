@@ -48,7 +48,7 @@ func (r *MachineResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_machine"
 }
 
-const machineDesc string = "[Machines](https://docs.meltcloud.io/guides/machines/intro.html) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform."
+const machineDesc string = "[Machines](https://docs.meltcloud.io/concepts/machines) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform."
 
 func machineResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
@@ -94,8 +94,8 @@ func labelResourceAttributes() map[string]schema.Attribute {
 func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machineDesc + "\n\n" +
-			"This resource [pre-registers](https://docs.meltcloud.io/guides/machines/intro.html#pre-register) Machines for a later boot.\n\n" +
-			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://docs.meltcloud.io/guides/machines/intro.html#revisions).",
+			"This resource [pre-registers](https://docs.meltcloud.io/concepts/machines#pre-register) Machines for a later boot.\n\n" +
+			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://docs.meltcloud.io/concepts/machines#revisions).",
 
 		Attributes: machineResourceAttributes(),
 
