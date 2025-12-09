@@ -145,7 +145,7 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 		"kubeconfig_user_raw": schema.StringAttribute{
 			Description: "Kubeconfig file for the regular (OIDC) users",
 			Computed:    true,
-			Sensitive:   false,
+			Sensitive:   true,
 		},
 	}
 }

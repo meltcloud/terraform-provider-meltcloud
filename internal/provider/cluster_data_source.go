@@ -149,7 +149,7 @@ func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			"kubeconfig_user_raw": schema.StringAttribute{
 				MarkdownDescription: clusterResourceAttributes()["kubeconfig_user_raw"].GetMarkdownDescription(),
 				Computed:            true,
-				Sensitive:           false,
+				Sensitive:           true,
 			},
 		},
 	}
