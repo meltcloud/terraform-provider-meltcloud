@@ -3,13 +3,14 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
+	"terraform-provider-meltcloud/internal/client"
+	"terraform-provider-meltcloud/internal/kubernetes"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"strings"
-	"terraform-provider-meltcloud/internal/client"
-	"terraform-provider-meltcloud/internal/kubernetes"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
