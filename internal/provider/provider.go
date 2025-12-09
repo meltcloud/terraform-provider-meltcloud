@@ -98,7 +98,9 @@ func (p *MeltcloudProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	apiClient := client.New(endpoint, organization, apiKey)
-	apiClient.HttpClient.Debug = true
+	// Set debug flag to log http traffic to foundry, but disable before releasing
+	// as it creates "unexpected output" warnings in the terraform log.
+	// apiClient.HttpClient.Debug = true
 	resp.DataSourceData = apiClient
 	resp.ResourceData = apiClient
 }
