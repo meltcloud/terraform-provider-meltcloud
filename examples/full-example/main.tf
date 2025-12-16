@@ -11,11 +11,6 @@ terraform {
       source  = "hashicorp/random"
       version = "3.6.3"
     }
-
-    helm = {
-      source  = "hashicorp/helm"
-      version = "< 3"
-    }
   }
 }
 
@@ -125,20 +120,15 @@ data "meltcloud_machine" "example_uuid" {
   uuid = meltcloud_machine.node1.uuid
 }
 
-provider "helm" {
-  kubernetes {
+output "cluster_kubeconfig" {
+  value = {
     host                   = meltcloud_cluster.example.kubeconfig.host
     username               = meltcloud_cluster.example.kubeconfig.username
     password               = meltcloud_cluster.example.kubeconfig.password
-    client_certificate     = base64decode(meltcloud_cluster.example.kubeconfig.client_certificate)
-    client_key             = base64decode(meltcloud_cluster.example.kubeconfig.client_key)
-    cluster_ca_certificate = base64decode(meltcloud_cluster.example.kubeconfig.cluster_ca_certificate)
+    client_certificate     = meltcloud_cluster.example.kubeconfig.client_certificate
+    client_key             = meltcloud_cluster.example.kubeconfig.client_key
+    cluster_ca_certificate = meltcloud_cluster.example.kubeconfig.cluster_ca_certificate
   }
-}
-
-resource "helm_release" "test" {
-  name       = "example-chart"
-  repository = "./"
-  chart      = "example-chart"
+  sensitive = true
 }
 
