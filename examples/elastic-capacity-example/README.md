@@ -22,8 +22,7 @@ The corresponding consumer-side example lives in
 ## Running
 
 This is a two-phase apply because Cilium and the elastic capacity cannot come
-up until at least one machine has joined the machine pool (the cluster's API
-is otherwise unreachable).
+up until at least one machine has joined the machine pool (otherwise cilium and kubevirt never come up).
 
 **Phase 1** — create the cluster and machine pool:
 
