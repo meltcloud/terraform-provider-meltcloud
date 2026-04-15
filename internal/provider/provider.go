@@ -112,6 +112,9 @@ func (p *MeltcloudProvider) Resources(ctx context.Context) []func() resource.Res
 		NewMachineResource,
 		NewEnrollmentImageResource,
 		NewNetworkProfileResource,
+		NewElasticCapacityResource,
+		NewElasticShareResource,
+		NewElasticPoolResource,
 	}
 }
 
@@ -122,6 +125,9 @@ func (p *MeltcloudProvider) DataSources(ctx context.Context) []func() datasource
 		NewMachineDataSource,
 		NewEnrollmentImageDataSource,
 		NewNetworkProfileDataSource,
+		NewElasticCapacityDataSource,
+		NewElasticShareDataSource,
+		NewElasticPoolDataSource,
 	}
 }
 
