@@ -28,12 +28,12 @@ type ElasticShareResource struct {
 }
 
 type ElasticShareResourceModel struct {
-	ID                      types.Int64  `tfsdk:"id"`
-	Name                    types.String `tfsdk:"name"`
-	Cores                   types.Int64  `tfsdk:"cores"`
-	DiskGB                  types.Int64  `tfsdk:"disk_gb"`
-	MemoryMB                types.Int64  `tfsdk:"memory_mb"`
-	CapacityID              types.Int64  `tfsdk:"capacity_id"`
+	ID                        types.Int64  `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
+	Cores                     types.Int64  `tfsdk:"cores"`
+	DiskGB                    types.Int64  `tfsdk:"disk_gb"`
+	MemoryMB                  types.Int64  `tfsdk:"memory_mb"`
+	CapacityID                types.Int64  `tfsdk:"capacity_id"`
 	ConsumingOrganizationUUID types.String `tfsdk:"consuming_organization_uuid"`
 }
 
@@ -117,11 +117,11 @@ func (r *ElasticShareResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	input := &client.ElasticShareCreateInput{
-		Name:                    data.Name.ValueString(),
-		Cores:                   data.Cores.ValueInt64(),
-		DiskGB:                  data.DiskGB.ValueInt64(),
-		MemoryMB:                data.MemoryMB.ValueInt64(),
-		CapacityID:              data.CapacityID.ValueInt64(),
+		Name:                      data.Name.ValueString(),
+		Cores:                     data.Cores.ValueInt64(),
+		DiskGB:                    data.DiskGB.ValueInt64(),
+		MemoryMB:                  data.MemoryMB.ValueInt64(),
+		CapacityID:                data.CapacityID.ValueInt64(),
 		ConsumingOrganizationUUID: data.ConsumingOrganizationUUID.ValueString(),
 	}
 

@@ -28,15 +28,15 @@ type ElasticPoolResource struct {
 }
 
 type ElasticPoolResourceModel struct {
-	ID           types.Int64           `tfsdk:"id"`
-	ClusterID    types.Int64           `tfsdk:"cluster_id"`
-	Name         types.String          `tfsdk:"name"`
-	ShareID      types.Int64           `tfsdk:"share_id"`
-	Version      types.String          `tfsdk:"version"`
-	PatchVersion types.String          `tfsdk:"patch_version"`
-	NodeCount    types.Int64           `tfsdk:"node_count"`
-	Status       types.String          `tfsdk:"status"`
-	NodeConfig   *NodeConfigModel      `tfsdk:"node_config"`
+	ID           types.Int64      `tfsdk:"id"`
+	ClusterID    types.Int64      `tfsdk:"cluster_id"`
+	Name         types.String     `tfsdk:"name"`
+	ShareID      types.Int64      `tfsdk:"share_id"`
+	Version      types.String     `tfsdk:"version"`
+	PatchVersion types.String     `tfsdk:"patch_version"`
+	NodeCount    types.Int64      `tfsdk:"node_count"`
+	Status       types.String     `tfsdk:"status"`
+	NodeConfig   *NodeConfigModel `tfsdk:"node_config"`
 }
 
 type NodeConfigModel struct {

@@ -21,12 +21,12 @@ type ElasticShareDataSource struct {
 }
 
 type ElasticShareDataSourceModel struct {
-	ID                      types.Int64  `tfsdk:"id"`
-	Name                    types.String `tfsdk:"name"`
-	Cores                   types.Int64  `tfsdk:"cores"`
-	DiskGB                  types.Int64  `tfsdk:"disk_gb"`
-	MemoryMB                types.Int64  `tfsdk:"memory_mb"`
-	CapacityID              types.Int64  `tfsdk:"capacity_id"`
+	ID                        types.Int64  `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
+	Cores                     types.Int64  `tfsdk:"cores"`
+	DiskGB                    types.Int64  `tfsdk:"disk_gb"`
+	MemoryMB                  types.Int64  `tfsdk:"memory_mb"`
+	CapacityID                types.Int64  `tfsdk:"capacity_id"`
 	ConsumingOrganizationUUID types.String `tfsdk:"consuming_organization_uuid"`
 }
 
