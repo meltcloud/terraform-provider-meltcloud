@@ -18,7 +18,7 @@ The corresponding consumer-side example lives in
 
 - A meltcloud API key for the provider organization
 - The UUID of the organization that should provide the share
-- The UUID of the organization that should consume the share
+- The UUID of the organization that should consume the share (may be the same as the provider org)
 
 ## Running
 
@@ -29,6 +29,7 @@ up until at least one machine has joined the machine pool (otherwise cilium and 
 
 ```bash
 export MELTCLOUD_API_KEY='<your-api-key>'
+export TF_VAR_providing_organization_uuid='<uuid-of-provider-org>'
 export TF_VAR_consuming_organization_uuid='<uuid-of-consumer-org>'
 
 terraform init
