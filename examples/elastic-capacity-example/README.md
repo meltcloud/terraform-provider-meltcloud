@@ -17,6 +17,7 @@ The corresponding consumer-side example lives in
 ## Prerequisites
 
 - A meltcloud API key for the provider organization
+- The UUID of the organization that should provide the share
 - The UUID of the organization that should consume the share
 
 ## Running
@@ -44,4 +45,4 @@ terraform apply -var deploy_capacity=true
 ```
 
 Once applied, note the resulting `elastic_share_id` output — it is the input
-for the consumer-side example.
+for the [consumer-side example](./../elastic-pool-example/README.md).

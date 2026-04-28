@@ -20,6 +20,8 @@ The `full-example` directory contains a complete working example that demonstrat
 ```bash
 # 1. Apply meltcloud infrastructure
 cd full-example
+export MELTCLOUD_API_KEY='<your-api-key>'
+export TF_VAR_organization_uuid='<uuid-of-your-organization>'
 terraform init
 terraform apply
 

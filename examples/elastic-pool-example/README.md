@@ -22,11 +22,13 @@ The provider-side setup that produces the share lives in
 - A meltcloud API key for the consuming organization
 - The numeric ID of the `meltcloud_elastic_share` to consume (produced by the
   provider-side example)
+- The UUID of the organization for the elastic pool ("consuming organization")
 
 ## Running
 
 ```bash
 export MELTCLOUD_API_KEY='<your-api-key>'
+export TF_VAR_consuming_organization_uuid='<uuid-of-consumer-org>'
 export TF_VAR_elastic_share_id=<id-of-share>
 
 terraform init

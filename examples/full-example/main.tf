@@ -14,9 +14,14 @@ terraform {
   }
 }
 
+variable "organization_uuid" {
+  type        = string
+  description = "UUID of the meltcloud organization"
+}
+
 provider "meltcloud" {
   endpoint     = "http://localhost:3000"
-  organization = "deadbeef-0000-0000-0000-000000000000"
+  organization = var.organization_uuid
 }
 
 resource "time_offset" "in_a_year" {
