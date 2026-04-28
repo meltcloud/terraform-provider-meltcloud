@@ -27,11 +27,15 @@ terraform {
   }
 }
 
+variable "organization_uuid" {
+  type        = string
+  description = "UUID of the meltcloud organization"
+}
+
 # initialize providers.
 # set your meltcloud API Key via 'export MELTCLOUD_API_KEY=eyJ..' before terraform apply
 provider "meltcloud" {
-  # adapt to your organization
-  organization = "f505052b-19cf-4761-b9ac-482fb3481297"
+  organization = var.organization_uuid
 }
 
 # set your API Key via 'export MELTCLOUD_API_KEY=eyJ..' before terraform apply

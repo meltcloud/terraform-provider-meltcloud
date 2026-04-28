@@ -10,14 +10,19 @@ terraform {
   }
 }
 
+variable "providing_organization_uuid" {
+  type        = string
+  description = "UUID of the organization that provides the elastic share"
+}
+
 provider "meltcloud" {
   endpoint     = "https://app.192.168.101.101.d.meltcloud.io"
-  organization = "fe97cd36-b6d9-4d8f-a89a-9b595bd00a8c"
+  organization = var.providing_organization_uuid
 }
 
 variable "consuming_organization_uuid" {
   type        = string
-  description = "UUID of the organization that should consume the elastic share"
+  description = "UUID of the organization that consumes the elastic share"
 }
 
 variable "deploy_capacity" {
