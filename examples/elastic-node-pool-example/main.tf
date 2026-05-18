@@ -1,0 +1,110 @@
+terraform {
+  required_providers {
+    meltcloud = {
+      source = "meltcloud/meltcloud"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 3.0"
+    }
+  }
+}
+
+variable "consuming_organization_uuid" {
+  type        = string
+  description = "UUID of the organization that consumes the elastic quota"
+}
+
+provider "meltcloud" {
+  endpoint     = "https://app.192.168.101.101.d.meltcloud.io"
+  organization = var.consuming_organization_uuid
+}
+
+variable "elastic_quota_id" {
+  type        = number
+  description = "ID of the elastic quota to consume for the node pool"
+}
+
+data "meltcloud_elastic_quota" "existing" {
+  id = var.elastic_quota_id
+}
+
+resource "meltcloud_cluster" "example" {
+  name             = "elastic-node-pool-example"
+  version          = "1.35"
+  pod_cidr         = "10.37.0.0/16"
+  service_cidr     = "10.97.0.0/16"
+  dns_service_ip   = "10.97.0.10"
+  addon_core_dns   = true
+  addon_kube_proxy = true
+}
+
+resource "meltcloud_elastic_node_pool" "example" {
+  cluster_id       = meltcloud_cluster.example.id
+  elastic_quota_id = data.meltcloud_elastic_quota.existing.id
+
+  name       = "nodepool1"
+  version    = "1.35"
+  node_count = 1
+
+  node_config {
+    cores     = 2
+    memory_mb = 1024
+    disk_gb   = 20
+  }
+}
+
+# CNI for the inner cluster
+provider "helm" {
+  kubernetes = {
+    host                   = meltcloud_cluster.example.kubeconfig.host
+    client_certificate     = base64decode(meltcloud_cluster.example.kubeconfig.client_certificate)
+    client_key             = base64decode(meltcloud_cluster.example.kubeconfig.client_key)
+    cluster_ca_certificate = base64decode(meltcloud_cluster.example.kubeconfig.cluster_ca_certificate)
+  }
+}
+
+resource "helm_release" "cilium" {
+  name       = "cilium"
+  repository = "https://helm.cilium.io"
+  chart      = "cilium"
+  namespace  = "kube-system"
+  version    = "1.17.4"
+
+  set = [
+    {
+      name  = "image.pullPolicy"
+      value = "IfNotPresent"
+    },
+    {
+      name  = "ipam.mode"
+      value = "kubernetes"
+    },
+    # overrides VXLAN port and MTU so traffic does not
+    # collide with the outer cluster's Cilium (default tunnelPort 8472, MTU 1500).
+    {
+      name  = "tunnelPort"
+      value = "8474"
+    },
+    {
+      name  = "MTU"
+      value = "1300"
+    },
+  ]
+}
+
+resource "helm_release" "podinfo" {
+  name       = "podinfo"
+  repository = "oci://ghcr.io/stefanprodan/charts"
+  chart      = "podinfo"
+  namespace  = "default"
+
+  set = [
+    {
+      name  = "replicaCount"
+      value = "2"
+    },
+  ]
+
+  depends_on = [helm_release.cilium]
+}
