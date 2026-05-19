@@ -1,0 +1,877 @@
+{
+  "version": 4,
+  "terraform_version": "1.13.4",
+  "serial": 108,
+  "lineage": "2157362f-38f3-d2db-7884-38a165450c89",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "data",
+      "type": "meltcloud_cluster",
+      "name": "example_id",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "addon_core_dns": false,
+            "addon_kube_proxy": false,
+            "control_plane_status": "ready",
+            "dns_service_ip": "10.96.0.10",
+            "id": 5,
+            "kubeconfig": {
+              "client_certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lJR1dtV0ZqSHZqdkV3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHlOakV4TVRBd056UTFNakZhTUR3eApIekFkQmdOVkJBb1RGbXQxWW1WaFpHMDZZMngxYzNSbGNpMWhaRzFwYm5NeEdUQVhCZ05WQkFNVEVHdDFZbVZ5CmJtVjBaWE10WVdSdGFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDekFTYzUKZjZQczBQNGNIT1dhdmJDdjVhdXo3eXB5bkNBSGRha2t6ZFZVVlNSMk5wdWs4RDFtMDhaanRqQ0gxT20zNTRhKwpnZ0RXbDJKc3lENkg1Q1plYzE3QlRBbUswKzVJak12akJIMVlINkU4TXJqSEc4U1c0THlqbndQbFJGZUpCSlJFCkNYUWJpdTBWQmRBNXY2YmtsM3VQYnpBTno2UUZ4WEprK0JLN0U3S0k3anY2L0hUL3o4OG1YdlJXbW55Wm5tSloKa05pNXhHdkVVUmtvSmg2bGo1MEc4MDhFbW0xYTVidHNtOGNvakNJd2ZkNVY1VTRNOVdTNWVPQVB6dzU5cTJvbQpPUnJheC82Qkp6Yk1sQ0YxaEF4Y3lJTllnTTRvTFh5bXVhWnFwaTNTTlZmZjRCTnR3YklXZzdDVGt3dFF3UyszCllqWjRuYWhSUEJnZFgvMWZBZ01CQUFHalZqQlVNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRlBYRXJtZ3FjMTRjWTVKTgp3SS9tOFRTdE1RcHBNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUURGbkI2bUNvNE5hRGJqdVpWQ0dqL3puK2hjCkIvaVJDcTdSN21PWlB3dTVQQWd4SzdrTnV1d0dZSFhvZXl0cFRFNVliWWVoZmlMd2pDT3NrekxVMkxoSXdDeEUKZ0MrOVZ4b0dqYm0xZVk5U0dGQWZUWk9ZenhpeUJlMzEyVGZVVThkNDJXVkp0eW5STlhpZVROTER1TWFOMEVuUApDWGlZdGprVEFtcXZhV2hlZTU1d3ArUTVKT2xQUjNlSVQ2a3VoV2lLNkhIQjYxdk05WTVvd242Q3B1Tmw2RXBWCjBWMXRDcFZjbVltcHRBazNrbjdqNlUxZEY5cGdBblAzcTk4anhQWjhnREFGbjFITVdNRU11YkNPcytzS3B0djEKOW5NQ3VhdUl1bG9JV2VWUFRWNmUyVHpxeEk1aHhmaWtVMkpZMDlQdEJIUWovZ0pRdlB1cGFQcmNXSHNNCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K",
+              "client_key": "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBc3dFbk9YK2o3TkQrSEJ6bG1yMndyK1dycys4cWNwd2dCM1dwSk0zVlZGVWtkamFiCnBQQTladFBHWTdZd2g5VHB0K2VHdm9JQTFwZGliTWcraCtRbVhuTmV3VXdKaXRQdVNJekw0d1I5V0IraFBESzQKeHh2RWx1QzhvNThENVVSWGlRU1VSQWwwRzRydEZRWFFPYittNUpkN2oyOHdEYytrQmNWeVpQZ1N1eE95aU80NwordngwLzgvUEpsNzBWcHA4bVo1aVdaRFl1Y1JyeEZFWktDWWVwWStkQnZOUEJKcHRXdVc3Ykp2SEtJd2lNSDNlClZlVk9EUFZrdVhqZ0Q4OE9mYXRxSmprYTJzZitnU2MyekpRaGRZUU1YTWlEV0lET0tDMThwcm1tYXFZdDBqVlgKMytBVGJjR3lGb093azVNTFVNRXZ0MkkyZUoyb1VUd1lIVi85WHdJREFRQUJBb0lCQUF5YTdTOHdYTlBGVjgrVQovVm9yTjNEN2hGN1VYYkhhYXFyN3p5Qm5XamxwRVhzOWx6SkROSiswRkFsYmdBbGdwZUNzYmlHbU4vYmtqQ3JLCjR4UmdyWThESXM0TDA3UXgvbHFmaDVBQjllMnB0SW52ckhGZzlEUUh1V0R3UnE3elpCS2kvdW5YbkpSLzhQZ0YKQThlOVJqeGNxbmZNUlo4RFd6S0kxK2hpUzdkZXFvNk1FWEozLytDSk5tZU95ejVVT1o3dEI5bjUyRXVNVU1hbwp0RDM5ZjhZRWNUOXdkL3VqZEpRdllWTy9hWTJLSDNQMHcyV3l1Z01DRmpoL3hUcjkxNEd5bEYrQ2ovQUZidFFjCk5WRGVTa1NyVUxsT015bXpRRmEvTDEvbFlxS2pMTXNEMCtIRVlocjdnY0ZyQk1HOTA2MEVES1BzUjQrQzdiWCsKMTlKYytXa0NnWUVBM1RHREZIQ21TK2FWNHdHUnR4WDN2TU9DSVdiNXFqSHM2OWtaamVQa0lzSDI2NnFqKzJTcgpWTFI3K2lQK21BV01TMnVuMTVnUUVtQWdZb1IrSWE2M0xrWWlxQ1FZdmlPRU5lZ0t2cFJ2cFlEd3YvVm1YVnZZCnAyYjJuMldLRjJKdGtlZWNMUEpsMkw0UDVWMzNveExzWnRIVWlYTXZKODFjT25BZnNBWjBhVDBDZ1lFQXp5d2QKeGJiM1YwYkRZak1ML1FLSmtYUTVEajhhTUozaXI5and0bkMwWVB3TUhTWGFVSFQ1a1h5STJKTVNLQW4vODBiWgpSNC9YSXAzbm9tQWkrYkQzeVNxYXlEZFR0Q2xuZGIvVUFCNmx4N3M5dld0K0ZIYXJzd3F2U1NSTWJnYURGVWJzCmI1RnZsZmpGajkrQUhlRS80dmNYS05qc0kxOFEvWTNma0pKM1Vzc0NnWUVBdUhTZGx1SUtDNm1Tdk9lR0dHUGQKWURDNXlCa1RnblozMklZRzVXaHh5dnB0YTBHMTFlS3hiY1hFeldoTzIzOWs2MUF2ZTM1M2lKdFk1azhPMEEvZQorbHZLY3VVSExTaDVER3NnNnFUbUplSk00Z2RIQWZ1aHhKZjhlaGcyL0NFOHRqdXE1V0NPeGh4WkxURWJYWVplClZiQU55VUdneFZSZjRPdTN3UmJnNVJFQ2dZQnFaUlN4S21MaUxwUS9CVW85MktTL3ozbFJ5TFJ4alZRU3pRM3EKRS8xKzVWSnZVYlpKcFpsWnp5UVVYWXR3aHBvczNSRFBRSjdTeDFkak80NGF2M2l4bGpEQmJEQ1BrTWZ5WDk3SApaUFhzbWt0OTBRdUNCT1B1NGlqZEhrZ21KVEFDcUZiYWdVMVdMdGwvSnVBTCtGY3YvNGVrVWFzTUMxR1ZkZHYvCnlraC9ld0tCZ1FDeW9LSDM4T3FaUWFSVGpoNURnR2poQW12T2dlSXdjZ1NaSlhlRlM5ZXQ5MUxpSXUxMDJYUFQKWUU1M2NrSFEvUEhoN2VqcWRtU1hEUGxQbmJFNGJMSjZPMUlYSTduT1BablJrTzRRNHo5Y1VhZ2k5OVlDRXh1Ugo0N3NraERhejV1ZjhwR3VpNnBRR3ZLMjkyem9ZTkpXVkdtMUVHZzNUYVRzbmVPUDVjWWI2c0E9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=",
+              "cluster_ca_certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K",
+              "host": "https://172.20.0.100:2002",
+              "password": "",
+              "username": "kubernetes-admin"
+            },
+            "kubeconfig_raw": "apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    server: https://172.20.0.100:2002\n  name: melt03\ncontexts:\n- context:\n    cluster: melt03\n    user: kubernetes-admin\n  name: kubernetes-admin@melt03\ncurrent-context: kubernetes-admin@melt03\nkind: Config\npreferences: {}\nusers:\n- name: kubernetes-admin\n  user:\n    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lJR1dtV0ZqSHZqdkV3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHlOakV4TVRBd056UTFNakZhTUR3eApIekFkQmdOVkJBb1RGbXQxWW1WaFpHMDZZMngxYzNSbGNpMWhaRzFwYm5NeEdUQVhCZ05WQkFNVEVHdDFZbVZ5CmJtVjBaWE10WVdSdGFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDekFTYzUKZjZQczBQNGNIT1dhdmJDdjVhdXo3eXB5bkNBSGRha2t6ZFZVVlNSMk5wdWs4RDFtMDhaanRqQ0gxT20zNTRhKwpnZ0RXbDJKc3lENkg1Q1plYzE3QlRBbUswKzVJak12akJIMVlINkU4TXJqSEc4U1c0THlqbndQbFJGZUpCSlJFCkNYUWJpdTBWQmRBNXY2YmtsM3VQYnpBTno2UUZ4WEprK0JLN0U3S0k3anY2L0hUL3o4OG1YdlJXbW55Wm5tSloKa05pNXhHdkVVUmtvSmg2bGo1MEc4MDhFbW0xYTVidHNtOGNvakNJd2ZkNVY1VTRNOVdTNWVPQVB6dzU5cTJvbQpPUnJheC82Qkp6Yk1sQ0YxaEF4Y3lJTllnTTRvTFh5bXVhWnFwaTNTTlZmZjRCTnR3YklXZzdDVGt3dFF3UyszCllqWjRuYWhSUEJnZFgvMWZBZ01CQUFHalZqQlVNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRlBYRXJtZ3FjMTRjWTVKTgp3SS9tOFRTdE1RcHBNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUURGbkI2bUNvNE5hRGJqdVpWQ0dqL3puK2hjCkIvaVJDcTdSN21PWlB3dTVQQWd4SzdrTnV1d0dZSFhvZXl0cFRFNVliWWVoZmlMd2pDT3NrekxVMkxoSXdDeEUKZ0MrOVZ4b0dqYm0xZVk5U0dGQWZUWk9ZenhpeUJlMzEyVGZVVThkNDJXVkp0eW5STlhpZVROTER1TWFOMEVuUApDWGlZdGprVEFtcXZhV2hlZTU1d3ArUTVKT2xQUjNlSVQ2a3VoV2lLNkhIQjYxdk05WTVvd242Q3B1Tmw2RXBWCjBWMXRDcFZjbVltcHRBazNrbjdqNlUxZEY5cGdBblAzcTk4anhQWjhnREFGbjFITVdNRU11YkNPcytzS3B0djEKOW5NQ3VhdUl1bG9JV2VWUFRWNmUyVHpxeEk1aHhmaWtVMkpZMDlQdEJIUWovZ0pRdlB1cGFQcmNXSHNNCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBc3dFbk9YK2o3TkQrSEJ6bG1yMndyK1dycys4cWNwd2dCM1dwSk0zVlZGVWtkamFiCnBQQTladFBHWTdZd2g5VHB0K2VHdm9JQTFwZGliTWcraCtRbVhuTmV3VXdKaXRQdVNJekw0d1I5V0IraFBESzQKeHh2RWx1QzhvNThENVVSWGlRU1VSQWwwRzRydEZRWFFPYittNUpkN2oyOHdEYytrQmNWeVpQZ1N1eE95aU80NwordngwLzgvUEpsNzBWcHA4bVo1aVdaRFl1Y1JyeEZFWktDWWVwWStkQnZOUEJKcHRXdVc3Ykp2SEtJd2lNSDNlClZlVk9EUFZrdVhqZ0Q4OE9mYXRxSmprYTJzZitnU2MyekpRaGRZUU1YTWlEV0lET0tDMThwcm1tYXFZdDBqVlgKMytBVGJjR3lGb093azVNTFVNRXZ0MkkyZUoyb1VUd1lIVi85WHdJREFRQUJBb0lCQUF5YTdTOHdYTlBGVjgrVQovVm9yTjNEN2hGN1VYYkhhYXFyN3p5Qm5XamxwRVhzOWx6SkROSiswRkFsYmdBbGdwZUNzYmlHbU4vYmtqQ3JLCjR4UmdyWThESXM0TDA3UXgvbHFmaDVBQjllMnB0SW52ckhGZzlEUUh1V0R3UnE3elpCS2kvdW5YbkpSLzhQZ0YKQThlOVJqeGNxbmZNUlo4RFd6S0kxK2hpUzdkZXFvNk1FWEozLytDSk5tZU95ejVVT1o3dEI5bjUyRXVNVU1hbwp0RDM5ZjhZRWNUOXdkL3VqZEpRdllWTy9hWTJLSDNQMHcyV3l1Z01DRmpoL3hUcjkxNEd5bEYrQ2ovQUZidFFjCk5WRGVTa1NyVUxsT015bXpRRmEvTDEvbFlxS2pMTXNEMCtIRVlocjdnY0ZyQk1HOTA2MEVES1BzUjQrQzdiWCsKMTlKYytXa0NnWUVBM1RHREZIQ21TK2FWNHdHUnR4WDN2TU9DSVdiNXFqSHM2OWtaamVQa0lzSDI2NnFqKzJTcgpWTFI3K2lQK21BV01TMnVuMTVnUUVtQWdZb1IrSWE2M0xrWWlxQ1FZdmlPRU5lZ0t2cFJ2cFlEd3YvVm1YVnZZCnAyYjJuMldLRjJKdGtlZWNMUEpsMkw0UDVWMzNveExzWnRIVWlYTXZKODFjT25BZnNBWjBhVDBDZ1lFQXp5d2QKeGJiM1YwYkRZak1ML1FLSmtYUTVEajhhTUozaXI5and0bkMwWVB3TUhTWGFVSFQ1a1h5STJKTVNLQW4vODBiWgpSNC9YSXAzbm9tQWkrYkQzeVNxYXlEZFR0Q2xuZGIvVUFCNmx4N3M5dld0K0ZIYXJzd3F2U1NSTWJnYURGVWJzCmI1RnZsZmpGajkrQUhlRS80dmNYS05qc0kxOFEvWTNma0pKM1Vzc0NnWUVBdUhTZGx1SUtDNm1Tdk9lR0dHUGQKWURDNXlCa1RnblozMklZRzVXaHh5dnB0YTBHMTFlS3hiY1hFeldoTzIzOWs2MUF2ZTM1M2lKdFk1azhPMEEvZQorbHZLY3VVSExTaDVER3NnNnFUbUplSk00Z2RIQWZ1aHhKZjhlaGcyL0NFOHRqdXE1V0NPeGh4WkxURWJYWVplClZiQU55VUdneFZSZjRPdTN3UmJnNVJFQ2dZQnFaUlN4S21MaUxwUS9CVW85MktTL3ozbFJ5TFJ4alZRU3pRM3EKRS8xKzVWSnZVYlpKcFpsWnp5UVVYWXR3aHBvczNSRFBRSjdTeDFkak80NGF2M2l4bGpEQmJEQ1BrTWZ5WDk3SApaUFhzbWt0OTBRdUNCT1B1NGlqZEhrZ21KVEFDcUZiYWdVMVdMdGwvSnVBTCtGY3YvNGVrVWFzTUMxR1ZkZHYvCnlraC9ld0tCZ1FDeW9LSDM4T3FaUWFSVGpoNURnR2poQW12T2dlSXdjZ1NaSlhlRlM5ZXQ5MUxpSXUxMDJYUFQKWUU1M2NrSFEvUEhoN2VqcWRtU1hEUGxQbmJFNGJMSjZPMUlYSTduT1BablJrTzRRNHo5Y1VhZ2k5OVlDRXh1Ugo0N3NraERhejV1ZjhwR3VpNnBRR3ZLMjkyem9ZTkpXVkdtMUVHZzNUYVRzbmVPUDVjWWI2c0E9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=\n",
+            "kubeconfig_user_raw": "---\napiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    server: https://172.20.0.100:2002\n  name: melt03\ncontexts:\n- context:\n    cluster: melt03\n    user: melt03-user\n  name: user@melt03\ncurrent-context: user@melt03\nkind: Config\npreferences: {}\nusers:\n- name: melt03-user\n  user:\n    exec:\n      apiVersion: client.authentication.k8s.io/v1\n      args:\n      - oidc-login\n      - get-token\n      - \"--oidc-issuer-url=https://app.dev.meltcloud.io\"\n      - \"--oidc-client-id=kubernetes\"\n      - \"--oidc-extra-scope=profile\"\n      - \"--certificate-authority-data\"\n      - LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURiVENDQWxXZ0F3SUJBZ0lVWDlxNXlxM1VNSDR5Z1FTVlFFcm1OTFNsSmdRd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1JURUxNQWtHQTFVRUJoTUNRVlV4RXpBUkJnTlZCQWdNQ2xOdmJXVXRVM1JoZEdVeElUQWZCZ05WQkFvTQpHRWx1ZEdWeWJtVjBJRmRwWkdkcGRITWdVSFI1SUV4MFpEQWdGdzB5TkRBNU1qTXhNek15TUROYUdBOHlNRFV5Ck1ESXdPVEV6TXpJd00xb3dSVEVMTUFrR0ExVUVCaE1DUVZVeEV6QVJCZ05WQkFnTUNsTnZiV1V0VTNSaGRHVXgKSVRBZkJnTlZCQW9NR0VsdWRHVnlibVYwSUZkcFpHZHBkSE1nVUhSNUlFeDBaRENDQVNJd0RRWUpLb1pJaHZjTgpBUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTWVUcWp2aHJaZllZM1lhekxacFU5bkVkeWhWNTdxWlhOdEtIODF4CmpQYWNiVnJmWlh1bVFoaWkrVHdQbitoT0JWaDJkOGxibFhWYW1nalNVcTdUWVh1djRuSlFzVGRmS0ptRzVKeE0KNlh6NTlhQjUzQmFnUEt6YjNucSs4ZVN1NnZFK2JUdjBjVFdGSWEweStNWEFCTHlhUUZuU0x5VzBucjdZL09rcQpTb3RJNytHTVphaWdqOS9mOExTNndKOHVnZmxqQzdvN0pORkQ0R215akJITGFIMG8vZmJsT0dROUxxam5rbmRqCk50WXhURmNEY2xZVEo2M2JjUnRZaEhST2tDcHREWHRycE1EWU1CUkF5UEdDL0JibkJ6MHNmTGVNVGtNOTVDUDEKUjB2bWlVSEt5VHVjbDRwOUFzdnc0Q3hIUGVxU3JwWUlMcTRVQmozZTBWbVF2Sk1DQXdFQUFhTlRNRkV3SFFZRApWUjBPQkJZRUZHR05IRmFFNGp3VkMxMlVIbHgzSEJESEJldDBNQjhHQTFVZEl3UVlNQmFBRkdHTkhGYUU0andWCkMxMlVIbHgzSEJESEJldDBNQThHQTFVZEV3RUIvd1FGTUFNQkFmOHdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUIKQUs0bVRmeXcwTDlXUnZoeGNTMzI4WDF2UzlSa2VFVGVROW0xREsvWDdjckFTdEVkRDdYVGE1S2MyUHZvNkl5SQpjMmNpVW5ES0c4SXRYK0I5aW5mOW1LdWxRQlhkSUJGSjh5QVp1SllRTHlDUG9uaGlCNU4rcmtVbUEwY0w3NmV2CjZqWS80TEVxdk53MUs1alhzT0ZvYUJpdXNLdUYzMTl3UXAvK2RhVmRqWHIwK1RaVGdtVytJVlg1S1ZtZ21Dc2kKOHhzTkxsMmZQL3o4blBSV0dJd0UvZ2V0V3laLy9zUTd3TGdEc1VxRHJmcHRZK3hZNk0vY1pSbVkyNi9tb1V6eApNendSZjRaV0t2SDYya2R6cjk3Wnp5WUNwbzk5T1BTUEI5cTgrcTdEUTVkZXpyby8zNzV3dlRXR0tkcjgwc1VZCnRBbTRoY2l1TXRzWHVoRjcvWVEzMEI4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==\n      command: kubectl\n      env:\n      provideClusterInfo: false\n      interactiveMode: IfAvailable\n      installHint: |-\n        Kubelogin is not installed which is required for meltcloud SSO login.\n        Please download from https://github.com/int128/kubelogin#getting-started\n",
+            "name": "melt03",
+            "patch_version": "1.31.12",
+            "pod_cidr": "10.36.0.0/16",
+            "service_cidr": "10.96.0.0/16",
+            "version": "1.31"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "client_certificate"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "client_key"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "cluster_ca_certificate"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "host"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "password"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "username"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig_raw"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "meltcloud_cluster",
+      "name": "example_name",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "addon_core_dns": false,
+            "addon_kube_proxy": false,
+            "control_plane_status": "ready",
+            "dns_service_ip": "10.96.0.10",
+            "id": 5,
+            "kubeconfig": {
+              "client_certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lJR1dtV0ZqSHZqdkV3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHlOakV4TVRBd056UTFNakZhTUR3eApIekFkQmdOVkJBb1RGbXQxWW1WaFpHMDZZMngxYzNSbGNpMWhaRzFwYm5NeEdUQVhCZ05WQkFNVEVHdDFZbVZ5CmJtVjBaWE10WVdSdGFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDekFTYzUKZjZQczBQNGNIT1dhdmJDdjVhdXo3eXB5bkNBSGRha2t6ZFZVVlNSMk5wdWs4RDFtMDhaanRqQ0gxT20zNTRhKwpnZ0RXbDJKc3lENkg1Q1plYzE3QlRBbUswKzVJak12akJIMVlINkU4TXJqSEc4U1c0THlqbndQbFJGZUpCSlJFCkNYUWJpdTBWQmRBNXY2YmtsM3VQYnpBTno2UUZ4WEprK0JLN0U3S0k3anY2L0hUL3o4OG1YdlJXbW55Wm5tSloKa05pNXhHdkVVUmtvSmg2bGo1MEc4MDhFbW0xYTVidHNtOGNvakNJd2ZkNVY1VTRNOVdTNWVPQVB6dzU5cTJvbQpPUnJheC82Qkp6Yk1sQ0YxaEF4Y3lJTllnTTRvTFh5bXVhWnFwaTNTTlZmZjRCTnR3YklXZzdDVGt3dFF3UyszCllqWjRuYWhSUEJnZFgvMWZBZ01CQUFHalZqQlVNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRlBYRXJtZ3FjMTRjWTVKTgp3SS9tOFRTdE1RcHBNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUURGbkI2bUNvNE5hRGJqdVpWQ0dqL3puK2hjCkIvaVJDcTdSN21PWlB3dTVQQWd4SzdrTnV1d0dZSFhvZXl0cFRFNVliWWVoZmlMd2pDT3NrekxVMkxoSXdDeEUKZ0MrOVZ4b0dqYm0xZVk5U0dGQWZUWk9ZenhpeUJlMzEyVGZVVThkNDJXVkp0eW5STlhpZVROTER1TWFOMEVuUApDWGlZdGprVEFtcXZhV2hlZTU1d3ArUTVKT2xQUjNlSVQ2a3VoV2lLNkhIQjYxdk05WTVvd242Q3B1Tmw2RXBWCjBWMXRDcFZjbVltcHRBazNrbjdqNlUxZEY5cGdBblAzcTk4anhQWjhnREFGbjFITVdNRU11YkNPcytzS3B0djEKOW5NQ3VhdUl1bG9JV2VWUFRWNmUyVHpxeEk1aHhmaWtVMkpZMDlQdEJIUWovZ0pRdlB1cGFQcmNXSHNNCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K",
+              "client_key": "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBc3dFbk9YK2o3TkQrSEJ6bG1yMndyK1dycys4cWNwd2dCM1dwSk0zVlZGVWtkamFiCnBQQTladFBHWTdZd2g5VHB0K2VHdm9JQTFwZGliTWcraCtRbVhuTmV3VXdKaXRQdVNJekw0d1I5V0IraFBESzQKeHh2RWx1QzhvNThENVVSWGlRU1VSQWwwRzRydEZRWFFPYittNUpkN2oyOHdEYytrQmNWeVpQZ1N1eE95aU80NwordngwLzgvUEpsNzBWcHA4bVo1aVdaRFl1Y1JyeEZFWktDWWVwWStkQnZOUEJKcHRXdVc3Ykp2SEtJd2lNSDNlClZlVk9EUFZrdVhqZ0Q4OE9mYXRxSmprYTJzZitnU2MyekpRaGRZUU1YTWlEV0lET0tDMThwcm1tYXFZdDBqVlgKMytBVGJjR3lGb093azVNTFVNRXZ0MkkyZUoyb1VUd1lIVi85WHdJREFRQUJBb0lCQUF5YTdTOHdYTlBGVjgrVQovVm9yTjNEN2hGN1VYYkhhYXFyN3p5Qm5XamxwRVhzOWx6SkROSiswRkFsYmdBbGdwZUNzYmlHbU4vYmtqQ3JLCjR4UmdyWThESXM0TDA3UXgvbHFmaDVBQjllMnB0SW52ckhGZzlEUUh1V0R3UnE3elpCS2kvdW5YbkpSLzhQZ0YKQThlOVJqeGNxbmZNUlo4RFd6S0kxK2hpUzdkZXFvNk1FWEozLytDSk5tZU95ejVVT1o3dEI5bjUyRXVNVU1hbwp0RDM5ZjhZRWNUOXdkL3VqZEpRdllWTy9hWTJLSDNQMHcyV3l1Z01DRmpoL3hUcjkxNEd5bEYrQ2ovQUZidFFjCk5WRGVTa1NyVUxsT015bXpRRmEvTDEvbFlxS2pMTXNEMCtIRVlocjdnY0ZyQk1HOTA2MEVES1BzUjQrQzdiWCsKMTlKYytXa0NnWUVBM1RHREZIQ21TK2FWNHdHUnR4WDN2TU9DSVdiNXFqSHM2OWtaamVQa0lzSDI2NnFqKzJTcgpWTFI3K2lQK21BV01TMnVuMTVnUUVtQWdZb1IrSWE2M0xrWWlxQ1FZdmlPRU5lZ0t2cFJ2cFlEd3YvVm1YVnZZCnAyYjJuMldLRjJKdGtlZWNMUEpsMkw0UDVWMzNveExzWnRIVWlYTXZKODFjT25BZnNBWjBhVDBDZ1lFQXp5d2QKeGJiM1YwYkRZak1ML1FLSmtYUTVEajhhTUozaXI5and0bkMwWVB3TUhTWGFVSFQ1a1h5STJKTVNLQW4vODBiWgpSNC9YSXAzbm9tQWkrYkQzeVNxYXlEZFR0Q2xuZGIvVUFCNmx4N3M5dld0K0ZIYXJzd3F2U1NSTWJnYURGVWJzCmI1RnZsZmpGajkrQUhlRS80dmNYS05qc0kxOFEvWTNma0pKM1Vzc0NnWUVBdUhTZGx1SUtDNm1Tdk9lR0dHUGQKWURDNXlCa1RnblozMklZRzVXaHh5dnB0YTBHMTFlS3hiY1hFeldoTzIzOWs2MUF2ZTM1M2lKdFk1azhPMEEvZQorbHZLY3VVSExTaDVER3NnNnFUbUplSk00Z2RIQWZ1aHhKZjhlaGcyL0NFOHRqdXE1V0NPeGh4WkxURWJYWVplClZiQU55VUdneFZSZjRPdTN3UmJnNVJFQ2dZQnFaUlN4S21MaUxwUS9CVW85MktTL3ozbFJ5TFJ4alZRU3pRM3EKRS8xKzVWSnZVYlpKcFpsWnp5UVVYWXR3aHBvczNSRFBRSjdTeDFkak80NGF2M2l4bGpEQmJEQ1BrTWZ5WDk3SApaUFhzbWt0OTBRdUNCT1B1NGlqZEhrZ21KVEFDcUZiYWdVMVdMdGwvSnVBTCtGY3YvNGVrVWFzTUMxR1ZkZHYvCnlraC9ld0tCZ1FDeW9LSDM4T3FaUWFSVGpoNURnR2poQW12T2dlSXdjZ1NaSlhlRlM5ZXQ5MUxpSXUxMDJYUFQKWUU1M2NrSFEvUEhoN2VqcWRtU1hEUGxQbmJFNGJMSjZPMUlYSTduT1BablJrTzRRNHo5Y1VhZ2k5OVlDRXh1Ugo0N3NraERhejV1ZjhwR3VpNnBRR3ZLMjkyem9ZTkpXVkdtMUVHZzNUYVRzbmVPUDVjWWI2c0E9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=",
+              "cluster_ca_certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K",
+              "host": "https://172.20.0.100:2002",
+              "password": "",
+              "username": "kubernetes-admin"
+            },
+            "kubeconfig_raw": "apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    server: https://172.20.0.100:2002\n  name: melt03\ncontexts:\n- context:\n    cluster: melt03\n    user: kubernetes-admin\n  name: kubernetes-admin@melt03\ncurrent-context: kubernetes-admin@melt03\nkind: Config\npreferences: {}\nusers:\n- name: kubernetes-admin\n  user:\n    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lJR1dtV0ZqSHZqdkV3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHlOakV4TVRBd056UTFNakZhTUR3eApIekFkQmdOVkJBb1RGbXQxWW1WaFpHMDZZMngxYzNSbGNpMWhaRzFwYm5NeEdUQVhCZ05WQkFNVEVHdDFZbVZ5CmJtVjBaWE10WVdSdGFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDekFTYzUKZjZQczBQNGNIT1dhdmJDdjVhdXo3eXB5bkNBSGRha2t6ZFZVVlNSMk5wdWs4RDFtMDhaanRqQ0gxT20zNTRhKwpnZ0RXbDJKc3lENkg1Q1plYzE3QlRBbUswKzVJak12akJIMVlINkU4TXJqSEc4U1c0THlqbndQbFJGZUpCSlJFCkNYUWJpdTBWQmRBNXY2YmtsM3VQYnpBTno2UUZ4WEprK0JLN0U3S0k3anY2L0hUL3o4OG1YdlJXbW55Wm5tSloKa05pNXhHdkVVUmtvSmg2bGo1MEc4MDhFbW0xYTVidHNtOGNvakNJd2ZkNVY1VTRNOVdTNWVPQVB6dzU5cTJvbQpPUnJheC82Qkp6Yk1sQ0YxaEF4Y3lJTllnTTRvTFh5bXVhWnFwaTNTTlZmZjRCTnR3YklXZzdDVGt3dFF3UyszCllqWjRuYWhSUEJnZFgvMWZBZ01CQUFHalZqQlVNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRlBYRXJtZ3FjMTRjWTVKTgp3SS9tOFRTdE1RcHBNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUURGbkI2bUNvNE5hRGJqdVpWQ0dqL3puK2hjCkIvaVJDcTdSN21PWlB3dTVQQWd4SzdrTnV1d0dZSFhvZXl0cFRFNVliWWVoZmlMd2pDT3NrekxVMkxoSXdDeEUKZ0MrOVZ4b0dqYm0xZVk5U0dGQWZUWk9ZenhpeUJlMzEyVGZVVThkNDJXVkp0eW5STlhpZVROTER1TWFOMEVuUApDWGlZdGprVEFtcXZhV2hlZTU1d3ArUTVKT2xQUjNlSVQ2a3VoV2lLNkhIQjYxdk05WTVvd242Q3B1Tmw2RXBWCjBWMXRDcFZjbVltcHRBazNrbjdqNlUxZEY5cGdBblAzcTk4anhQWjhnREFGbjFITVdNRU11YkNPcytzS3B0djEKOW5NQ3VhdUl1bG9JV2VWUFRWNmUyVHpxeEk1aHhmaWtVMkpZMDlQdEJIUWovZ0pRdlB1cGFQcmNXSHNNCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBc3dFbk9YK2o3TkQrSEJ6bG1yMndyK1dycys4cWNwd2dCM1dwSk0zVlZGVWtkamFiCnBQQTladFBHWTdZd2g5VHB0K2VHdm9JQTFwZGliTWcraCtRbVhuTmV3VXdKaXRQdVNJekw0d1I5V0IraFBESzQKeHh2RWx1QzhvNThENVVSWGlRU1VSQWwwRzRydEZRWFFPYittNUpkN2oyOHdEYytrQmNWeVpQZ1N1eE95aU80NwordngwLzgvUEpsNzBWcHA4bVo1aVdaRFl1Y1JyeEZFWktDWWVwWStkQnZOUEJKcHRXdVc3Ykp2SEtJd2lNSDNlClZlVk9EUFZrdVhqZ0Q4OE9mYXRxSmprYTJzZitnU2MyekpRaGRZUU1YTWlEV0lET0tDMThwcm1tYXFZdDBqVlgKMytBVGJjR3lGb093azVNTFVNRXZ0MkkyZUoyb1VUd1lIVi85WHdJREFRQUJBb0lCQUF5YTdTOHdYTlBGVjgrVQovVm9yTjNEN2hGN1VYYkhhYXFyN3p5Qm5XamxwRVhzOWx6SkROSiswRkFsYmdBbGdwZUNzYmlHbU4vYmtqQ3JLCjR4UmdyWThESXM0TDA3UXgvbHFmaDVBQjllMnB0SW52ckhGZzlEUUh1V0R3UnE3elpCS2kvdW5YbkpSLzhQZ0YKQThlOVJqeGNxbmZNUlo4RFd6S0kxK2hpUzdkZXFvNk1FWEozLytDSk5tZU95ejVVT1o3dEI5bjUyRXVNVU1hbwp0RDM5ZjhZRWNUOXdkL3VqZEpRdllWTy9hWTJLSDNQMHcyV3l1Z01DRmpoL3hUcjkxNEd5bEYrQ2ovQUZidFFjCk5WRGVTa1NyVUxsT015bXpRRmEvTDEvbFlxS2pMTXNEMCtIRVlocjdnY0ZyQk1HOTA2MEVES1BzUjQrQzdiWCsKMTlKYytXa0NnWUVBM1RHREZIQ21TK2FWNHdHUnR4WDN2TU9DSVdiNXFqSHM2OWtaamVQa0lzSDI2NnFqKzJTcgpWTFI3K2lQK21BV01TMnVuMTVnUUVtQWdZb1IrSWE2M0xrWWlxQ1FZdmlPRU5lZ0t2cFJ2cFlEd3YvVm1YVnZZCnAyYjJuMldLRjJKdGtlZWNMUEpsMkw0UDVWMzNveExzWnRIVWlYTXZKODFjT25BZnNBWjBhVDBDZ1lFQXp5d2QKeGJiM1YwYkRZak1ML1FLSmtYUTVEajhhTUozaXI5and0bkMwWVB3TUhTWGFVSFQ1a1h5STJKTVNLQW4vODBiWgpSNC9YSXAzbm9tQWkrYkQzeVNxYXlEZFR0Q2xuZGIvVUFCNmx4N3M5dld0K0ZIYXJzd3F2U1NSTWJnYURGVWJzCmI1RnZsZmpGajkrQUhlRS80dmNYS05qc0kxOFEvWTNma0pKM1Vzc0NnWUVBdUhTZGx1SUtDNm1Tdk9lR0dHUGQKWURDNXlCa1RnblozMklZRzVXaHh5dnB0YTBHMTFlS3hiY1hFeldoTzIzOWs2MUF2ZTM1M2lKdFk1azhPMEEvZQorbHZLY3VVSExTaDVER3NnNnFUbUplSk00Z2RIQWZ1aHhKZjhlaGcyL0NFOHRqdXE1V0NPeGh4WkxURWJYWVplClZiQU55VUdneFZSZjRPdTN3UmJnNVJFQ2dZQnFaUlN4S21MaUxwUS9CVW85MktTL3ozbFJ5TFJ4alZRU3pRM3EKRS8xKzVWSnZVYlpKcFpsWnp5UVVYWXR3aHBvczNSRFBRSjdTeDFkak80NGF2M2l4bGpEQmJEQ1BrTWZ5WDk3SApaUFhzbWt0OTBRdUNCT1B1NGlqZEhrZ21KVEFDcUZiYWdVMVdMdGwvSnVBTCtGY3YvNGVrVWFzTUMxR1ZkZHYvCnlraC9ld0tCZ1FDeW9LSDM4T3FaUWFSVGpoNURnR2poQW12T2dlSXdjZ1NaSlhlRlM5ZXQ5MUxpSXUxMDJYUFQKWUU1M2NrSFEvUEhoN2VqcWRtU1hEUGxQbmJFNGJMSjZPMUlYSTduT1BablJrTzRRNHo5Y1VhZ2k5OVlDRXh1Ugo0N3NraERhejV1ZjhwR3VpNnBRR3ZLMjkyem9ZTkpXVkdtMUVHZzNUYVRzbmVPUDVjWWI2c0E9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=\n",
+            "kubeconfig_user_raw": "---\napiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    server: https://172.20.0.100:2002\n  name: melt03\ncontexts:\n- context:\n    cluster: melt03\n    user: melt03-user\n  name: user@melt03\ncurrent-context: user@melt03\nkind: Config\npreferences: {}\nusers:\n- name: melt03-user\n  user:\n    exec:\n      apiVersion: client.authentication.k8s.io/v1\n      args:\n      - oidc-login\n      - get-token\n      - \"--oidc-issuer-url=https://app.dev.meltcloud.io\"\n      - \"--oidc-client-id=kubernetes\"\n      - \"--oidc-extra-scope=profile\"\n      - \"--certificate-authority-data\"\n      - LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURiVENDQWxXZ0F3SUJBZ0lVWDlxNXlxM1VNSDR5Z1FTVlFFcm1OTFNsSmdRd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1JURUxNQWtHQTFVRUJoTUNRVlV4RXpBUkJnTlZCQWdNQ2xOdmJXVXRVM1JoZEdVeElUQWZCZ05WQkFvTQpHRWx1ZEdWeWJtVjBJRmRwWkdkcGRITWdVSFI1SUV4MFpEQWdGdzB5TkRBNU1qTXhNek15TUROYUdBOHlNRFV5Ck1ESXdPVEV6TXpJd00xb3dSVEVMTUFrR0ExVUVCaE1DUVZVeEV6QVJCZ05WQkFnTUNsTnZiV1V0VTNSaGRHVXgKSVRBZkJnTlZCQW9NR0VsdWRHVnlibVYwSUZkcFpHZHBkSE1nVUhSNUlFeDBaRENDQVNJd0RRWUpLb1pJaHZjTgpBUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTWVUcWp2aHJaZllZM1lhekxacFU5bkVkeWhWNTdxWlhOdEtIODF4CmpQYWNiVnJmWlh1bVFoaWkrVHdQbitoT0JWaDJkOGxibFhWYW1nalNVcTdUWVh1djRuSlFzVGRmS0ptRzVKeE0KNlh6NTlhQjUzQmFnUEt6YjNucSs4ZVN1NnZFK2JUdjBjVFdGSWEweStNWEFCTHlhUUZuU0x5VzBucjdZL09rcQpTb3RJNytHTVphaWdqOS9mOExTNndKOHVnZmxqQzdvN0pORkQ0R215akJITGFIMG8vZmJsT0dROUxxam5rbmRqCk50WXhURmNEY2xZVEo2M2JjUnRZaEhST2tDcHREWHRycE1EWU1CUkF5UEdDL0JibkJ6MHNmTGVNVGtNOTVDUDEKUjB2bWlVSEt5VHVjbDRwOUFzdnc0Q3hIUGVxU3JwWUlMcTRVQmozZTBWbVF2Sk1DQXdFQUFhTlRNRkV3SFFZRApWUjBPQkJZRUZHR05IRmFFNGp3VkMxMlVIbHgzSEJESEJldDBNQjhHQTFVZEl3UVlNQmFBRkdHTkhGYUU0andWCkMxMlVIbHgzSEJESEJldDBNQThHQTFVZEV3RUIvd1FGTUFNQkFmOHdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUIKQUs0bVRmeXcwTDlXUnZoeGNTMzI4WDF2UzlSa2VFVGVROW0xREsvWDdjckFTdEVkRDdYVGE1S2MyUHZvNkl5SQpjMmNpVW5ES0c4SXRYK0I5aW5mOW1LdWxRQlhkSUJGSjh5QVp1SllRTHlDUG9uaGlCNU4rcmtVbUEwY0w3NmV2CjZqWS80TEVxdk53MUs1alhzT0ZvYUJpdXNLdUYzMTl3UXAvK2RhVmRqWHIwK1RaVGdtVytJVlg1S1ZtZ21Dc2kKOHhzTkxsMmZQL3o4blBSV0dJd0UvZ2V0V3laLy9zUTd3TGdEc1VxRHJmcHRZK3hZNk0vY1pSbVkyNi9tb1V6eApNendSZjRaV0t2SDYya2R6cjk3Wnp5WUNwbzk5T1BTUEI5cTgrcTdEUTVkZXpyby8zNzV3dlRXR0tkcjgwc1VZCnRBbTRoY2l1TXRzWHVoRjcvWVEzMEI4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==\n      command: kubectl\n      env:\n      provideClusterInfo: false\n      interactiveMode: IfAvailable\n      installHint: |-\n        Kubelogin is not installed which is required for meltcloud SSO login.\n        Please download from https://github.com/int128/kubelogin#getting-started\n",
+            "name": "melt03",
+            "patch_version": "1.31.12",
+            "pod_cidr": "10.36.0.0/16",
+            "service_cidr": "10.96.0.0/16",
+            "version": "1.31"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "client_certificate"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "client_key"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "cluster_ca_certificate"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "host"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "password"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "username"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig_raw"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "meltcloud_enrollment_image",
+      "name": "example_id",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "enable_http": true,
+            "expires_at": "2026-11-10T12:49:07+01:00",
+            "http_url_iso_amd64": "http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "http_url_iso_arm64": "http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "https_url_iso_amd64": "https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "https_url_iso_arm64": "https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "id": 8,
+            "install_disk_device": "/dev/vda",
+            "install_disk_force_overwrite": true,
+            "ipxe_script_http_amd64": "#!ipxe\n\nsanboot http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "ipxe_script_http_arm64": "#!ipxe\n\nsanboot http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "ipxe_script_https_amd64": "#!ipxe\n\nsanboot https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "ipxe_script_https_arm64": "#!ipxe\n\nsanboot https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "last_used_at": null,
+            "name": "my-image",
+            "status": "ready",
+            "vlan": 101
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "http_url_iso_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "http_url_iso_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "https_url_iso_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "https_url_iso_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_http_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_http_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_https_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_https_arm64"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "meltcloud_enrollment_image",
+      "name": "example_name",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "enable_http": true,
+            "expires_at": "2026-11-10T12:49:07+01:00",
+            "http_url_iso_amd64": "http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "http_url_iso_arm64": "http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "https_url_iso_amd64": "https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "https_url_iso_arm64": "https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "id": 8,
+            "install_disk_device": "/dev/vda",
+            "install_disk_force_overwrite": true,
+            "ipxe_script_http_amd64": "#!ipxe\n\nsanboot http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "ipxe_script_http_arm64": "#!ipxe\n\nsanboot http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "ipxe_script_https_amd64": "#!ipxe\n\nsanboot https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "ipxe_script_https_arm64": "#!ipxe\n\nsanboot https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "last_used_at": null,
+            "name": "my-image",
+            "status": "ready",
+            "vlan": 101
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "http_url_iso_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "http_url_iso_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "https_url_iso_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "https_url_iso_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_http_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_http_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_https_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_https_arm64"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "meltcloud_machine",
+      "name": "example_id",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": 23,
+            "labels": [
+              {
+                "key": "topology.kubernetes.io/region",
+                "value": "ch"
+              },
+              {
+                "key": "topology.kubernetes.io/zone",
+                "value": "az3"
+              }
+            ],
+            "machine_pool_id": 16,
+            "name": "meltcloud-node01",
+            "status": "preregistered",
+            "uuid": "0442228d-023e-42ab-af34-da267d3e9c37"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "meltcloud_machine",
+      "name": "example_uuid",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": 23,
+            "labels": [
+              {
+                "key": "topology.kubernetes.io/region",
+                "value": "ch"
+              },
+              {
+                "key": "topology.kubernetes.io/zone",
+                "value": "az3"
+              }
+            ],
+            "machine_pool_id": 16,
+            "name": "meltcloud-node01",
+            "status": "preregistered",
+            "uuid": "0442228d-023e-42ab-af34-da267d3e9c37"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "meltcloud_machine_pool",
+      "name": "example_id",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "cluster_id": 5,
+            "id": 16,
+            "name": "pool1",
+            "network_profile_id": 5,
+            "patch_version": "1.31.12",
+            "status": "ready",
+            "version": "1.31"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "helm_release",
+      "name": "test",
+      "provider": "provider[\"registry.terraform.io/hashicorp/helm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "atomic": false,
+            "chart": "example-chart",
+            "cleanup_on_fail": false,
+            "create_namespace": false,
+            "dependency_update": false,
+            "description": null,
+            "devel": null,
+            "disable_crd_hooks": false,
+            "disable_openapi_validation": false,
+            "disable_webhooks": false,
+            "force_update": false,
+            "id": "example-chart",
+            "keyring": null,
+            "lint": false,
+            "manifest": null,
+            "max_history": 0,
+            "metadata": [
+              {
+                "app_version": "0.1.0",
+                "chart": "example-chart",
+                "first_deployed": 1762775433,
+                "last_deployed": 1762775433,
+                "name": "example-chart",
+                "namespace": "default",
+                "notes": "",
+                "revision": 1,
+                "values": "{}",
+                "version": "0.1.0"
+              }
+            ],
+            "name": "example-chart",
+            "namespace": "default",
+            "pass_credentials": false,
+            "postrender": [],
+            "recreate_pods": false,
+            "render_subchart_notes": true,
+            "replace": false,
+            "repository": "./",
+            "repository_ca_file": null,
+            "repository_cert_file": null,
+            "repository_key_file": null,
+            "repository_password": null,
+            "repository_username": null,
+            "reset_values": false,
+            "reuse_values": false,
+            "set": [],
+            "set_list": [],
+            "set_sensitive": [],
+            "skip_crds": false,
+            "status": "deployed",
+            "timeout": 300,
+            "upgrade_install": null,
+            "values": null,
+            "verify": false,
+            "version": "0.1.0",
+            "wait": true,
+            "wait_for_jobs": false
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "repository_password"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "meltcloud_cluster.example"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "meltcloud_cluster",
+      "name": "example",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "addon_core_dns": false,
+            "addon_kube_proxy": false,
+            "dns_service_ip": "10.96.0.10",
+            "id": 5,
+            "kubeconfig": {
+              "client_certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lJR1dtV0ZqSHZqdkV3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHlOakV4TVRBd056UTFNakZhTUR3eApIekFkQmdOVkJBb1RGbXQxWW1WaFpHMDZZMngxYzNSbGNpMWhaRzFwYm5NeEdUQVhCZ05WQkFNVEVHdDFZbVZ5CmJtVjBaWE10WVdSdGFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDekFTYzUKZjZQczBQNGNIT1dhdmJDdjVhdXo3eXB5bkNBSGRha2t6ZFZVVlNSMk5wdWs4RDFtMDhaanRqQ0gxT20zNTRhKwpnZ0RXbDJKc3lENkg1Q1plYzE3QlRBbUswKzVJak12akJIMVlINkU4TXJqSEc4U1c0THlqbndQbFJGZUpCSlJFCkNYUWJpdTBWQmRBNXY2YmtsM3VQYnpBTno2UUZ4WEprK0JLN0U3S0k3anY2L0hUL3o4OG1YdlJXbW55Wm5tSloKa05pNXhHdkVVUmtvSmg2bGo1MEc4MDhFbW0xYTVidHNtOGNvakNJd2ZkNVY1VTRNOVdTNWVPQVB6dzU5cTJvbQpPUnJheC82Qkp6Yk1sQ0YxaEF4Y3lJTllnTTRvTFh5bXVhWnFwaTNTTlZmZjRCTnR3YklXZzdDVGt3dFF3UyszCllqWjRuYWhSUEJnZFgvMWZBZ01CQUFHalZqQlVNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRlBYRXJtZ3FjMTRjWTVKTgp3SS9tOFRTdE1RcHBNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUURGbkI2bUNvNE5hRGJqdVpWQ0dqL3puK2hjCkIvaVJDcTdSN21PWlB3dTVQQWd4SzdrTnV1d0dZSFhvZXl0cFRFNVliWWVoZmlMd2pDT3NrekxVMkxoSXdDeEUKZ0MrOVZ4b0dqYm0xZVk5U0dGQWZUWk9ZenhpeUJlMzEyVGZVVThkNDJXVkp0eW5STlhpZVROTER1TWFOMEVuUApDWGlZdGprVEFtcXZhV2hlZTU1d3ArUTVKT2xQUjNlSVQ2a3VoV2lLNkhIQjYxdk05WTVvd242Q3B1Tmw2RXBWCjBWMXRDcFZjbVltcHRBazNrbjdqNlUxZEY5cGdBblAzcTk4anhQWjhnREFGbjFITVdNRU11YkNPcytzS3B0djEKOW5NQ3VhdUl1bG9JV2VWUFRWNmUyVHpxeEk1aHhmaWtVMkpZMDlQdEJIUWovZ0pRdlB1cGFQcmNXSHNNCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K",
+              "client_key": "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBc3dFbk9YK2o3TkQrSEJ6bG1yMndyK1dycys4cWNwd2dCM1dwSk0zVlZGVWtkamFiCnBQQTladFBHWTdZd2g5VHB0K2VHdm9JQTFwZGliTWcraCtRbVhuTmV3VXdKaXRQdVNJekw0d1I5V0IraFBESzQKeHh2RWx1QzhvNThENVVSWGlRU1VSQWwwRzRydEZRWFFPYittNUpkN2oyOHdEYytrQmNWeVpQZ1N1eE95aU80NwordngwLzgvUEpsNzBWcHA4bVo1aVdaRFl1Y1JyeEZFWktDWWVwWStkQnZOUEJKcHRXdVc3Ykp2SEtJd2lNSDNlClZlVk9EUFZrdVhqZ0Q4OE9mYXRxSmprYTJzZitnU2MyekpRaGRZUU1YTWlEV0lET0tDMThwcm1tYXFZdDBqVlgKMytBVGJjR3lGb093azVNTFVNRXZ0MkkyZUoyb1VUd1lIVi85WHdJREFRQUJBb0lCQUF5YTdTOHdYTlBGVjgrVQovVm9yTjNEN2hGN1VYYkhhYXFyN3p5Qm5XamxwRVhzOWx6SkROSiswRkFsYmdBbGdwZUNzYmlHbU4vYmtqQ3JLCjR4UmdyWThESXM0TDA3UXgvbHFmaDVBQjllMnB0SW52ckhGZzlEUUh1V0R3UnE3elpCS2kvdW5YbkpSLzhQZ0YKQThlOVJqeGNxbmZNUlo4RFd6S0kxK2hpUzdkZXFvNk1FWEozLytDSk5tZU95ejVVT1o3dEI5bjUyRXVNVU1hbwp0RDM5ZjhZRWNUOXdkL3VqZEpRdllWTy9hWTJLSDNQMHcyV3l1Z01DRmpoL3hUcjkxNEd5bEYrQ2ovQUZidFFjCk5WRGVTa1NyVUxsT015bXpRRmEvTDEvbFlxS2pMTXNEMCtIRVlocjdnY0ZyQk1HOTA2MEVES1BzUjQrQzdiWCsKMTlKYytXa0NnWUVBM1RHREZIQ21TK2FWNHdHUnR4WDN2TU9DSVdiNXFqSHM2OWtaamVQa0lzSDI2NnFqKzJTcgpWTFI3K2lQK21BV01TMnVuMTVnUUVtQWdZb1IrSWE2M0xrWWlxQ1FZdmlPRU5lZ0t2cFJ2cFlEd3YvVm1YVnZZCnAyYjJuMldLRjJKdGtlZWNMUEpsMkw0UDVWMzNveExzWnRIVWlYTXZKODFjT25BZnNBWjBhVDBDZ1lFQXp5d2QKeGJiM1YwYkRZak1ML1FLSmtYUTVEajhhTUozaXI5and0bkMwWVB3TUhTWGFVSFQ1a1h5STJKTVNLQW4vODBiWgpSNC9YSXAzbm9tQWkrYkQzeVNxYXlEZFR0Q2xuZGIvVUFCNmx4N3M5dld0K0ZIYXJzd3F2U1NSTWJnYURGVWJzCmI1RnZsZmpGajkrQUhlRS80dmNYS05qc0kxOFEvWTNma0pKM1Vzc0NnWUVBdUhTZGx1SUtDNm1Tdk9lR0dHUGQKWURDNXlCa1RnblozMklZRzVXaHh5dnB0YTBHMTFlS3hiY1hFeldoTzIzOWs2MUF2ZTM1M2lKdFk1azhPMEEvZQorbHZLY3VVSExTaDVER3NnNnFUbUplSk00Z2RIQWZ1aHhKZjhlaGcyL0NFOHRqdXE1V0NPeGh4WkxURWJYWVplClZiQU55VUdneFZSZjRPdTN3UmJnNVJFQ2dZQnFaUlN4S21MaUxwUS9CVW85MktTL3ozbFJ5TFJ4alZRU3pRM3EKRS8xKzVWSnZVYlpKcFpsWnp5UVVYWXR3aHBvczNSRFBRSjdTeDFkak80NGF2M2l4bGpEQmJEQ1BrTWZ5WDk3SApaUFhzbWt0OTBRdUNCT1B1NGlqZEhrZ21KVEFDcUZiYWdVMVdMdGwvSnVBTCtGY3YvNGVrVWFzTUMxR1ZkZHYvCnlraC9ld0tCZ1FDeW9LSDM4T3FaUWFSVGpoNURnR2poQW12T2dlSXdjZ1NaSlhlRlM5ZXQ5MUxpSXUxMDJYUFQKWUU1M2NrSFEvUEhoN2VqcWRtU1hEUGxQbmJFNGJMSjZPMUlYSTduT1BablJrTzRRNHo5Y1VhZ2k5OVlDRXh1Ugo0N3NraERhejV1ZjhwR3VpNnBRR3ZLMjkyem9ZTkpXVkdtMUVHZzNUYVRzbmVPUDVjWWI2c0E9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=",
+              "cluster_ca_certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K",
+              "host": "https://172.20.0.100:2002",
+              "password": "",
+              "username": "kubernetes-admin"
+            },
+            "kubeconfig_raw": "apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    server: https://172.20.0.100:2002\n  name: melt03\ncontexts:\n- context:\n    cluster: melt03\n    user: kubernetes-admin\n  name: kubernetes-admin@melt03\ncurrent-context: kubernetes-admin@melt03\nkind: Config\npreferences: {}\nusers:\n- name: kubernetes-admin\n  user:\n    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lJR1dtV0ZqSHZqdkV3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHlOakV4TVRBd056UTFNakZhTUR3eApIekFkQmdOVkJBb1RGbXQxWW1WaFpHMDZZMngxYzNSbGNpMWhaRzFwYm5NeEdUQVhCZ05WQkFNVEVHdDFZbVZ5CmJtVjBaWE10WVdSdGFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDekFTYzUKZjZQczBQNGNIT1dhdmJDdjVhdXo3eXB5bkNBSGRha2t6ZFZVVlNSMk5wdWs4RDFtMDhaanRqQ0gxT20zNTRhKwpnZ0RXbDJKc3lENkg1Q1plYzE3QlRBbUswKzVJak12akJIMVlINkU4TXJqSEc4U1c0THlqbndQbFJGZUpCSlJFCkNYUWJpdTBWQmRBNXY2YmtsM3VQYnpBTno2UUZ4WEprK0JLN0U3S0k3anY2L0hUL3o4OG1YdlJXbW55Wm5tSloKa05pNXhHdkVVUmtvSmg2bGo1MEc4MDhFbW0xYTVidHNtOGNvakNJd2ZkNVY1VTRNOVdTNWVPQVB6dzU5cTJvbQpPUnJheC82Qkp6Yk1sQ0YxaEF4Y3lJTllnTTRvTFh5bXVhWnFwaTNTTlZmZjRCTnR3YklXZzdDVGt3dFF3UyszCllqWjRuYWhSUEJnZFgvMWZBZ01CQUFHalZqQlVNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRlBYRXJtZ3FjMTRjWTVKTgp3SS9tOFRTdE1RcHBNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUURGbkI2bUNvNE5hRGJqdVpWQ0dqL3puK2hjCkIvaVJDcTdSN21PWlB3dTVQQWd4SzdrTnV1d0dZSFhvZXl0cFRFNVliWWVoZmlMd2pDT3NrekxVMkxoSXdDeEUKZ0MrOVZ4b0dqYm0xZVk5U0dGQWZUWk9ZenhpeUJlMzEyVGZVVThkNDJXVkp0eW5STlhpZVROTER1TWFOMEVuUApDWGlZdGprVEFtcXZhV2hlZTU1d3ArUTVKT2xQUjNlSVQ2a3VoV2lLNkhIQjYxdk05WTVvd242Q3B1Tmw2RXBWCjBWMXRDcFZjbVltcHRBazNrbjdqNlUxZEY5cGdBblAzcTk4anhQWjhnREFGbjFITVdNRU11YkNPcytzS3B0djEKOW5NQ3VhdUl1bG9JV2VWUFRWNmUyVHpxeEk1aHhmaWtVMkpZMDlQdEJIUWovZ0pRdlB1cGFQcmNXSHNNCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBc3dFbk9YK2o3TkQrSEJ6bG1yMndyK1dycys4cWNwd2dCM1dwSk0zVlZGVWtkamFiCnBQQTladFBHWTdZd2g5VHB0K2VHdm9JQTFwZGliTWcraCtRbVhuTmV3VXdKaXRQdVNJekw0d1I5V0IraFBESzQKeHh2RWx1QzhvNThENVVSWGlRU1VSQWwwRzRydEZRWFFPYittNUpkN2oyOHdEYytrQmNWeVpQZ1N1eE95aU80NwordngwLzgvUEpsNzBWcHA4bVo1aVdaRFl1Y1JyeEZFWktDWWVwWStkQnZOUEJKcHRXdVc3Ykp2SEtJd2lNSDNlClZlVk9EUFZrdVhqZ0Q4OE9mYXRxSmprYTJzZitnU2MyekpRaGRZUU1YTWlEV0lET0tDMThwcm1tYXFZdDBqVlgKMytBVGJjR3lGb093azVNTFVNRXZ0MkkyZUoyb1VUd1lIVi85WHdJREFRQUJBb0lCQUF5YTdTOHdYTlBGVjgrVQovVm9yTjNEN2hGN1VYYkhhYXFyN3p5Qm5XamxwRVhzOWx6SkROSiswRkFsYmdBbGdwZUNzYmlHbU4vYmtqQ3JLCjR4UmdyWThESXM0TDA3UXgvbHFmaDVBQjllMnB0SW52ckhGZzlEUUh1V0R3UnE3elpCS2kvdW5YbkpSLzhQZ0YKQThlOVJqeGNxbmZNUlo4RFd6S0kxK2hpUzdkZXFvNk1FWEozLytDSk5tZU95ejVVT1o3dEI5bjUyRXVNVU1hbwp0RDM5ZjhZRWNUOXdkL3VqZEpRdllWTy9hWTJLSDNQMHcyV3l1Z01DRmpoL3hUcjkxNEd5bEYrQ2ovQUZidFFjCk5WRGVTa1NyVUxsT015bXpRRmEvTDEvbFlxS2pMTXNEMCtIRVlocjdnY0ZyQk1HOTA2MEVES1BzUjQrQzdiWCsKMTlKYytXa0NnWUVBM1RHREZIQ21TK2FWNHdHUnR4WDN2TU9DSVdiNXFqSHM2OWtaamVQa0lzSDI2NnFqKzJTcgpWTFI3K2lQK21BV01TMnVuMTVnUUVtQWdZb1IrSWE2M0xrWWlxQ1FZdmlPRU5lZ0t2cFJ2cFlEd3YvVm1YVnZZCnAyYjJuMldLRjJKdGtlZWNMUEpsMkw0UDVWMzNveExzWnRIVWlYTXZKODFjT25BZnNBWjBhVDBDZ1lFQXp5d2QKeGJiM1YwYkRZak1ML1FLSmtYUTVEajhhTUozaXI5and0bkMwWVB3TUhTWGFVSFQ1a1h5STJKTVNLQW4vODBiWgpSNC9YSXAzbm9tQWkrYkQzeVNxYXlEZFR0Q2xuZGIvVUFCNmx4N3M5dld0K0ZIYXJzd3F2U1NSTWJnYURGVWJzCmI1RnZsZmpGajkrQUhlRS80dmNYS05qc0kxOFEvWTNma0pKM1Vzc0NnWUVBdUhTZGx1SUtDNm1Tdk9lR0dHUGQKWURDNXlCa1RnblozMklZRzVXaHh5dnB0YTBHMTFlS3hiY1hFeldoTzIzOWs2MUF2ZTM1M2lKdFk1azhPMEEvZQorbHZLY3VVSExTaDVER3NnNnFUbUplSk00Z2RIQWZ1aHhKZjhlaGcyL0NFOHRqdXE1V0NPeGh4WkxURWJYWVplClZiQU55VUdneFZSZjRPdTN3UmJnNVJFQ2dZQnFaUlN4S21MaUxwUS9CVW85MktTL3ozbFJ5TFJ4alZRU3pRM3EKRS8xKzVWSnZVYlpKcFpsWnp5UVVYWXR3aHBvczNSRFBRSjdTeDFkak80NGF2M2l4bGpEQmJEQ1BrTWZ5WDk3SApaUFhzbWt0OTBRdUNCT1B1NGlqZEhrZ21KVEFDcUZiYWdVMVdMdGwvSnVBTCtGY3YvNGVrVWFzTUMxR1ZkZHYvCnlraC9ld0tCZ1FDeW9LSDM4T3FaUWFSVGpoNURnR2poQW12T2dlSXdjZ1NaSlhlRlM5ZXQ5MUxpSXUxMDJYUFQKWUU1M2NrSFEvUEhoN2VqcWRtU1hEUGxQbmJFNGJMSjZPMUlYSTduT1BablJrTzRRNHo5Y1VhZ2k5OVlDRXh1Ugo0N3NraERhejV1ZjhwR3VpNnBRR3ZLMjkyem9ZTkpXVkdtMUVHZzNUYVRzbmVPUDVjWWI2c0E9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=\n",
+            "kubeconfig_user_raw": "---\napiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJSlAreWRBYXhZK0V3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXdOelF3TWpGYUZ3MHpOVEV4TURnd056UTFNakZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURlQ244djJaNVZIeFFTa3pyTGVuWTVLYWhvaGhubFlDMllWZjFJM2tWZHhNeXo2WHc0bUZ0M0UyeTgKYktXN3VtUzljczlYdkE3SmY5a29IS1A2eUR6RDdZNS85SmZoUG1WdnpqSUJRVnFSV3pmMmduU242eUc3YmhsTApERG9PQkw5KzZtMlNINzRXK25yL2JsV3Rvam9TQmtYR1JLMVZObkszaGNNbFZoY1VmV2tBanhpWHAvWHBETm9ZCnJTaW9uaWVTVTVmMmJzandYL2ZZd3Y1MCtGaFhqTXVNU2dTWlNvSFprTGpnMVpXUlo3dEJRb0U5dHo1NlJkRVoKcTF0WEduTkJEYUx3VTFnSU9MZ2YxRHZnV0ZZUnhGYVlzNjhRY2tGamhQRVJXYUpNRnQ2eUE4aHJZZWVwZVdaZwptdTEzSUxuYjJXTzJFUXJZQnk1TStxRnZ4YjFKQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUMXhLNW9Lbk5lSEdPU1RjQ1A1dkUwclRFS2FUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ2I1OXNxQXRaawpEY1NsdnFyM3ZteTc4NE13VlErQlovenp3Q01VNlQwUGNFSFhFcDVZNXdjaytXUjUxZlVnNU8yY09nQXNmU1E1CjV0VjFnVUZIdjFadzFDQmlZOVNUSEVMaW5rNXFKcEoybm9ObExua1ZMcjhDZzhOaGZpbXAreEd1Vm1EWmY2SisKcnhsTitDODU3RHFIVDFMSXhRdFVhSUd5dUZFTGVGcjlqNC93YVlZMkcvcE45aWFURzNkNnpha0JrdUQwaisrZwpvTDhJTmdWMFZ4U2d6U0J6WjBsZ2w2MHViZy80RDVMcDFNam5hbHd2L1A5alBWWVRxRnhQbmdSSkpiSDBYM0o4CnpNZytWcnNEVmdrbU5FYSs5eHJhR0lqT2hVYnRRaGFvY2RWSWFZeU9xc2JpYWlOS1JydnluRFgvSWRUNEt6ZSsKOFZrZ0JwbitzMjhQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n    server: https://172.20.0.100:2002\n  name: melt03\ncontexts:\n- context:\n    cluster: melt03\n    user: melt03-user\n  name: user@melt03\ncurrent-context: user@melt03\nkind: Config\npreferences: {}\nusers:\n- name: melt03-user\n  user:\n    exec:\n      apiVersion: client.authentication.k8s.io/v1\n      args:\n      - oidc-login\n      - get-token\n      - \"--oidc-issuer-url=https://app.dev.meltcloud.io\"\n      - \"--oidc-client-id=kubernetes\"\n      - \"--oidc-extra-scope=profile\"\n      - \"--certificate-authority-data\"\n      - LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURiVENDQWxXZ0F3SUJBZ0lVWDlxNXlxM1VNSDR5Z1FTVlFFcm1OTFNsSmdRd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1JURUxNQWtHQTFVRUJoTUNRVlV4RXpBUkJnTlZCQWdNQ2xOdmJXVXRVM1JoZEdVeElUQWZCZ05WQkFvTQpHRWx1ZEdWeWJtVjBJRmRwWkdkcGRITWdVSFI1SUV4MFpEQWdGdzB5TkRBNU1qTXhNek15TUROYUdBOHlNRFV5Ck1ESXdPVEV6TXpJd00xb3dSVEVMTUFrR0ExVUVCaE1DUVZVeEV6QVJCZ05WQkFnTUNsTnZiV1V0VTNSaGRHVXgKSVRBZkJnTlZCQW9NR0VsdWRHVnlibVYwSUZkcFpHZHBkSE1nVUhSNUlFeDBaRENDQVNJd0RRWUpLb1pJaHZjTgpBUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTWVUcWp2aHJaZllZM1lhekxacFU5bkVkeWhWNTdxWlhOdEtIODF4CmpQYWNiVnJmWlh1bVFoaWkrVHdQbitoT0JWaDJkOGxibFhWYW1nalNVcTdUWVh1djRuSlFzVGRmS0ptRzVKeE0KNlh6NTlhQjUzQmFnUEt6YjNucSs4ZVN1NnZFK2JUdjBjVFdGSWEweStNWEFCTHlhUUZuU0x5VzBucjdZL09rcQpTb3RJNytHTVphaWdqOS9mOExTNndKOHVnZmxqQzdvN0pORkQ0R215akJITGFIMG8vZmJsT0dROUxxam5rbmRqCk50WXhURmNEY2xZVEo2M2JjUnRZaEhST2tDcHREWHRycE1EWU1CUkF5UEdDL0JibkJ6MHNmTGVNVGtNOTVDUDEKUjB2bWlVSEt5VHVjbDRwOUFzdnc0Q3hIUGVxU3JwWUlMcTRVQmozZTBWbVF2Sk1DQXdFQUFhTlRNRkV3SFFZRApWUjBPQkJZRUZHR05IRmFFNGp3VkMxMlVIbHgzSEJESEJldDBNQjhHQTFVZEl3UVlNQmFBRkdHTkhGYUU0andWCkMxMlVIbHgzSEJESEJldDBNQThHQTFVZEV3RUIvd1FGTUFNQkFmOHdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUIKQUs0bVRmeXcwTDlXUnZoeGNTMzI4WDF2UzlSa2VFVGVROW0xREsvWDdjckFTdEVkRDdYVGE1S2MyUHZvNkl5SQpjMmNpVW5ES0c4SXRYK0I5aW5mOW1LdWxRQlhkSUJGSjh5QVp1SllRTHlDUG9uaGlCNU4rcmtVbUEwY0w3NmV2CjZqWS80TEVxdk53MUs1alhzT0ZvYUJpdXNLdUYzMTl3UXAvK2RhVmRqWHIwK1RaVGdtVytJVlg1S1ZtZ21Dc2kKOHhzTkxsMmZQL3o4blBSV0dJd0UvZ2V0V3laLy9zUTd3TGdEc1VxRHJmcHRZK3hZNk0vY1pSbVkyNi9tb1V6eApNendSZjRaV0t2SDYya2R6cjk3Wnp5WUNwbzk5T1BTUEI5cTgrcTdEUTVkZXpyby8zNzV3dlRXR0tkcjgwc1VZCnRBbTRoY2l1TXRzWHVoRjcvWVEzMEI4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==\n      command: kubectl\n      env:\n      provideClusterInfo: false\n      interactiveMode: IfAvailable\n      installHint: |-\n        Kubelogin is not installed which is required for meltcloud SSO login.\n        Please download from https://github.com/int128/kubelogin#getting-started\n",
+            "name": "melt03",
+            "patch_version": "1.31.12",
+            "pod_cidr": "10.36.0.0/16",
+            "service_cidr": "10.96.0.0/16",
+            "version": "1.31"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "client_certificate"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "client_key"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "cluster_ca_certificate"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "host"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "password"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig"
+              },
+              {
+                "type": "get_attr",
+                "value": "username"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "kubeconfig_raw"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "meltcloud_enrollment_image",
+      "name": "example",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "enable_http": true,
+            "expires_at": "2026-11-10T11:49:07Z",
+            "http_url_iso_amd64": "http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "http_url_iso_arm64": "http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "https_url_iso_amd64": "https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "https_url_iso_arm64": "https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "id": 8,
+            "install_disk_device": "/dev/vda",
+            "install_disk_force_overwrite": true,
+            "ipxe_script_http_amd64": "#!ipxe\n\nsanboot http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "ipxe_script_http_arm64": "#!ipxe\n\nsanboot http://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "ipxe_script_https_amd64": "#!ipxe\n\nsanboot https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/amd64.iso",
+            "ipxe_script_https_arm64": "#!ipxe\n\nsanboot https://app.dev.meltcloud.io/enroll/8/RAy1noi2ojGv8oxmhus2bxJb/arm64.iso",
+            "last_used_at": null,
+            "name": "my-image",
+            "vlan": 101
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "http_url_iso_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "http_url_iso_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "https_url_iso_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "https_url_iso_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_http_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_http_arm64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_https_amd64"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "ipxe_script_https_arm64"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "time_offset.in_a_year"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "meltcloud_machine",
+      "name": "node1",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": 23,
+            "label": [
+              {
+                "key": "topology.kubernetes.io/region",
+                "value": "ch"
+              },
+              {
+                "key": "topology.kubernetes.io/zone",
+                "value": "az3"
+              }
+            ],
+            "machine_pool_id": 16,
+            "name": "meltcloud-node01",
+            "uuid": "0442228d-023e-42ab-af34-da267d3e9c37"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "meltcloud_cluster.example",
+            "meltcloud_machine_pool.example",
+            "meltcloud_network_profile.example"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "meltcloud_machine_pool",
+      "name": "example",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "cluster_id": 5,
+            "id": 16,
+            "name": "pool1",
+            "network_profile_id": 5,
+            "patch_version": "1.31.12",
+            "version": "1.31"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "meltcloud_cluster.example",
+            "meltcloud_network_profile.example"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "meltcloud_network_profile",
+      "name": "example",
+      "provider": "provider[\"registry.terraform.io/meltcloud/meltcloud\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": 5,
+            "link": [
+              {
+                "host_networking": false,
+                "interfaces": [
+                  "eth0",
+                  "eth1"
+                ],
+                "lacp": true,
+                "name": "link0",
+                "native_vlan": false,
+                "vlans": []
+              },
+              {
+                "host_networking": true,
+                "interfaces": [
+                  "eth2"
+                ],
+                "lacp": false,
+                "name": "link1",
+                "native_vlan": true,
+                "vlans": [
+                  300,
+                  301
+                ]
+              }
+            ],
+            "name": "profile1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "time_offset",
+      "name": "in_a_year",
+      "provider": "provider[\"registry.terraform.io/hashicorp/time\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "base_rfc3339": "2025-11-10T11:49:07Z",
+            "day": 10,
+            "hour": 11,
+            "id": "2025-11-10T11:49:07Z",
+            "minute": 49,
+            "month": 11,
+            "offset_days": 365,
+            "offset_hours": null,
+            "offset_minutes": null,
+            "offset_months": null,
+            "offset_seconds": null,
+            "offset_years": null,
+            "rfc3339": "2026-11-10T11:49:07Z",
+            "second": 7,
+            "triggers": null,
+            "unix": 1794311347,
+            "year": 2026
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
