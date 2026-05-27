@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"terraform-provider-meltcloud/internal/client"
 
@@ -27,9 +28,12 @@ type MeltcloudProvider struct {
 
 // MeltcloudProviderModel describes the provider data model.
 type MeltcloudProviderModel struct {
-	Endpoint     types.String `tfsdk:"endpoint"`
-	Organization types.String `tfsdk:"organization"`
-	APIKey       types.String `tfsdk:"api_key"`
+	Endpoint      types.String `tfsdk:"endpoint"`
+	Organization  types.String `tfsdk:"organization"`
+	APIKey        types.String `tfsdk:"api_key"`
+	CACertFile    types.String `tfsdk:"ca_cert_file"`
+	CACertPEM     types.String `tfsdk:"ca_cert_pem"`
+	SkipTLSVerify types.Bool   `tfsdk:"skip_tls_verify"`
 }
 
 func (p *MeltcloudProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -50,6 +54,18 @@ func (p *MeltcloudProvider) Schema(ctx context.Context, req provider.SchemaReque
 			},
 			"api_key": schema.StringAttribute{
 				MarkdownDescription: "API Key permitted for the organization. Can also be set via MELTCLOUD_API_KEY environment variable.",
+				Optional:            true,
+			},
+			"ca_cert_file": schema.StringAttribute{
+				MarkdownDescription: "Path to a CA certificate file to verify the meltcloud API server's TLS certificate. Conflicts with `ca_cert_pem`. Can also be set via MELTCLOUD_CACERT environment variable.",
+				Optional:            true,
+			},
+			"ca_cert_pem": schema.StringAttribute{
+				MarkdownDescription: "PEM-encoded CA certificate to verify the meltcloud API server's TLS certificate. Conflicts with `ca_cert_file`.",
+				Optional:            true,
+			},
+			"skip_tls_verify": schema.BoolAttribute{
+				MarkdownDescription: "Skip TLS certificate verification. Can also be set via MELTCLOUD_SKIP_VERIFY environment variable.",
 				Optional:            true,
 			},
 		},
@@ -97,10 +113,34 @@ func (p *MeltcloudProvider) Configure(ctx context.Context, req provider.Configur
 		organization = data.Organization.ValueString()
 	}
 
-	apiClient := client.New(endpoint, organization, apiKey)
-	// Set debug flag to log http traffic to foundry, but disable before releasing
-	// as it creates "unexpected output" warnings in the terraform log.
-	// apiClient.HttpClient.Debug = true
+	var tlsConfig *client.TLSConfig
+
+	caFile := stringAttrOrEnv(data.CACertFile, "MELTCLOUD_CACERT")
+	caPEM := stringAttrOrEmpty(data.CACertPEM)
+	skipTLS := boolAttrOrEnv(data.SkipTLSVerify, "MELTCLOUD_SKIP_VERIFY")
+
+	if caFile != "" && caPEM != "" {
+		resp.Diagnostics.AddError("Config Error", "ca_cert_file and ca_cert_pem are mutually exclusive")
+		return
+	}
+
+	if caFile != "" {
+		pemBytes, err := os.ReadFile(caFile)
+		if err != nil {
+			resp.Diagnostics.AddError("Config Error", fmt.Sprintf("failed to read CA certificate file: %s", err))
+			return
+		}
+		caPEM = string(pemBytes)
+	}
+
+	if caPEM != "" || skipTLS {
+		tlsConfig = &client.TLSConfig{
+			CACertPEM:     caPEM,
+			SkipTLSVerify: skipTLS,
+		}
+	}
+
+	apiClient := client.New(endpoint, organization, apiKey, tlsConfig)
 	resp.DataSourceData = apiClient
 	resp.ResourceData = apiClient
 }
@@ -141,4 +181,26 @@ func New(version string) func() provider.Provider {
 			version: version,
 		}
 	}
+}
+
+func stringAttrOrEnv(attr types.String, envVar string) string {
+	if !attr.IsNull() {
+		return attr.ValueString()
+	}
+	return os.Getenv(envVar)
+}
+
+func stringAttrOrEmpty(attr types.String) string {
+	if !attr.IsNull() {
+		return attr.ValueString()
+	}
+	return ""
+}
+
+func boolAttrOrEnv(attr types.Bool, envVar string) bool {
+	if !attr.IsNull() {
+		return attr.ValueBool()
+	}
+	v := os.Getenv(envVar)
+	return v == "1" || v == "true"
 }

@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 
 	"github.com/go-resty/resty/v2"
@@ -31,7 +33,12 @@ type Metadata struct {
 	TotalCount  int `json:"total_count,omitempty"`
 }
 
-func New(endpoint string, organization string, apiKey string) *Client {
+type TLSConfig struct {
+	CACertPEM     string
+	SkipTLSVerify bool
+}
+
+func New(endpoint string, organization string, apiKey string, tlsConfig *TLSConfig) *Client {
 	url := fmt.Sprintf("%s%s/orgs/%s/", endpoint, apiPath, organization)
 
 	restyClient := resty.New().
@@ -39,6 +46,19 @@ func New(endpoint string, organization string, apiKey string) *Client {
 		SetHeader("Content-Type", "application/json").
 		SetHeader("User-Agent", "meltcloud-go-client v1").
 		SetHeader("X-Meltcloud-API-Key", apiKey)
+
+	if tlsConfig != nil {
+		tc := &tls.Config{}
+		if tlsConfig.SkipTLSVerify {
+			tc.InsecureSkipVerify = true
+		}
+		if tlsConfig.CACertPEM != "" {
+			pool := x509.NewCertPool()
+			pool.AppendCertsFromPEM([]byte(tlsConfig.CACertPEM))
+			tc.RootCAs = pool
+		}
+		restyClient.SetTLSClientConfig(tc)
+	}
 
 	return &Client{
 		HttpClient:   restyClient,
