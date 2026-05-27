@@ -3,12 +3,12 @@
 page_title: "meltcloud_elastic_quota Data Source - meltcloud"
 subcategory: ""
 description: |-
-  An Elastic Quota grants a consuming organization a slice of an Elastic Fleet, expressed in cores, memory, and disk.
+  An Elastic Quota https://docs.meltcloud.io/tasks/elastic-fleets/create-quota allocates a portion of an Elastic Fleet https://docs.meltcloud.io/concepts/elastic-node-pools#elastic-fleet's resources (CPU, RAM, disk) to a consuming organization.
 ---
 
 # meltcloud_elastic_quota (Data Source)
 
-An Elastic Quota grants a consuming organization a slice of an Elastic Fleet, expressed in cores, memory, and disk.
+An [Elastic Quota](https://docs.meltcloud.io/tasks/elastic-fleets/create-quota) allocates a portion of an [Elastic Fleet](https://docs.meltcloud.io/concepts/elastic-node-pools#elastic-fleet)'s resources (CPU, RAM, disk) to a consuming organization.
 
 ## Example Usage
 

@@ -41,7 +41,7 @@ func (r *ElasticQuotaResource) Metadata(ctx context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_elastic_quota"
 }
 
-const elasticQuotaDesc = "An Elastic Quota grants a consuming organization a slice of an Elastic Fleet, expressed in cores, memory, and disk."
+const elasticQuotaDesc = "An [Elastic Quota](https://docs.meltcloud.io/tasks/elastic-fleets/create-quota) allocates a portion of an [Elastic Fleet](https://docs.meltcloud.io/concepts/elastic-node-pools#elastic-fleet)'s resources (CPU, RAM, disk) to a consuming organization."
 
 func elasticQuotaResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

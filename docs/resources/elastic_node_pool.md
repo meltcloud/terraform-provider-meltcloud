@@ -3,12 +3,12 @@
 page_title: "meltcloud_elastic_node_pool Resource - meltcloud"
 subcategory: ""
 description: |-
-  An Elastic Node Pool is a grouping of Elastic Fleet nodes scheduled into a consuming organization's cluster, sized via node count and per-node resources.
+  An Elastic Node Pool https://docs.meltcloud.io/tasks/elastic-node-pools/create provisions Elastic Nodes (virtual Kubernetes worker nodes) from an Elastic Quota https://docs.meltcloud.io/tasks/elastic-fleets/create-quota and joins them to a Cluster.
 ---
 
 # meltcloud_elastic_node_pool (Resource)
 
-An Elastic Node Pool is a grouping of Elastic Fleet nodes scheduled into a consuming organization's cluster, sized via node count and per-node resources.
+An [Elastic Node Pool](https://docs.meltcloud.io/tasks/elastic-node-pools/create) provisions Elastic Nodes (virtual Kubernetes worker nodes) from an [Elastic Quota](https://docs.meltcloud.io/tasks/elastic-fleets/create-quota) and joins them to a Cluster.
 
 ## Example Usage
 

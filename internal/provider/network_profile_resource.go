@@ -49,7 +49,7 @@ func (r *NetworkProfileResource) Metadata(ctx context.Context, req resource.Meta
 	resp.TypeName = req.ProviderTypeName + "_network_profile"
 }
 
-const networkProfileDesc = "A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) specifies the network configuration for [Machines](https://docs.meltcloud.io/concepts/machines) in a [Machine Pool](https://docs.meltcloud.io/guides/machine-pools/create.html)."
+const networkProfileDesc = "A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) specifies the network configuration for [Machines](https://docs.meltcloud.io/concepts/machines) in a [Machine Pool](https://docs.meltcloud.io/tasks/machine-pools/create)."
 
 func networkProfileResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

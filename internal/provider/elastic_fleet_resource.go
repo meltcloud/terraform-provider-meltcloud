@@ -38,7 +38,7 @@ func (r *ElasticFleetResource) Metadata(ctx context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_elastic_fleet"
 }
 
-const elasticFleetDesc = "An Elastic Fleet is a pool of compute resources on a cluster which can be sliced into Elastic Quotas for consumption by other organizations."
+const elasticFleetDesc = "An [Elastic Fleet](https://docs.meltcloud.io/concepts/elastic-node-pools#elastic-fleet) turns a Machine Pool into virtualization capacity. Resources can be allocated to organizations via [Elastic Quotas](https://docs.meltcloud.io/tasks/elastic-fleets/create-quota), and Elastic Nodes (virtual Kubernetes worker nodes) can be added to Clusters via [Elastic Node Pools](https://docs.meltcloud.io/tasks/elastic-node-pools/create)."
 
 func elasticFleetResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
