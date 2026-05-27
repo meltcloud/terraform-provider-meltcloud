@@ -22,10 +22,22 @@ terraform {
   }
 }
 
+# Cloud-hosted meltcloud
 provider "meltcloud" {
   endpoint     = "https://app.meltcloud.io" # optional
   organization = "deadbeef-0000-0000-0000-000000000000"
   api_key      = "eyJf..." # better pass it via env var MELTCLOUD_API_KEY or a tfvars file
+}
+
+# Self-hosted Foundry with a private CA certificate
+provider "meltcloud" {
+  alias        = "self_hosted"
+  endpoint     = "https://app.foundry.example.com"
+  organization = "deadbeef-0000-0000-0000-000000000000"
+  api_key      = "eyJf..."
+
+  ca_cert_file = "/path/to/foundry-ca.pem" # or use MELTCLOUD_CACERT env var
+  # ca_cert_pem = "-----BEGIN CERTIFICATE-----\n..." # alternative: inline PEM
 }
 
 # Create a cluster
@@ -44,4 +56,7 @@ resource "meltcloud_cluster" "example" {
 ### Optional
 
 - `api_key` (String) API Key permitted for the organization. Can also be set via MELTCLOUD_API_KEY environment variable.
+- `ca_cert_file` (String) Path to a CA certificate file to verify the meltcloud API server's TLS certificate. Conflicts with `ca_cert_pem`. Can also be set via MELTCLOUD_CACERT environment variable.
+- `ca_cert_pem` (String) PEM-encoded CA certificate to verify the meltcloud API server's TLS certificate. Conflicts with `ca_cert_file`.
 - `endpoint` (String) URL of the meltcloud API, defaults to https://app.meltcloud.io. Can also be set via MELTCLOUD_ENDPOINT environment variable.
+- `skip_tls_verify` (Boolean) Skip TLS certificate verification. Can also be set via MELTCLOUD_SKIP_VERIFY environment variable.
