@@ -13,9 +13,15 @@ A [Cluster](https://docs.meltcloud.io/tasks/clusters/create) in meltcloud consis
 ## Example Usage
 
 ```terraform
-# create cluster
+# create cluster with auto-assigned network defaults
 resource "meltcloud_cluster" "example" {
-  name           = "melt02"
+  name    = "melt02"
+  version = "1.30"
+}
+
+# create cluster with explicit network configuration
+resource "meltcloud_cluster" "example_custom_network" {
+  name           = "melt03"
   version        = "1.30"
   pod_cidr       = "10.36.0.0/16"
   service_cidr   = "10.96.0.0/16"
@@ -53,16 +59,16 @@ resource "helm_release" "cilium" {
 
 ### Required
 
-- `dns_service_ip` (String) IP for the DNS service
 - `name` (String) Name of the cluster, not case-sensitive. Must be unique within the organization and consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')
-- `pod_cidr` (String) CIDR for the Kubernetes Pods
-- `service_cidr` (String) CIDR for the Kubernetes Services
 - `version` (String) Kubernetes minor version of the cluster control plane
 
 ### Optional
 
 - `addon_core_dns` (Boolean) Enable CoreDNS Addon
 - `addon_kube_proxy` (Boolean) Enable kube-proxy Addon
+- `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
+- `pod_cidr` (String) CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.
+- `service_cidr` (String) CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.
 
 ### Read-Only
 

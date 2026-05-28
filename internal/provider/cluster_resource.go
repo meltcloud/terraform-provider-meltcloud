@@ -3,6 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
+	"terraform-provider-meltcloud/internal/client"
+	"terraform-provider-meltcloud/internal/kubernetes"
+
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -10,10 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"regexp"
-	"strconv"
-	"terraform-provider-meltcloud/internal/client"
-	"terraform-provider-meltcloud/internal/kubernetes"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -85,16 +86,31 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			Computed:            true,
 		},
 		"pod_cidr": schema.StringAttribute{
-			MarkdownDescription: "CIDR for the Kubernetes Pods",
-			Required:            true,
+			MarkdownDescription: "CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.",
+			Optional:            true,
+			Computed:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"service_cidr": schema.StringAttribute{
-			MarkdownDescription: "CIDR for the Kubernetes Services",
-			Required:            true,
+			MarkdownDescription: "CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.",
+			Optional:            true,
+			Computed:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"dns_service_ip": schema.StringAttribute{
-			MarkdownDescription: "IP for the DNS service",
-			Required:            true,
+			MarkdownDescription: "IP for the DNS service. If not specified, it is derived from the service CIDR automatically.",
+			Optional:            true,
+			Computed:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"addon_kube_proxy": schema.BoolAttribute{
 			MarkdownDescription: "Enable kube-proxy Addon",
@@ -195,12 +211,27 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	if !data.AddonCoreDNS.IsNull() && !data.AddonCoreDNS.IsUnknown() {
 		addonCoreDNS = data.AddonCoreDNS.ValueBoolPointer()
 	}
+	var podCIDR *string
+	if !data.PodCIDR.IsNull() && !data.PodCIDR.IsUnknown() {
+		podCIDR = data.PodCIDR.ValueStringPointer()
+	}
+
+	var serviceCIDR *string
+	if !data.ServiceCIDR.IsNull() && !data.ServiceCIDR.IsUnknown() {
+		serviceCIDR = data.ServiceCIDR.ValueStringPointer()
+	}
+
+	var dnsServiceIP *string
+	if !data.DNSServiceIP.IsNull() && !data.DNSServiceIP.IsUnknown() {
+		dnsServiceIP = data.DNSServiceIP.ValueStringPointer()
+	}
+
 	clusterCreateInput := &client.ClusterCreateInput{
 		Name:           data.Name.ValueString(),
 		UserVersion:    data.Version.ValueString(),
-		PodCIDR:        data.PodCIDR.ValueString(),
-		ServiceCIDR:    data.ServiceCIDR.ValueString(),
-		DNSServiceIP:   data.DNSServiceIP.ValueString(),
+		PodCIDR:        podCIDR,
+		ServiceCIDR:    serviceCIDR,
+		DNSServiceIP:   dnsServiceIP,
 		AddonKubeProxy: addonKubeProxy,
 		AddonCoreDNS:   addonCoreDNS,
 	}
@@ -231,6 +262,7 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	data.Version = types.StringValue(clusterGetResult.Cluster.UserVersion)
 	data.PatchVersion = types.StringValue(clusterGetResult.Cluster.PatchVersion)
 	r.setValues(clusterGetResult.Cluster, &data)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(clusterGetResult.Cluster.KubeConfig)
@@ -261,9 +293,6 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 		return
 	}
-	data.PodCIDR = types.StringValue(result.Cluster.PodCIDR)
-	data.ServiceCIDR = types.StringValue(result.Cluster.ServiceCIDR)
-	data.DNSServiceIP = types.StringValue(result.Cluster.DNSServiceIP)
 	data.Version = types.StringValue(result.Cluster.UserVersion)
 	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
 	r.setValues(result.Cluster, &data)
@@ -281,6 +310,9 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 func (r *ClusterResource) setValues(result *client.Cluster, data *ClusterResourceModel) {
 	data.Name = types.StringValue(result.Name)
+	data.PodCIDR = types.StringValue(result.PodCIDR)
+	data.ServiceCIDR = types.StringValue(result.ServiceCIDR)
+	data.DNSServiceIP = types.StringValue(result.DNSServiceIP)
 	data.AddonKubeProxy = types.BoolValue(result.AddonKubeProxy)
 	data.AddonCoreDNS = types.BoolValue(result.AddonCoreDNS)
 	data.KubeConfigRaw = types.StringValue(result.KubeConfig)

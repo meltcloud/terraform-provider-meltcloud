@@ -37,13 +37,13 @@ data "meltcloud_cluster" "example_name" {
 - `addon_core_dns` (Boolean) Enable CoreDNS Addon
 - `addon_kube_proxy` (Boolean) Enable kube-proxy Addon
 - `control_plane_status` (String) Control Plane Status of the Cluster
-- `dns_service_ip` (String) IP for the DNS service
+- `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
 - `kubeconfig` (Attributes, Sensitive) (see [below for nested schema](#nestedatt--kubeconfig))
 - `kubeconfig_raw` (String, Sensitive)
 - `kubeconfig_user_raw` (String, Sensitive)
 - `patch_version` (String) Kubernetes patch version of the cluster control plane
-- `pod_cidr` (String) CIDR for the Kubernetes Pods
-- `service_cidr` (String) CIDR for the Kubernetes Services
+- `pod_cidr` (String) CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.
+- `service_cidr` (String) CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.
 - `version` (String) Kubernetes minor version of the cluster control plane
 
 <a id="nestedatt--kubeconfig"></a>
