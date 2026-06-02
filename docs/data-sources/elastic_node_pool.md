@@ -43,6 +43,6 @@ data "meltcloud_elastic_node_pool" "example" {
 
 Read-Only:
 
-- `cores` (Number) Number of cores per node
-- `disk_gb` (Number) Disk in GB per node
-- `memory_mb` (Number) Memory in MB per node
+- `disk_gib` (Number) Disk in GiB per node
+- `memory_mib` (Number) Memory in MiB per node
+- `vcpus` (Number) Number of vCPUs per node

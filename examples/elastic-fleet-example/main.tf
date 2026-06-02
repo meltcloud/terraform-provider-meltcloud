@@ -93,10 +93,10 @@ resource "meltcloud_elastic_quota" "example" {
   elastic_fleet_id            = meltcloud_elastic_fleet.example[0].id
   consuming_organization_uuid = var.consuming_organization_uuid
 
-  name      = "quota1"
-  cores     = 100
-  memory_mb = 102400
-  disk_gb   = 1000
+  name       = "quota1"
+  vcpus      = 100
+  memory_mib = 102400
+  disk_gib   = 1000
 }
 
 output "elastic_quota_id" {

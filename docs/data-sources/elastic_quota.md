@@ -29,8 +29,8 @@ data "meltcloud_elastic_quota" "example" {
 ### Read-Only
 
 - `consuming_organization_uuid` (String) UUID of the consuming Organization
-- `cores` (Number) Number of cores granted to the consuming organization
-- `disk_gb` (Number) Disk in GB granted to the consuming organization
+- `disk_gib` (Number) Disk in GiB granted to the consuming organization
 - `elastic_fleet_id` (Number) ID of the parent Elastic Fleet
-- `memory_mb` (Number) Memory in MB granted to the consuming organization
+- `memory_mib` (Number) Memory in MiB granted to the consuming organization
 - `name` (String) Name of the Elastic Quota
+- `vcpus` (Number) Number of vCPUs granted to the consuming organization

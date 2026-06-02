@@ -17,8 +17,8 @@ resource "meltcloud_elastic_quota" "example" {
   elastic_fleet_id            = meltcloud_elastic_fleet.example.id
   consuming_organization_uuid = "deadbeef-0000-0000-0000-000000000000"
 
-  name      = "quota1"
-  cores     = 100
-  memory_mb = 102400
-  disk_gb   = 1000
+  name       = "quota1"
+  vcpus      = 100
+  memory_mib = 102400
+  disk_gib   = 1000
 }

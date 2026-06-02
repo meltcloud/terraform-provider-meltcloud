@@ -37,9 +37,9 @@ resource "meltcloud_elastic_node_pool" "example" {
   node_count = 1
 
   node_config {
-    cores     = 4
-    memory_mb = 2048
-    disk_gb   = 20
+    vcpus      = 4
+    memory_mib = 2048
+    disk_gib   = 20
   }
 }
 ```
@@ -70,6 +70,6 @@ resource "meltcloud_elastic_node_pool" "example" {
 
 Required:
 
-- `cores` (Number) Number of cores per node
-- `disk_gb` (Number) Disk in GB per node
-- `memory_mb` (Number) Memory in MB per node
+- `disk_gib` (Number) Disk in GiB per node
+- `memory_mib` (Number) Memory in MiB per node
+- `vcpus` (Number) Number of vCPUs per node

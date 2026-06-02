@@ -23,9 +23,9 @@ type ElasticQuotaDataSource struct {
 type ElasticQuotaDataSourceModel struct {
 	ID                        types.Int64  `tfsdk:"id"`
 	Name                      types.String `tfsdk:"name"`
-	Cores                     types.Int64  `tfsdk:"cores"`
-	DiskGB                    types.Int64  `tfsdk:"disk_gb"`
-	MemoryMB                  types.Int64  `tfsdk:"memory_mb"`
+	VCPUs                     types.Int64  `tfsdk:"vcpus"`
+	DiskGiB                   types.Int64  `tfsdk:"disk_gib"`
+	MemoryMiB                 types.Int64  `tfsdk:"memory_mib"`
 	ElasticFleetID            types.Int64  `tfsdk:"elastic_fleet_id"`
 	ConsumingOrganizationUUID types.String `tfsdk:"consuming_organization_uuid"`
 }
@@ -46,16 +46,16 @@ func (d *ElasticQuotaDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: elasticQuotaResourceAttributes()["name"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"cores": schema.Int64Attribute{
-				MarkdownDescription: elasticQuotaResourceAttributes()["cores"].GetMarkdownDescription(),
+			"vcpus": schema.Int64Attribute{
+				MarkdownDescription: elasticQuotaResourceAttributes()["vcpus"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"disk_gb": schema.Int64Attribute{
-				MarkdownDescription: elasticQuotaResourceAttributes()["disk_gb"].GetMarkdownDescription(),
+			"disk_gib": schema.Int64Attribute{
+				MarkdownDescription: elasticQuotaResourceAttributes()["disk_gib"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"memory_mb": schema.Int64Attribute{
-				MarkdownDescription: elasticQuotaResourceAttributes()["memory_mb"].GetMarkdownDescription(),
+			"memory_mib": schema.Int64Attribute{
+				MarkdownDescription: elasticQuotaResourceAttributes()["memory_mib"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"elastic_fleet_id": schema.Int64Attribute{
@@ -103,9 +103,9 @@ func (d *ElasticQuotaDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	data.ID = types.Int64Value(quota.ID)
 	data.Name = types.StringValue(quota.Name)
-	data.Cores = types.Int64Value(quota.Cores)
-	data.DiskGB = types.Int64Value(quota.DiskGB)
-	data.MemoryMB = types.Int64Value(quota.MemoryMB)
+	data.VCPUs = types.Int64Value(quota.VCPUs)
+	data.DiskGiB = types.Int64Value(quota.DiskGiB)
+	data.MemoryMiB = types.Int64Value(quota.MemoryMiB)
 	data.ElasticFleetID = types.Int64Value(quota.ElasticFleetID)
 	data.ConsumingOrganizationUUID = types.StringValue(quota.ConsumingOrganizationUUID)
 

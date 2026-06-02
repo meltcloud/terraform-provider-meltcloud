@@ -40,9 +40,9 @@ type ElasticNodePoolResourceModel struct {
 }
 
 type NodeConfigModel struct {
-	Cores    types.Int64 `tfsdk:"cores"`
-	MemoryMB types.Int64 `tfsdk:"memory_mb"`
-	DiskGB   types.Int64 `tfsdk:"disk_gb"`
+	VCPUs     types.Int64 `tfsdk:"vcpus"`
+	MemoryMiB types.Int64 `tfsdk:"memory_mib"`
+	DiskGiB   types.Int64 `tfsdk:"disk_gib"`
 }
 
 func (r *ElasticNodePoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -105,16 +105,16 @@ func elasticNodePoolResourceAttributes() map[string]schema.Attribute {
 
 func nodeConfigBlockAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
-		"cores": schema.Int64Attribute{
-			MarkdownDescription: "Number of cores per node",
+		"vcpus": schema.Int64Attribute{
+			MarkdownDescription: "Number of vCPUs per node",
 			Required:            true,
 		},
-		"memory_mb": schema.Int64Attribute{
-			MarkdownDescription: "Memory in MB per node",
+		"memory_mib": schema.Int64Attribute{
+			MarkdownDescription: "Memory in MiB per node",
 			Required:            true,
 		},
-		"disk_gb": schema.Int64Attribute{
-			MarkdownDescription: "Disk in GB per node",
+		"disk_gib": schema.Int64Attribute{
+			MarkdownDescription: "Disk in GiB per node",
 			Required:            true,
 		},
 	}
@@ -166,9 +166,9 @@ func (r *ElasticNodePoolResource) Create(ctx context.Context, req resource.Creat
 		Name:           data.Name.ValueString(),
 		ElasticQuotaID: data.ElasticQuotaID.ValueInt64(),
 		NodeCount:      data.NodeCount.ValueInt64(),
-		NodeCores:      data.NodeConfig.Cores.ValueInt64(),
-		NodeMemoryMB:   data.NodeConfig.MemoryMB.ValueInt64(),
-		NodeDiskGB:     data.NodeConfig.DiskGB.ValueInt64(),
+		NodeVCPUs:      data.NodeConfig.VCPUs.ValueInt64(),
+		NodeMemoryMiB:  data.NodeConfig.MemoryMiB.ValueInt64(),
+		NodeDiskGiB:    data.NodeConfig.DiskGiB.ValueInt64(),
 		Version:        data.Version.ValueString(),
 	}
 
@@ -226,9 +226,9 @@ func (r *ElasticNodePoolResource) Read(ctx context.Context, req resource.ReadReq
 	data.PatchVersion = types.StringValue(result.ElasticNodePool.PatchVersion)
 	data.Status = types.StringValue(result.ElasticNodePool.Status)
 	data.NodeConfig = &NodeConfigModel{
-		Cores:    types.Int64Value(result.ElasticNodePool.NodeCores),
-		MemoryMB: types.Int64Value(result.ElasticNodePool.NodeMemoryMB),
-		DiskGB:   types.Int64Value(result.ElasticNodePool.NodeDiskGB),
+		VCPUs:     types.Int64Value(result.ElasticNodePool.NodeVCPUs),
+		MemoryMiB: types.Int64Value(result.ElasticNodePool.NodeMemoryMiB),
+		DiskGiB:   types.Int64Value(result.ElasticNodePool.NodeDiskGiB),
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -247,11 +247,11 @@ func (r *ElasticNodePoolResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	input := &client.ElasticNodePoolUpdateInput{
-		NodeCount:    data.NodeCount.ValueInt64(),
-		NodeCores:    data.NodeConfig.Cores.ValueInt64(),
-		NodeMemoryMB: data.NodeConfig.MemoryMB.ValueInt64(),
-		NodeDiskGB:   data.NodeConfig.DiskGB.ValueInt64(),
-		Version:      data.Version.ValueString(),
+		NodeCount:     data.NodeCount.ValueInt64(),
+		NodeVCPUs:     data.NodeConfig.VCPUs.ValueInt64(),
+		NodeMemoryMiB: data.NodeConfig.MemoryMiB.ValueInt64(),
+		NodeDiskGiB:   data.NodeConfig.DiskGiB.ValueInt64(),
+		Version:       data.Version.ValueString(),
 	}
 
 	result, err := r.client.ElasticNodePool().Update(ctx, data.ClusterID.ValueInt64(), data.ID.ValueInt64(), input)

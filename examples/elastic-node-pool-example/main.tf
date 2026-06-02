@@ -48,9 +48,9 @@ resource "meltcloud_elastic_node_pool" "example" {
   node_count = 1
 
   node_config {
-    cores     = 2
-    memory_mb = 1024
-    disk_gb   = 20
+    vcpus      = 2
+    memory_mib = 1024
+    disk_gib   = 20
   }
 }
 

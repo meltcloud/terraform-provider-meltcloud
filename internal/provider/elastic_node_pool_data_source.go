@@ -33,9 +33,9 @@ type ElasticNodePoolDataSourceModel struct {
 }
 
 type NodeConfigDataSourceModel struct {
-	Cores    types.Int64 `tfsdk:"cores"`
-	MemoryMB types.Int64 `tfsdk:"memory_mb"`
-	DiskGB   types.Int64 `tfsdk:"disk_gb"`
+	VCPUs     types.Int64 `tfsdk:"vcpus"`
+	MemoryMiB types.Int64 `tfsdk:"memory_mib"`
+	DiskGiB   types.Int64 `tfsdk:"disk_gib"`
 }
 
 func (d *ElasticNodePoolDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -82,17 +82,17 @@ func (d *ElasticNodePoolDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:            true,
 				MarkdownDescription: "Per-node resource configuration",
 				Attributes: map[string]schema.Attribute{
-					"cores": schema.Int64Attribute{
+					"vcpus": schema.Int64Attribute{
 						Computed:            true,
-						MarkdownDescription: "Number of cores per node",
+						MarkdownDescription: "Number of vCPUs per node",
 					},
-					"memory_mb": schema.Int64Attribute{
+					"memory_mib": schema.Int64Attribute{
 						Computed:            true,
-						MarkdownDescription: "Memory in MB per node",
+						MarkdownDescription: "Memory in MiB per node",
 					},
-					"disk_gb": schema.Int64Attribute{
+					"disk_gib": schema.Int64Attribute{
 						Computed:            true,
-						MarkdownDescription: "Disk in GB per node",
+						MarkdownDescription: "Disk in GiB per node",
 					},
 				},
 			},
@@ -139,9 +139,9 @@ func (d *ElasticNodePoolDataSource) Read(ctx context.Context, req datasource.Rea
 	data.NodeCount = types.Int64Value(result.ElasticNodePool.NodeCount)
 	data.Status = types.StringValue(result.ElasticNodePool.Status)
 	data.NodeConfig = &NodeConfigDataSourceModel{
-		Cores:    types.Int64Value(result.ElasticNodePool.NodeCores),
-		MemoryMB: types.Int64Value(result.ElasticNodePool.NodeMemoryMB),
-		DiskGB:   types.Int64Value(result.ElasticNodePool.NodeDiskGB),
+		VCPUs:     types.Int64Value(result.ElasticNodePool.NodeVCPUs),
+		MemoryMiB: types.Int64Value(result.ElasticNodePool.NodeMemoryMiB),
+		DiskGiB:   types.Int64Value(result.ElasticNodePool.NodeDiskGiB),
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

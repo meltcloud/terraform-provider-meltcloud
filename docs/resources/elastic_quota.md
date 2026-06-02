@@ -32,10 +32,10 @@ resource "meltcloud_elastic_quota" "example" {
   elastic_fleet_id            = meltcloud_elastic_fleet.example.id
   consuming_organization_uuid = "deadbeef-0000-0000-0000-000000000000"
 
-  name      = "quota1"
-  cores     = 100
-  memory_mb = 102400
-  disk_gb   = 1000
+  name       = "quota1"
+  vcpus      = 100
+  memory_mib = 102400
+  disk_gib   = 1000
 }
 ```
 
@@ -45,11 +45,11 @@ resource "meltcloud_elastic_quota" "example" {
 ### Required
 
 - `consuming_organization_uuid` (String) UUID of the consuming Organization
-- `cores` (Number) Number of cores granted to the consuming organization
-- `disk_gb` (Number) Disk in GB granted to the consuming organization
+- `disk_gib` (Number) Disk in GiB granted to the consuming organization
 - `elastic_fleet_id` (Number) ID of the parent Elastic Fleet
-- `memory_mb` (Number) Memory in MB granted to the consuming organization
+- `memory_mib` (Number) Memory in MiB granted to the consuming organization
 - `name` (String) Name of the Elastic Quota
+- `vcpus` (Number) Number of vCPUs granted to the consuming organization
 
 ### Read-Only
 

@@ -30,9 +30,9 @@ type ElasticQuotaResource struct {
 type ElasticQuotaResourceModel struct {
 	ID                        types.Int64  `tfsdk:"id"`
 	Name                      types.String `tfsdk:"name"`
-	Cores                     types.Int64  `tfsdk:"cores"`
-	DiskGB                    types.Int64  `tfsdk:"disk_gb"`
-	MemoryMB                  types.Int64  `tfsdk:"memory_mb"`
+	VCPUs                     types.Int64  `tfsdk:"vcpus"`
+	DiskGiB                   types.Int64  `tfsdk:"disk_gib"`
+	MemoryMiB                 types.Int64  `tfsdk:"memory_mib"`
 	ElasticFleetID            types.Int64  `tfsdk:"elastic_fleet_id"`
 	ConsumingOrganizationUUID types.String `tfsdk:"consuming_organization_uuid"`
 }
@@ -56,16 +56,16 @@ func elasticQuotaResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Name of the Elastic Quota",
 			Required:            true,
 		},
-		"cores": schema.Int64Attribute{
-			MarkdownDescription: "Number of cores granted to the consuming organization",
+		"vcpus": schema.Int64Attribute{
+			MarkdownDescription: "Number of vCPUs granted to the consuming organization",
 			Required:            true,
 		},
-		"disk_gb": schema.Int64Attribute{
-			MarkdownDescription: "Disk in GB granted to the consuming organization",
+		"disk_gib": schema.Int64Attribute{
+			MarkdownDescription: "Disk in GiB granted to the consuming organization",
 			Required:            true,
 		},
-		"memory_mb": schema.Int64Attribute{
-			MarkdownDescription: "Memory in MB granted to the consuming organization",
+		"memory_mib": schema.Int64Attribute{
+			MarkdownDescription: "Memory in MiB granted to the consuming organization",
 			Required:            true,
 		},
 		"elastic_fleet_id": schema.Int64Attribute{
@@ -118,9 +118,9 @@ func (r *ElasticQuotaResource) Create(ctx context.Context, req resource.CreateRe
 
 	input := &client.ElasticQuotaCreateInput{
 		Name:                      data.Name.ValueString(),
-		Cores:                     data.Cores.ValueInt64(),
-		DiskGB:                    data.DiskGB.ValueInt64(),
-		MemoryMB:                  data.MemoryMB.ValueInt64(),
+		VCPUs:                     data.VCPUs.ValueInt64(),
+		DiskGiB:                   data.DiskGiB.ValueInt64(),
+		MemoryMiB:                 data.MemoryMiB.ValueInt64(),
 		ElasticFleetID:            data.ElasticFleetID.ValueInt64(),
 		ConsumingOrganizationUUID: data.ConsumingOrganizationUUID.ValueString(),
 	}
@@ -153,9 +153,9 @@ func (r *ElasticQuotaResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	data.Name = types.StringValue(result.ElasticQuota.Name)
-	data.Cores = types.Int64Value(result.ElasticQuota.Cores)
-	data.DiskGB = types.Int64Value(result.ElasticQuota.DiskGB)
-	data.MemoryMB = types.Int64Value(result.ElasticQuota.MemoryMB)
+	data.VCPUs = types.Int64Value(result.ElasticQuota.VCPUs)
+	data.DiskGiB = types.Int64Value(result.ElasticQuota.DiskGiB)
+	data.MemoryMiB = types.Int64Value(result.ElasticQuota.MemoryMiB)
 	data.ElasticFleetID = types.Int64Value(result.ElasticQuota.ElasticFleetID)
 	data.ConsumingOrganizationUUID = types.StringValue(result.ElasticQuota.ConsumingOrganizationUUID)
 
@@ -170,10 +170,10 @@ func (r *ElasticQuotaResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	input := &client.ElasticQuotaUpdateInput{
-		Name:     data.Name.ValueString(),
-		Cores:    data.Cores.ValueInt64(),
-		DiskGB:   data.DiskGB.ValueInt64(),
-		MemoryMB: data.MemoryMB.ValueInt64(),
+		Name:      data.Name.ValueString(),
+		VCPUs:     data.VCPUs.ValueInt64(),
+		DiskGiB:   data.DiskGiB.ValueInt64(),
+		MemoryMiB: data.MemoryMiB.ValueInt64(),
 	}
 
 	_, err := r.client.ElasticQuota().Update(ctx, data.ID.ValueInt64(), input)

@@ -16,27 +16,27 @@ type ElasticQuotaResult struct {
 type ElasticQuota struct {
 	ID                        int64  `json:"id"`
 	Name                      string `json:"name"`
-	Cores                     int64  `json:"cores"`
-	DiskGB                    int64  `json:"disk_gb"`
-	MemoryMB                  int64  `json:"memory_mb"`
+	VCPUs                     int64  `json:"vcpus"`
+	DiskGiB                   int64  `json:"disk_gib"`
+	MemoryMiB                 int64  `json:"memory_mib"`
 	ElasticFleetID            int64  `json:"elastic_fleet_id"`
 	ConsumingOrganizationUUID string `json:"consuming_organization_uuid"`
 }
 
 type ElasticQuotaCreateInput struct {
 	Name                      string `json:"name"`
-	Cores                     int64  `json:"cores"`
-	DiskGB                    int64  `json:"disk_gb"`
-	MemoryMB                  int64  `json:"memory_mb"`
+	VCPUs                     int64  `json:"vcpus"`
+	DiskGiB                   int64  `json:"disk_gib"`
+	MemoryMiB                 int64  `json:"memory_mib"`
 	ElasticFleetID            int64  `json:"elastic_fleet_id"`
 	ConsumingOrganizationUUID string `json:"consuming_organization_uuid"`
 }
 
 type ElasticQuotaUpdateInput struct {
-	Name     string `json:"name"`
-	Cores    int64  `json:"cores"`
-	DiskGB   int64  `json:"disk_gb"`
-	MemoryMB int64  `json:"memory_mb"`
+	Name      string `json:"name"`
+	VCPUs     int64  `json:"vcpus"`
+	DiskGiB   int64  `json:"disk_gib"`
+	MemoryMiB int64  `json:"memory_mib"`
 }
 
 func (c *Client) ElasticQuota() *ElasticQuotaRequest {
