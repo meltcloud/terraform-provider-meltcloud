@@ -44,10 +44,6 @@ type EnrollmentImageResourceModel struct {
 	HTTPURLISOARM64           types.String      `tfsdk:"http_url_iso_arm64"`
 	HTTPSURLISOAMD64          types.String      `tfsdk:"https_url_iso_arm64"`
 	HTTPSURLISOARM64          types.String      `tfsdk:"https_url_iso_amd64"`
-	IPXEScriptHTTPAMD64       types.String      `tfsdk:"ipxe_script_http_amd64"`
-	IPXEScriptHTTPARM64       types.String      `tfsdk:"ipxe_script_http_arm64"`
-	IPXEScriptHTTPSAMD64      types.String      `tfsdk:"ipxe_script_https_amd64"`
-	IPXEScriptHTTPSARM64      types.String      `tfsdk:"ipxe_script_https_arm64"`
 	LastUsedAt                timetypes.RFC3339 `tfsdk:"last_used_at"`
 }
 
@@ -129,26 +125,6 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 		},
 		"https_url_iso_arm64": schema.StringAttribute{
 			MarkdownDescription: "URL to download the ISO for ARM64 via HTTPS",
-			Computed:            true,
-			Sensitive:           true,
-		},
-		"ipxe_script_http_amd64": schema.StringAttribute{
-			MarkdownDescription: "iPXE script to boot the ISO for AMD64 via HTTP",
-			Computed:            true,
-			Sensitive:           true,
-		},
-		"ipxe_script_http_arm64": schema.StringAttribute{
-			MarkdownDescription: "iPXE script to boot the ISO for ARM64 via HTTP",
-			Computed:            true,
-			Sensitive:           true,
-		},
-		"ipxe_script_https_amd64": schema.StringAttribute{
-			MarkdownDescription: "iPXE script to boot the ISO for AMD64 via HTTPS",
-			Computed:            true,
-			Sensitive:           true,
-		},
-		"ipxe_script_https_arm64": schema.StringAttribute{
-			MarkdownDescription: "iPXE script to boot the ISO for ARM64 via HTTPS",
 			Computed:            true,
 			Sensitive:           true,
 		},
@@ -292,10 +268,6 @@ func (r *EnrollmentImageResource) setValues(result *client.EnrollmentImage, data
 	data.HTTPURLISOARM64 = types.StringValue(result.HTTPURLISOARM64)
 	data.HTTPSURLISOAMD64 = types.StringValue(result.HTTPSURLISOAMD64)
 	data.HTTPSURLISOARM64 = types.StringValue(result.HTTPSURLISOARM64)
-	data.IPXEScriptHTTPAMD64 = types.StringValue(result.IPXEScriptHTTPAMD64)
-	data.IPXEScriptHTTPARM64 = types.StringValue(result.IPXEScriptHTTPARM64)
-	data.IPXEScriptHTTPSAMD64 = types.StringValue(result.IPXEScriptHTTPSAMD64)
-	data.IPXEScriptHTTPSARM64 = types.StringValue(result.IPXEScriptHTTPSARM64)
 	data.LastUsedAt = timetypes.NewRFC3339TimePointerValue(result.LastUsedAt)
 }
 

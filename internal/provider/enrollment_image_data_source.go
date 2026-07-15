@@ -40,10 +40,6 @@ type EnrollmentImageDataSourceModel struct {
 	HTTPURLISOARM64           types.String      `tfsdk:"http_url_iso_arm64"`
 	HTTPSURLISOAMD64          types.String      `tfsdk:"https_url_iso_arm64"`
 	HTTPSURLISOARM64          types.String      `tfsdk:"https_url_iso_amd64"`
-	IPXEScriptHTTPAMD64       types.String      `tfsdk:"ipxe_script_http_amd64"`
-	IPXEScriptHTTPARM64       types.String      `tfsdk:"ipxe_script_http_arm64"`
-	IPXEScriptHTTPSAMD64      types.String      `tfsdk:"ipxe_script_https_amd64"`
-	IPXEScriptHTTPSARM64      types.String      `tfsdk:"ipxe_script_https_arm64"`
 	LastUsedAt                timetypes.RFC3339 `tfsdk:"last_used_at"`
 }
 
@@ -114,26 +110,6 @@ func (d *EnrollmentImageDataSource) Schema(ctx context.Context, req datasource.S
 			},
 			"https_url_iso_arm64": schema.StringAttribute{
 				MarkdownDescription: enrollmentImageResourceAttributes()["https_url_iso_arm64"].GetMarkdownDescription(),
-				Computed:            true,
-				Sensitive:           true,
-			},
-			"ipxe_script_http_amd64": schema.StringAttribute{
-				MarkdownDescription: enrollmentImageResourceAttributes()["ipxe_script_http_amd64"].GetMarkdownDescription(),
-				Computed:            true,
-				Sensitive:           true,
-			},
-			"ipxe_script_http_arm64": schema.StringAttribute{
-				MarkdownDescription: enrollmentImageResourceAttributes()["ipxe_script_http_arm64"].GetMarkdownDescription(),
-				Computed:            true,
-				Sensitive:           true,
-			},
-			"ipxe_script_https_amd64": schema.StringAttribute{
-				MarkdownDescription: enrollmentImageResourceAttributes()["ipxe_script_https_amd64"].GetMarkdownDescription(),
-				Computed:            true,
-				Sensitive:           true,
-			},
-			"ipxe_script_https_arm64": schema.StringAttribute{
-				MarkdownDescription: enrollmentImageResourceAttributes()["ipxe_script_https_arm64"].GetMarkdownDescription(),
 				Computed:            true,
 				Sensitive:           true,
 			},
@@ -213,10 +189,6 @@ func (d *EnrollmentImageDataSource) Read(ctx context.Context, req datasource.Rea
 	data.HTTPURLISOARM64 = types.StringValue(enrollmentImage.HTTPURLISOARM64)
 	data.HTTPSURLISOAMD64 = types.StringValue(enrollmentImage.HTTPSURLISOAMD64)
 	data.HTTPSURLISOARM64 = types.StringValue(enrollmentImage.HTTPSURLISOARM64)
-	data.IPXEScriptHTTPAMD64 = types.StringValue(enrollmentImage.IPXEScriptHTTPAMD64)
-	data.IPXEScriptHTTPARM64 = types.StringValue(enrollmentImage.IPXEScriptHTTPARM64)
-	data.IPXEScriptHTTPSAMD64 = types.StringValue(enrollmentImage.IPXEScriptHTTPSAMD64)
-	data.IPXEScriptHTTPSARM64 = types.StringValue(enrollmentImage.IPXEScriptHTTPSARM64)
 	data.LastUsedAt = timetypes.NewRFC3339TimePointerValue(enrollmentImage.LastUsedAt)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
