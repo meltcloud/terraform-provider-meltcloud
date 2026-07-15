@@ -47,10 +47,6 @@ resource "meltcloud_enrollment_image" "example" {
 - `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for AMD64 via HTTPS
 - `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for ARM64 via HTTPS
 - `id` (Number) Internal ID of the Enrollment Image
-- `ipxe_script_http_amd64` (String, Sensitive) iPXE script to boot the ISO for AMD64 via HTTP
-- `ipxe_script_http_arm64` (String, Sensitive) iPXE script to boot the ISO for ARM64 via HTTP
-- `ipxe_script_https_amd64` (String, Sensitive) iPXE script to boot the ISO for AMD64 via HTTPS
-- `ipxe_script_https_arm64` (String, Sensitive) iPXE script to boot the ISO for ARM64 via HTTPS
 - `last_used_at` (String) Timestamp when the image was last used for an enrollment
 
 ## Import

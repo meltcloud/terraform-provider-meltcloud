@@ -32,10 +32,6 @@ type EnrollmentImage struct {
 	HTTPURLISOARM64           string     `json:"http_url_iso_arm64"`
 	HTTPSURLISOAMD64          string     `json:"https_url_iso_arm64"`
 	HTTPSURLISOARM64          string     `json:"https_url_iso_amd64"`
-	IPXEScriptHTTPAMD64       string     `json:"ipxe_script_http_amd64"`
-	IPXEScriptHTTPARM64       string     `json:"ipxe_script_http_arm64"`
-	IPXEScriptHTTPSAMD64      string     `json:"ipxe_script_https_amd64"`
-	IPXEScriptHTTPSARM64      string     `json:"ipxe_script_https_arm64"`
 	LastUsedAt                *time.Time `json:"last_used_at"`
 }
 
@@ -65,12 +61,12 @@ func (mr *EnrollmentImageRequest) List(ctx context.Context) (*EnrollmentImagesRe
 		return nil, err
 	}
 
-	iPXEBootArtifactsResult, ok := result.(*EnrollmentImagesResult)
+	enrollmentImagesResult, ok := result.(*EnrollmentImagesResult)
 	if !ok {
 		return nil, &ErrorTypeAssert
 	}
 
-	return iPXEBootArtifactsResult, nil
+	return enrollmentImagesResult, nil
 }
 
 func (mr *EnrollmentImageRequest) Get(ctx context.Context, id int64) (*EnrollmentImageResult, *Error) {
