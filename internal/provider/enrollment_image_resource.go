@@ -21,6 +21,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &EnrollmentImageResource{}
 var _ resource.ResourceWithImportState = &EnrollmentImageResource{}
+var _ resource.ResourceWithValidateConfig = &EnrollmentImageResource{}
 
 func NewEnrollmentImageResource() resource.Resource {
 	return &EnrollmentImageResource{}
@@ -38,6 +39,8 @@ type EnrollmentImageResourceModel struct {
 	ExpiresAt                 timetypes.RFC3339 `tfsdk:"expires_at"`
 	InstallDiskDevice         types.String      `tfsdk:"install_disk_device"`
 	InstallDiskForceOverwrite types.Bool        `tfsdk:"install_disk_force_overwrite"`
+	InstallDiskMirror         types.Bool        `tfsdk:"install_disk_mirror"`
+	InstallDiskMirrorDevice   types.String      `tfsdk:"install_disk_mirror_device"`
 	VLAN                      types.Int64       `tfsdk:"vlan"`
 	EnableHTTP                types.Bool        `tfsdk:"enable_http"`
 	HTTPURLISOAMD64           types.String      `tfsdk:"http_url_iso_amd64"`
@@ -78,8 +81,8 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 			},
 		},
 		"install_disk_device": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "Device path (i.e. /dev/vda) of the disk where system should be installed to",
+			Optional:            true,
+			MarkdownDescription: "Device path of the disk where the system should be installed to. Use a `/dev/disk/by-path/` path (i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-1`) rather than a kernel name such as `/dev/sda`, as those can change between boots; see [Choosing Disk Devices](https://docs.meltcloud.io/tasks/enrollment-images#choosing-disk-devices). If not specified, the disk is auto-detected, which only works if Linux sees exactly one block device (i.e. a single attached disk, or a Dell BOSS RAID pair that shows up as one). It must be specified if `install_disk_mirror` is enabled.",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
 			},
@@ -90,6 +93,21 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Force overwrite disk if it contains unknown data",
 			PlanModifiers: []planmodifier.Bool{
 				boolplanmodifier.RequiresReplace(),
+			},
+		},
+		"install_disk_mirror": schema.BoolAttribute{
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "Whether the install disk is mirrored onto a second disk (RAID1) for redundancy. Requires `install_disk_device` and `install_disk_mirror_device` to be set, since auto-detection cannot decide which of two disks is the primary and which the mirror.",
+			PlanModifiers: []planmodifier.Bool{
+				boolplanmodifier.RequiresReplace(),
+			},
+		},
+		"install_disk_mirror_device": schema.StringAttribute{
+			Optional:            true,
+			MarkdownDescription: "Device path of the disk used as the mirror, i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-2`. Required (and only allowed) if `install_disk_mirror` is enabled, and must differ from `install_disk_device`. It is never auto-detected.",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
 			},
 		},
 		"vlan": schema.Int64Attribute{
@@ -144,6 +162,55 @@ func (r *EnrollmentImageResource) Schema(ctx context.Context, req resource.Schem
 	}
 }
 
+// ValidateConfig enforces the disk combinations the machine agent accepts: a mirrored install
+// cannot auto-detect its disks, because auto-detection cannot decide which of two disks is the
+// primary and which the copy.
+func (r *EnrollmentImageResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data EnrollmentImageResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if data.InstallDiskMirror.IsUnknown() {
+		return
+	}
+
+	if data.InstallDiskMirror.ValueBool() {
+		if data.InstallDiskDevice.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("install_disk_device"),
+				"Missing Attribute Configuration",
+				"install_disk_device must be set if install_disk_mirror is enabled, as the disks cannot be auto-detected for a mirrored install.",
+			)
+		}
+
+		if data.InstallDiskMirrorDevice.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("install_disk_mirror_device"),
+				"Missing Attribute Configuration",
+				"install_disk_mirror_device must be set if install_disk_mirror is enabled, as the disks cannot be auto-detected for a mirrored install.",
+			)
+		}
+
+		if !data.InstallDiskDevice.IsUnknown() && !data.InstallDiskMirrorDevice.IsUnknown() &&
+			!data.InstallDiskDevice.IsNull() && data.InstallDiskDevice.Equal(data.InstallDiskMirrorDevice) {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("install_disk_mirror_device"),
+				"Invalid Attribute Combination",
+				"install_disk_mirror_device must differ from install_disk_device.",
+			)
+		}
+	} else if !data.InstallDiskMirrorDevice.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("install_disk_mirror_device"),
+			"Invalid Attribute Combination",
+			"install_disk_mirror_device can only be set if install_disk_mirror is enabled.",
+		)
+	}
+}
+
 func (r *EnrollmentImageResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
@@ -188,6 +255,21 @@ func (r *EnrollmentImageResource) Create(ctx context.Context, req resource.Creat
 		installDiskForceOverwrite = data.InstallDiskForceOverwrite.ValueBoolPointer()
 	}
 
+	var installDiskMirror *bool
+	if !data.InstallDiskMirror.IsNull() && !data.InstallDiskMirror.IsUnknown() {
+		installDiskMirror = data.InstallDiskMirror.ValueBoolPointer()
+	}
+
+	var installDiskDevice *string
+	if !data.InstallDiskDevice.IsNull() && !data.InstallDiskDevice.IsUnknown() {
+		installDiskDevice = data.InstallDiskDevice.ValueStringPointer()
+	}
+
+	var installDiskMirrorDevice *string
+	if !data.InstallDiskMirrorDevice.IsNull() && !data.InstallDiskMirrorDevice.IsUnknown() {
+		installDiskMirrorDevice = data.InstallDiskMirrorDevice.ValueStringPointer()
+	}
+
 	var enableHTTP *bool
 	if !data.EnableHTTP.IsNull() && !data.EnableHTTP.IsUnknown() {
 		enableHTTP = data.EnableHTTP.ValueBoolPointer()
@@ -196,8 +278,10 @@ func (r *EnrollmentImageResource) Create(ctx context.Context, req resource.Creat
 	enrollmentImageCreateInput := &client.EnrollmentImageCreateInput{
 		Name:                      data.Name.ValueString(),
 		ExpiresAt:                 expiresAt.UTC(),
-		InstallDiskDevice:         data.InstallDiskDevice.ValueString(),
+		InstallDiskDevice:         installDiskDevice,
 		InstallDiskForceOverwrite: installDiskForceOverwrite,
+		InstallDiskMirror:         installDiskMirror,
+		InstallDiskMirrorDevice:   installDiskMirrorDevice,
 		VLAN:                      vlan,
 		EnableHTTP:                enableHTTP,
 	}
@@ -250,7 +334,6 @@ func (r *EnrollmentImageResource) Read(ctx context.Context, req resource.ReadReq
 
 	data.Name = types.StringValue(result.EnrollmentImage.Name)
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(result.EnrollmentImage.ExpiresAt.UTC())
-	data.InstallDiskDevice = types.StringValue(result.EnrollmentImage.InstallDiskDevice)
 	r.setValues(result.EnrollmentImage, &data)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -263,7 +346,10 @@ func (r *EnrollmentImageResource) Update(ctx context.Context, req resource.Updat
 func (r *EnrollmentImageResource) setValues(result *client.EnrollmentImage, data *EnrollmentImageResourceModel) {
 	data.VLAN = types.Int64PointerValue(result.VLAN)
 	data.EnableHTTP = types.BoolValue(result.EnableHTTP)
+	data.InstallDiskDevice = types.StringPointerValue(result.InstallDiskDevice)
 	data.InstallDiskForceOverwrite = types.BoolValue(result.InstallDiskForceOverwrite)
+	data.InstallDiskMirror = types.BoolValue(result.InstallDiskMirror)
+	data.InstallDiskMirrorDevice = types.StringPointerValue(result.InstallDiskMirrorDevice)
 	data.HTTPURLISOAMD64 = types.StringValue(result.HTTPURLISOAMD64)
 	data.HTTPURLISOARM64 = types.StringValue(result.HTTPURLISOARM64)
 	data.HTTPSURLISOAMD64 = types.StringValue(result.HTTPSURLISOAMD64)

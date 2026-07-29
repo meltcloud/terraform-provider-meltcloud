@@ -20,8 +20,18 @@ resource "time_offset" "in_a_day" {
 resource "meltcloud_enrollment_image" "example" {
   name                = "my-image"
   expires_at          = time_offset.in_a_day.rfc3339
-  install_disk_device = "/dev/vda"
+  install_disk_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
   vlan                = 100
+}
+
+# a mirrored install requires both disks to be named explicitly;
+# by-path devices describe the slot, so one image works for a whole fleet of identical servers
+resource "meltcloud_enrollment_image" "mirrored" {
+  name                       = "my-mirrored-image"
+  expires_at                 = time_offset.in_a_day.rfc3339
+  install_disk_device        = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+  install_disk_mirror        = true
+  install_disk_mirror_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-2"
 }
 ```
 
@@ -31,13 +41,15 @@ resource "meltcloud_enrollment_image" "example" {
 ### Required
 
 - `expires_at` (String) Timestamp when the image should expire
-- `install_disk_device` (String) Device path (i.e. /dev/vda) of the disk where system should be installed to
 - `name` (String) Name of the Enrollment Image, not case-sensitive. Must be unique within the organization.
 
 ### Optional
 
 - `enable_http` (Boolean) Whether the images should be downloadable via insecure HTTP
+- `install_disk_device` (String) Device path of the disk where the system should be installed to. Use a `/dev/disk/by-path/` path (i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-1`) rather than a kernel name such as `/dev/sda`, as those can change between boots; see [Choosing Disk Devices](https://docs.meltcloud.io/tasks/enrollment-images#choosing-disk-devices). If not specified, the disk is auto-detected, which only works if Linux sees exactly one block device (i.e. a single attached disk, or a Dell BOSS RAID pair that shows up as one). It must be specified if `install_disk_mirror` is enabled.
 - `install_disk_force_overwrite` (Boolean) Force overwrite disk if it contains unknown data
+- `install_disk_mirror` (Boolean) Whether the install disk is mirrored onto a second disk (RAID1) for redundancy. Requires `install_disk_device` and `install_disk_mirror_device` to be set, since auto-detection cannot decide which of two disks is the primary and which the mirror.
+- `install_disk_mirror_device` (String) Device path of the disk used as the mirror, i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-2`. Required (and only allowed) if `install_disk_mirror` is enabled, and must differ from `install_disk_device`. It is never auto-detected.
 - `vlan` (Number) The VLAN to use as the enrollment network
 
 ### Read-Only
