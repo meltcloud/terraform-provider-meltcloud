@@ -34,6 +34,8 @@ type EnrollmentImageDataSourceModel struct {
 	ExpiresAt                 timetypes.RFC3339 `tfsdk:"expires_at"`
 	InstallDiskDevice         types.String      `tfsdk:"install_disk_device"`
 	InstallDiskForceOverwrite types.Bool        `tfsdk:"install_disk_force_overwrite"`
+	InstallDiskMirror         types.Bool        `tfsdk:"install_disk_mirror"`
+	InstallDiskMirrorDevice   types.String      `tfsdk:"install_disk_mirror_device"`
 	VLAN                      types.Int64       `tfsdk:"vlan"`
 	EnableHTTP                types.Bool        `tfsdk:"enable_http"`
 	HTTPURLISOAMD64           types.String      `tfsdk:"http_url_iso_amd64"`
@@ -83,6 +85,14 @@ func (d *EnrollmentImageDataSource) Schema(ctx context.Context, req datasource.S
 			},
 			"install_disk_force_overwrite": schema.BoolAttribute{
 				MarkdownDescription: enrollmentImageResourceAttributes()["install_disk_force_overwrite"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"install_disk_mirror": schema.BoolAttribute{
+				MarkdownDescription: enrollmentImageResourceAttributes()["install_disk_mirror"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"install_disk_mirror_device": schema.StringAttribute{
+				MarkdownDescription: enrollmentImageResourceAttributes()["install_disk_mirror_device"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"vlan": schema.Int64Attribute{
@@ -181,10 +191,12 @@ func (d *EnrollmentImageDataSource) Read(ctx context.Context, req datasource.Rea
 	data.Name = types.StringValue(enrollmentImage.Name)
 	data.Status = types.StringValue(enrollmentImage.Status)
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(enrollmentImage.ExpiresAt)
-	data.InstallDiskDevice = types.StringValue(enrollmentImage.InstallDiskDevice)
+	data.InstallDiskDevice = types.StringPointerValue(enrollmentImage.InstallDiskDevice)
 	data.VLAN = types.Int64PointerValue(enrollmentImage.VLAN)
 	data.EnableHTTP = types.BoolValue(enrollmentImage.EnableHTTP)
 	data.InstallDiskForceOverwrite = types.BoolValue(enrollmentImage.InstallDiskForceOverwrite)
+	data.InstallDiskMirror = types.BoolValue(enrollmentImage.InstallDiskMirror)
+	data.InstallDiskMirrorDevice = types.StringPointerValue(enrollmentImage.InstallDiskMirrorDevice)
 	data.HTTPURLISOAMD64 = types.StringValue(enrollmentImage.HTTPURLISOAMD64)
 	data.HTTPURLISOARM64 = types.StringValue(enrollmentImage.HTTPURLISOARM64)
 	data.HTTPSURLISOAMD64 = types.StringValue(enrollmentImage.HTTPSURLISOAMD64)
