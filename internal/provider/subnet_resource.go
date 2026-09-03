@@ -13,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -67,52 +69,82 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		"network_id": schema.Int64Attribute{
 			Required:            true,
 			MarkdownDescription: "ID of the Network this subnet belongs to",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.RequiresReplace(),
+			},
 		},
 		"name": schema.StringAttribute{
 			Required:            true,
 			MarkdownDescription: "Name of the subnet, unique within its Network",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
 		},
 		"vlan": schema.Int64Attribute{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "VLAN ID of the segment. Leave empty when the segment carries no VLAN",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.RequiresReplace(),
+			},
 		},
 		"addressing": schema.StringAttribute{
 			Required:            true,
 			MarkdownDescription: "How a Machine gets an address: `dhcp`, where an existing DHCP server provides them, or `ipam`, where meltcloud does",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
 		},
 		"ip_pool_id": schema.Int64Attribute{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "ID of the IP Pool the addresses come from. Required with addressing `ipam`",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.RequiresReplace(),
+			},
 		},
 		"gateway": schema.StringAttribute{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "The default route, configured only where the Host Network is primary. Only with addressing `ipam`: a DHCP server delivers its own",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
 		},
 		"dns": schema.ListAttribute{
 			Optional:            true,
 			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The resolvers to configure. With `dhcp`, setting these replaces what the server sends in option 6",
+			PlanModifiers: []planmodifier.List{
+				listplanmodifier.RequiresReplace(),
+			},
 		},
 		"ntp": schema.ListAttribute{
 			Optional:            true,
 			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42",
+			PlanModifiers: []planmodifier.List{
+				listplanmodifier.RequiresReplace(),
+			},
 		},
 		"domains": schema.ListAttribute{
 			Optional:            true,
 			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The search domains to configure. With `dhcp`, setting these replaces what the server sends in options 15 and 119",
+			PlanModifiers: []planmodifier.List{
+				listplanmodifier.RequiresReplace(),
+			},
 		},
 		"mtu": schema.Int64Attribute{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.RequiresReplace(),
+			},
 		},
 	}
 }
@@ -142,6 +174,9 @@ func (r *SubnetResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"route": schema.ListNestedBlock{
 				NestedObject: schema.NestedBlockObject{
 					Attributes: routeResourceAttributes(),
+				},
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
 				},
 			},
 		},
