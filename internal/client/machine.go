@@ -21,19 +21,23 @@ type MachinesResult struct {
 }
 
 type Machine struct {
-	ID            int64     `json:"id"`
-	UUID          uuid.UUID `json:"uuid"`
-	Name          string    `json:"name,omitempty"`
-	Status        string    `json:"status"`
-	MachinePoolID int64     `json:"machine_pool_id,omitempty"`
-	Labels        []Label   `json:"labels,omitempty"`
+	ID                    int64     `json:"id"`
+	UUID                  uuid.UUID `json:"uuid"`
+	Name                  string    `json:"name,omitempty"`
+	Status                string    `json:"status"`
+	MachinePoolID         int64     `json:"machine_pool_id,omitempty"`
+	NetworkProfileID      *int64    `json:"network_profile_id,omitempty"`
+	DepotNetworkProfileID *int64    `json:"depot_network_profile_id,omitempty"`
+	Labels                []Label   `json:"labels,omitempty"`
 }
 
 type MachineCreateInput struct {
-	UUID          uuid.UUID `json:"uuid"`
-	Name          string    `json:"name,omitempty"`
-	MachinePoolID int64     `json:"machine_pool_id,omitempty"`
-	Labels        []Label   `json:"labels,omitempty"`
+	UUID                  uuid.UUID `json:"uuid"`
+	Name                  string    `json:"name,omitempty"`
+	MachinePoolID         int64     `json:"machine_pool_id,omitempty"`
+	NetworkProfileID      *int64    `json:"network_profile_id,omitempty"`
+	DepotNetworkProfileID *int64    `json:"depot_network_profile_id,omitempty"`
+	Labels                []Label   `json:"labels,omitempty"`
 }
 
 type Label struct {
@@ -42,9 +46,11 @@ type Label struct {
 }
 
 type MachineUpdateInput struct {
-	Name          string  `json:"name,omitempty"`
-	MachinePoolID int64   `json:"machine_pool_id,omitempty"`
-	Labels        []Label `json:"labels,omitempty"`
+	Name                  string  `json:"name,omitempty"`
+	MachinePoolID         int64   `json:"machine_pool_id,omitempty"`
+	NetworkProfileID      *int64  `json:"network_profile_id,omitempty"`
+	DepotNetworkProfileID *int64  `json:"depot_network_profile_id,omitempty"`
+	Labels                []Label `json:"labels,omitempty"`
 }
 
 func (c *Client) Machine() *MachineRequest {
