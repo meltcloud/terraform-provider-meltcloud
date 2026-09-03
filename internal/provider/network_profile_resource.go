@@ -101,7 +101,6 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 		},
 		"interfaces": schema.ListAttribute{
 			Optional:            true,
-			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The interfaces to match. Empty with mode `auto`, one with `single`, at least two with `bond`",
 		},
@@ -237,7 +236,7 @@ func uplinkModels(ctx context.Context, uplinks []client.Uplink) ([]UplinkResourc
 	var models []UplinkResourceModel
 
 	for _, uplink := range uplinks {
-		interfaces, interfaceDiags := types.ListValueFrom(ctx, types.StringType, uplink.Interfaces)
+		interfaces, interfaceDiags := stringListValue(ctx, uplink.Interfaces)
 		diags.Append(interfaceDiags...)
 
 		hostNetworks, hostNetworkDiags := types.ListValueFrom(ctx, hostNetworkObjectType(), hostNetworkValues(uplink))
@@ -313,7 +312,7 @@ func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequ
 
 	var uplinks []UplinkResourceModel
 	for _, uplink := range result.NetworkProfile.Uplinks {
-		interfacesList, diags := types.ListValueFrom(ctx, types.StringType, uplink.Interfaces)
+		interfacesList, diags := stringListValue(ctx, uplink.Interfaces)
 		resp.Diagnostics.Append(diags...)
 		if diags.HasError() {
 			return
