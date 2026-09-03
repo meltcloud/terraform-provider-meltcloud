@@ -46,4 +46,3 @@ data "meltcloud_enrollment_image" "example_name" {
 - `install_disk_mirror_device` (String) Device path of the disk used as the mirror, i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-2`. Required (and only allowed) if `install_disk_mirror` is enabled, and must differ from `install_disk_device`. It is never auto-detected.
 - `last_used_at` (String) Timestamp when the image was last used for an enrollment
 - `status` (String) Status of the Enrollment Image
-- `vlan` (Number) The VLAN to use as the enrollment network

@@ -21,7 +21,7 @@ resource "meltcloud_enrollment_image" "example" {
   name                = "my-image"
   expires_at          = time_offset.in_a_day.rfc3339
   install_disk_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
-  vlan                = 100
+  network_profile_id  = meltcloud_network_profile.example.id
 }
 
 # a mirrored install requires both disks to be named explicitly;
@@ -32,6 +32,7 @@ resource "meltcloud_enrollment_image" "mirrored" {
   install_disk_device        = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
   install_disk_mirror        = true
   install_disk_mirror_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-2"
+  network_profile_id         = meltcloud_network_profile.example.id
 }
 ```
 
@@ -50,7 +51,6 @@ resource "meltcloud_enrollment_image" "mirrored" {
 - `install_disk_force_overwrite` (Boolean) Force overwrite disk if it contains unknown data
 - `install_disk_mirror` (Boolean) Whether the install disk is mirrored onto a second disk (RAID1) for redundancy. Requires `install_disk_device` and `install_disk_mirror_device` to be set, since auto-detection cannot decide which of two disks is the primary and which the mirror.
 - `install_disk_mirror_device` (String) Device path of the disk used as the mirror, i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-2`. Required (and only allowed) if `install_disk_mirror` is enabled, and must differ from `install_disk_device`. It is never auto-detected.
-- `vlan` (Number) The VLAN to use as the enrollment network
 
 ### Read-Only
 
