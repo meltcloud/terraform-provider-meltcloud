@@ -67,6 +67,8 @@ Required:
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 # Resource can be imported by using the resource path as displayed in the URL
 terraform import meltcloud_network_profile.example network_profiles/1
