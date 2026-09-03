@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -127,6 +129,33 @@ func (r *IPPoolResource) Configure(ctx context.Context, req resource.ConfigureRe
 	r.client = client
 }
 
+func ipPoolRangeObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"kind":          types.StringType,
+		"start_address": types.StringType,
+		"end_address":   types.StringType,
+		"description":   types.StringType,
+	}}
+}
+
+func ipPoolRangeValues(ctx context.Context, ranges []client.IPPoolRange) (types.List, diag.Diagnostics) {
+	if len(ranges) == 0 {
+		return types.ListNull(ipPoolRangeObjectType()), nil
+	}
+
+	models := make([]IPPoolRangeResourceModel, 0, len(ranges))
+	for _, poolRange := range ranges {
+		models = append(models, IPPoolRangeResourceModel{
+			Kind:         types.StringValue(poolRange.Kind),
+			StartAddress: types.StringValue(poolRange.StartAddress),
+			EndAddress:   types.StringValue(poolRange.EndAddress),
+			Description:  types.StringPointerValue(poolRange.Description),
+		})
+	}
+
+	return types.ListValueFrom(ctx, ipPoolRangeObjectType(), models)
+}
+
 func (r *IPPoolResource) rangesInput(ctx context.Context, list types.List) []client.IPPoolRange {
 	var ranges []IPPoolRangeResourceModel
 	list.ElementsAs(ctx, &ranges, false)
@@ -188,6 +217,13 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 	data.Name = types.StringValue(result.IPPool.Name)
 	data.CIDR = types.StringValue(result.IPPool.CIDR)
 	data.Description = types.StringPointerValue(result.IPPool.Description)
+
+	ranges, diags := ipPoolRangeValues(ctx, result.IPPool.Ranges)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	data.Ranges = ranges
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

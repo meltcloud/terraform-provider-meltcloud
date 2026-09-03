@@ -21,14 +21,24 @@ type SubnetDataSource struct {
 }
 
 type SubnetDataSourceModel struct {
-	ID         types.Int64  `tfsdk:"id"`
-	NetworkID  types.Int64  `tfsdk:"network_id"`
-	Name       types.String `tfsdk:"name"`
-	VLAN       types.Int64  `tfsdk:"vlan"`
-	Addressing types.String `tfsdk:"addressing"`
-	IPPoolID   types.Int64  `tfsdk:"ip_pool_id"`
-	Gateway    types.String `tfsdk:"gateway"`
-	MTU        types.Int64  `tfsdk:"mtu"`
+	ID         types.Int64            `tfsdk:"id"`
+	NetworkID  types.Int64            `tfsdk:"network_id"`
+	Name       types.String           `tfsdk:"name"`
+	VLAN       types.Int64            `tfsdk:"vlan"`
+	Addressing types.String           `tfsdk:"addressing"`
+	IPPoolID   types.Int64            `tfsdk:"ip_pool_id"`
+	Gateway    types.String           `tfsdk:"gateway"`
+	MTU        types.Int64            `tfsdk:"mtu"`
+	DNS        types.List             `tfsdk:"dns"`
+	NTP        types.List             `tfsdk:"ntp"`
+	Domains    types.List             `tfsdk:"domains"`
+	Routes     []RouteDataSourceModel `tfsdk:"routes"`
+}
+
+type RouteDataSourceModel struct {
+	Destination types.String `tfsdk:"destination"`
+	Via         types.String `tfsdk:"via"`
+	Metric      types.Int64  `tfsdk:"metric"`
 }
 
 func (d *SubnetDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -37,6 +47,7 @@ func (d *SubnetDataSource) Metadata(ctx context.Context, req datasource.Metadata
 
 func (d *SubnetDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	attributes := subnetResourceAttributes()
+	routeAttributes := routeResourceAttributes()
 	resp.Schema = schema.Schema{
 		MarkdownDescription: subnetDesc,
 		Attributes: map[string]schema.Attribute{
@@ -71,6 +82,40 @@ func (d *SubnetDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"mtu": schema.Int64Attribute{
 				MarkdownDescription: attributes["mtu"].GetMarkdownDescription(),
 				Computed:            true,
+			},
+			"dns": schema.ListAttribute{
+				MarkdownDescription: attributes["dns"].GetMarkdownDescription(),
+				ElementType:         types.StringType,
+				Computed:            true,
+			},
+			"ntp": schema.ListAttribute{
+				MarkdownDescription: attributes["ntp"].GetMarkdownDescription(),
+				ElementType:         types.StringType,
+				Computed:            true,
+			},
+			"domains": schema.ListAttribute{
+				MarkdownDescription: attributes["domains"].GetMarkdownDescription(),
+				ElementType:         types.StringType,
+				Computed:            true,
+			},
+			"routes": schema.ListNestedAttribute{
+				Computed: true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"destination": schema.StringAttribute{
+							MarkdownDescription: routeAttributes["destination"].GetMarkdownDescription(),
+							Computed:            true,
+						},
+						"via": schema.StringAttribute{
+							MarkdownDescription: routeAttributes["via"].GetMarkdownDescription(),
+							Computed:            true,
+						},
+						"metric": schema.Int64Attribute{
+							MarkdownDescription: routeAttributes["metric"].GetMarkdownDescription(),
+							Computed:            true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -113,6 +158,29 @@ func (d *SubnetDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	data.IPPoolID = types.Int64PointerValue(subnet.IPPoolID)
 	data.Gateway = types.StringPointerValue(subnet.Gateway)
 	data.MTU = types.Int64PointerValue(subnet.MTU)
+
+	dns, diags := stringListValue(ctx, subnet.DNS)
+	resp.Diagnostics.Append(diags...)
+	ntp, diags := stringListValue(ctx, subnet.NTP)
+	resp.Diagnostics.Append(diags...)
+	domains, diags := stringListValue(ctx, subnet.Domains)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	data.DNS = dns
+	data.NTP = ntp
+	data.Domains = domains
+
+	data.Routes = nil
+	for _, route := range subnet.Routes {
+		data.Routes = append(data.Routes, RouteDataSourceModel{
+			Destination: types.StringValue(route.Destination),
+			Via:         types.StringValue(route.Via),
+			Metric:      types.Int64PointerValue(route.Metric),
+		})
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

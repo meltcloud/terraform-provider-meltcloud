@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"regexp"
 	"strconv"
@@ -238,6 +239,8 @@ func applySubnet(ctx context.Context, data *SubnetResourceModel, subnet *client.
 	diags.Append(ntpDiags...)
 	domains, domainDiags := stringListValue(ctx, subnet.Domains)
 	diags.Append(domainDiags...)
+	routes, routeDiags := routeValues(ctx, subnet.Routes)
+	diags.Append(routeDiags...)
 	if diags.HasError() {
 		return diags
 	}
@@ -253,8 +256,34 @@ func applySubnet(ctx context.Context, data *SubnetResourceModel, subnet *client.
 	data.DNS = dns
 	data.NTP = ntp
 	data.Domains = domains
+	data.Routes = routes
 
 	return diags
+}
+
+func routeObjectType() types.ObjectType {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"destination": types.StringType,
+		"via":         types.StringType,
+		"metric":      types.Int64Type,
+	}}
+}
+
+func routeValues(ctx context.Context, routes []client.SubnetRoute) (types.List, diag.Diagnostics) {
+	if len(routes) == 0 {
+		return types.ListNull(routeObjectType()), nil
+	}
+
+	models := make([]RouteResourceModel, 0, len(routes))
+	for _, route := range routes {
+		models = append(models, RouteResourceModel{
+			Destination: types.StringValue(route.Destination),
+			Via:         types.StringValue(route.Via),
+			Metric:      types.Int64PointerValue(route.Metric),
+		})
+	}
+
+	return types.ListValueFrom(ctx, routeObjectType(), models)
 }
 
 // An empty list is how the server says a field was never set, and an attribute
