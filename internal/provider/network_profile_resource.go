@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -94,6 +96,7 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 		"identifier": schema.StringAttribute{
 			Optional:            true,
 			Computed:            true,
+			Default:             stringdefault.StaticString("kernel_name"),
 			MarkdownDescription: "What the interfaces are matched against: `kernel_name` (the default) or `mac_address`",
 		},
 		"interfaces": schema.ListAttribute{
@@ -105,6 +108,7 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 		"lacp": schema.BoolAttribute{
 			Optional:            true,
 			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 			MarkdownDescription: "Whether the bond runs LACP. Only available with mode `bond`",
 		},
 	}

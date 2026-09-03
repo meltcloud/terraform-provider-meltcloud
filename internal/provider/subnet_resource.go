@@ -82,7 +82,6 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"vlan": schema.Int64Attribute{
 			Optional:            true,
-			Computed:            true,
 			MarkdownDescription: "VLAN ID of the segment. Leave empty when the segment carries no VLAN",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
@@ -97,7 +96,6 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"ip_pool_id": schema.Int64Attribute{
 			Optional:            true,
-			Computed:            true,
 			MarkdownDescription: "ID of the IP Pool the addresses come from. Required with addressing `ipam`",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
@@ -105,7 +103,6 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"gateway": schema.StringAttribute{
 			Optional:            true,
-			Computed:            true,
 			MarkdownDescription: "The default route, configured only where the Host Network is primary. Only with addressing `ipam`: a DHCP server delivers its own",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
@@ -113,7 +110,6 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"dns": schema.ListAttribute{
 			Optional:            true,
-			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The resolvers to configure. With `dhcp`, setting these replaces what the server sends in option 6",
 			PlanModifiers: []planmodifier.List{
@@ -122,7 +118,6 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"ntp": schema.ListAttribute{
 			Optional:            true,
-			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42",
 			PlanModifiers: []planmodifier.List{
@@ -131,7 +126,6 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"domains": schema.ListAttribute{
 			Optional:            true,
-			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The search domains to configure. With `dhcp`, setting these replaces what the server sends in options 15 and 119",
 			PlanModifiers: []planmodifier.List{
@@ -140,7 +134,6 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"mtu": schema.Int64Attribute{
 			Optional:            true,
-			Computed:            true,
 			MarkdownDescription: "The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
@@ -239,11 +232,11 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 func applySubnet(ctx context.Context, data *SubnetResourceModel, subnet *client.Subnet) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	dns, dnsDiags := types.ListValueFrom(ctx, types.StringType, subnet.DNS)
+	dns, dnsDiags := stringListValue(ctx, subnet.DNS)
 	diags.Append(dnsDiags...)
-	ntp, ntpDiags := types.ListValueFrom(ctx, types.StringType, subnet.NTP)
+	ntp, ntpDiags := stringListValue(ctx, subnet.NTP)
 	diags.Append(ntpDiags...)
-	domains, domainDiags := types.ListValueFrom(ctx, types.StringType, subnet.Domains)
+	domains, domainDiags := stringListValue(ctx, subnet.Domains)
 	diags.Append(domainDiags...)
 	if diags.HasError() {
 		return diags
@@ -262,6 +255,15 @@ func applySubnet(ctx context.Context, data *SubnetResourceModel, subnet *client.
 	data.Domains = domains
 
 	return diags
+}
+
+// An empty list is how the server says a field was never set, and an attribute
+// that was never set has to read as absent rather than as an empty list.
+func stringListValue(ctx context.Context, values []string) (types.List, diag.Diagnostics) {
+	if len(values) == 0 {
+		return types.ListNull(types.StringType), nil
+	}
+	return types.ListValueFrom(ctx, types.StringType, values)
 }
 
 // An optional attribute the server fills in is unknown while planning, and an
