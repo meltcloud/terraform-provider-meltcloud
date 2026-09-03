@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -89,6 +90,7 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 		"install_disk_force_overwrite": schema.BoolAttribute{
 			Optional:            true,
 			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 			MarkdownDescription: "Force overwrite disk if it contains unknown data",
 			PlanModifiers: []planmodifier.Bool{
 				boolplanmodifier.RequiresReplace(),
@@ -97,6 +99,7 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 		"install_disk_mirror": schema.BoolAttribute{
 			Optional:            true,
 			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 			MarkdownDescription: "Whether the install disk is mirrored onto a second disk (RAID1) for redundancy. Requires `install_disk_device` and `install_disk_mirror_device` to be set, since auto-detection cannot decide which of two disks is the primary and which the mirror.",
 			PlanModifiers: []planmodifier.Bool{
 				boolplanmodifier.RequiresReplace(),
@@ -112,6 +115,7 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 		"enable_http": schema.BoolAttribute{
 			Optional:            true,
 			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 			MarkdownDescription: "Whether the images should be downloadable via insecure HTTP",
 			PlanModifiers: []planmodifier.Bool{
 				boolplanmodifier.RequiresReplace(),
