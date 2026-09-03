@@ -11,11 +11,13 @@ import (
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -72,6 +74,9 @@ func networkProfileResourceAttributes() map[string]schema.Attribute {
 		"name": schema.StringAttribute{
 			MarkdownDescription: "Name of the network profile",
 			Required:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
 		},
 	}
 }
@@ -130,6 +135,9 @@ func (r *NetworkProfileResource) Schema(ctx context.Context, req resource.Schema
 
 		Blocks: map[string]schema.Block{
 			"uplink": schema.ListNestedBlock{
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 				NestedObject: schema.NestedBlockObject{
 					Attributes: uplinkResourceAttributes(),
 					Blocks: map[string]schema.Block{
