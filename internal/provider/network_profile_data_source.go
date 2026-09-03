@@ -24,19 +24,25 @@ type NetworkProfileDataSource struct {
 
 // NetworkProfileDataSourceModel describes the data source data model.
 type NetworkProfileDataSourceModel struct {
-	ID     types.Int64           `tfsdk:"id"`
-	Name   types.String          `tfsdk:"name"`
-	Status types.String          `tfsdk:"status"`
-	Links  []LinkDataSourceModel `tfsdk:"links"`
+	ID      types.Int64             `tfsdk:"id"`
+	Name    types.String            `tfsdk:"name"`
+	Status  types.String            `tfsdk:"status"`
+	Uplinks []UplinkDataSourceModel `tfsdk:"uplinks"`
 }
 
-type LinkDataSourceModel struct {
-	Name           types.String `tfsdk:"name"`
-	Interfaces     types.List   `tfsdk:"interfaces"`
-	VLANs          types.List   `tfsdk:"vlans"`
-	HostNetworking types.Bool   `tfsdk:"host_networking"`
-	LACP           types.Bool   `tfsdk:"lacp"`
-	NativeVLAN     types.Bool   `tfsdk:"native_vlan"`
+type UplinkDataSourceModel struct {
+	Name         types.String                 `tfsdk:"name"`
+	Mode         types.String                 `tfsdk:"mode"`
+	Identifier   types.String                 `tfsdk:"identifier"`
+	Interfaces   types.List                   `tfsdk:"interfaces"`
+	LACP         types.Bool                   `tfsdk:"lacp"`
+	HostNetworks []HostNetworkDataSourceModel `tfsdk:"host_networks"`
+}
+
+type HostNetworkDataSourceModel struct {
+	SubnetID   types.Int64 `tfsdk:"subnet_id"`
+	VLANTagged types.Bool  `tfsdk:"vlan_tagged"`
+	Primary    types.Bool  `tfsdk:"primary"`
 }
 
 func (d *NetworkProfileDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -60,35 +66,49 @@ func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.Sc
 				MarkdownDescription: "Status of the Network Profile",
 				Computed:            true,
 			},
-			"links": schema.ListNestedAttribute{
+			"uplinks": schema.ListNestedAttribute{
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
 							Computed:            true,
-							MarkdownDescription: linkResourceAttributes()["name"].GetMarkdownDescription(),
+							MarkdownDescription: uplinkResourceAttributes()["name"].GetMarkdownDescription(),
+						},
+						"mode": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: uplinkResourceAttributes()["mode"].GetMarkdownDescription(),
+						},
+						"identifier": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: uplinkResourceAttributes()["identifier"].GetMarkdownDescription(),
 						},
 						"interfaces": schema.ListAttribute{
 							Computed:            true,
 							ElementType:         types.StringType,
-							MarkdownDescription: linkResourceAttributes()["interfaces"].GetMarkdownDescription(),
-						},
-						"vlans": schema.ListAttribute{
-							Computed:            true,
-							ElementType:         types.Int64Type,
-							MarkdownDescription: linkResourceAttributes()["vlans"].GetMarkdownDescription(),
-						},
-						"host_networking": schema.BoolAttribute{
-							Computed:            true,
-							MarkdownDescription: linkResourceAttributes()["host_networking"].GetMarkdownDescription(),
+							MarkdownDescription: uplinkResourceAttributes()["interfaces"].GetMarkdownDescription(),
 						},
 						"lacp": schema.BoolAttribute{
 							Computed:            true,
-							MarkdownDescription: linkResourceAttributes()["lacp"].GetMarkdownDescription(),
+							MarkdownDescription: uplinkResourceAttributes()["lacp"].GetMarkdownDescription(),
 						},
-						"native_vlan": schema.BoolAttribute{
-							Computed:            true,
-							MarkdownDescription: linkResourceAttributes()["native_vlan"].GetMarkdownDescription(),
+						"host_networks": schema.ListNestedAttribute{
+							Computed: true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"subnet_id": schema.Int64Attribute{
+										Computed:            true,
+										MarkdownDescription: hostNetworkResourceAttributes()["subnet_id"].GetMarkdownDescription(),
+									},
+									"vlan_tagged": schema.BoolAttribute{
+										Computed:            true,
+										MarkdownDescription: hostNetworkResourceAttributes()["vlan_tagged"].GetMarkdownDescription(),
+									},
+									"primary": schema.BoolAttribute{
+										Computed:            true,
+										MarkdownDescription: hostNetworkResourceAttributes()["primary"].GetMarkdownDescription(),
+									},
+								},
+							},
 						},
 					},
 				},
@@ -130,26 +150,29 @@ func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	for _, link := range result.NetworkProfile.Links {
-		interfacesList, diags := types.ListValueFrom(ctx, types.StringType, link.Interfaces)
+	for _, uplink := range result.NetworkProfile.Uplinks {
+		interfacesList, diags := types.ListValueFrom(ctx, types.StringType, uplink.Interfaces)
 		resp.Diagnostics.Append(diags...)
 		if diags.HasError() {
 			return
 		}
 
-		vlansList, diags := types.ListValueFrom(ctx, types.Int64Type, link.VLANs)
-		resp.Diagnostics.Append(diags...)
-		if diags.HasError() {
-			return
+		var hostNetworks []HostNetworkDataSourceModel
+		for _, hostNetwork := range uplink.HostNetworks {
+			hostNetworks = append(hostNetworks, HostNetworkDataSourceModel{
+				SubnetID:   types.Int64Value(hostNetwork.SubnetID),
+				VLANTagged: types.BoolValue(hostNetwork.VLANTagged),
+				Primary:    types.BoolValue(hostNetwork.Primary),
+			})
 		}
 
-		data.Links = append(data.Links, LinkDataSourceModel{
-			Name:           types.StringValue(link.Name),
-			Interfaces:     interfacesList,
-			VLANs:          vlansList,
-			HostNetworking: types.BoolValue(link.HostNetworking),
-			LACP:           types.BoolValue(link.LACP),
-			NativeVLAN:     types.BoolValue(link.NativeVLAN),
+		data.Uplinks = append(data.Uplinks, UplinkDataSourceModel{
+			Name:         types.StringValue(uplink.Name),
+			Mode:         types.StringValue(uplink.Mode),
+			Identifier:   types.StringValue(uplink.Identifier),
+			Interfaces:   interfacesList,
+			LACP:         types.BoolValue(uplink.LACP),
+			HostNetworks: hostNetworks,
 		})
 	}
 
