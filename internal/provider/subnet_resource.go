@@ -2,7 +2,9 @@ package provider
 
 import (
 	"context"
+
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
@@ -72,6 +74,7 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"vlan": schema.Int64Attribute{
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "VLAN ID of the segment. Leave empty when the segment carries no VLAN",
 		},
 		"addressing": schema.StringAttribute{
@@ -80,29 +83,35 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"ip_pool_id": schema.Int64Attribute{
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "ID of the IP Pool the addresses come from. Required with addressing `ipam`",
 		},
 		"gateway": schema.StringAttribute{
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "The default route, configured only where the Host Network is primary. Only with addressing `ipam`: a DHCP server delivers its own",
 		},
 		"dns": schema.ListAttribute{
 			Optional:            true,
+			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The resolvers to configure. With `dhcp`, setting these replaces what the server sends in option 6",
 		},
 		"ntp": schema.ListAttribute{
 			Optional:            true,
+			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42",
 		},
 		"domains": schema.ListAttribute{
 			Optional:            true,
+			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The search domains to configure. With `dhcp`, setting these replaces what the server sends in options 15 and 119",
 		},
 		"mtu": schema.Int64Attribute{
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26",
 		},
 	}
@@ -165,14 +174,14 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	input := &client.SubnetCreateInput{
 		Name:       data.Name.ValueString(),
-		VLAN:       data.VLAN.ValueInt64Pointer(),
+		VLAN:       int64Value(data.VLAN),
 		Addressing: data.Addressing.ValueString(),
-		IPPoolID:   data.IPPoolID.ValueInt64Pointer(),
-		Gateway:    data.Gateway.ValueStringPointer(),
+		IPPoolID:   int64Value(data.IPPoolID),
+		Gateway:    stringValue(data.Gateway),
 		DNS:        stringList(ctx, data.DNS),
 		NTP:        stringList(ctx, data.NTP),
 		Domains:    stringList(ctx, data.Domains),
-		MTU:        data.MTU.ValueInt64Pointer(),
+		MTU:        int64Value(data.MTU),
 		Routes:     r.routesInput(ctx, data.Routes),
 	}
 
@@ -182,11 +191,65 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	data.ID = types.Int64Value(result.Subnet.ID)
+	resp.Diagnostics.Append(applySubnet(ctx, &data, result.Subnet)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
+// applySubnet takes what the server made of the subnet, which is what every
+// attribute it fills in has to end up as.
+func applySubnet(ctx context.Context, data *SubnetResourceModel, subnet *client.Subnet) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	dns, dnsDiags := types.ListValueFrom(ctx, types.StringType, subnet.DNS)
+	diags.Append(dnsDiags...)
+	ntp, ntpDiags := types.ListValueFrom(ctx, types.StringType, subnet.NTP)
+	diags.Append(ntpDiags...)
+	domains, domainDiags := types.ListValueFrom(ctx, types.StringType, subnet.Domains)
+	diags.Append(domainDiags...)
+	if diags.HasError() {
+		return diags
+	}
+
+	data.ID = types.Int64Value(subnet.ID)
+	data.NetworkID = types.Int64Value(subnet.NetworkID)
+	data.Name = types.StringValue(subnet.Name)
+	data.VLAN = types.Int64PointerValue(subnet.VLAN)
+	data.Addressing = types.StringValue(subnet.Addressing)
+	data.IPPoolID = types.Int64PointerValue(subnet.IPPoolID)
+	data.Gateway = types.StringPointerValue(subnet.Gateway)
+	data.MTU = types.Int64PointerValue(subnet.MTU)
+	data.DNS = dns
+	data.NTP = ntp
+	data.Domains = domains
+
+	return diags
+}
+
+// An optional attribute the server fills in is unknown while planning, and an
+// unknown value reads as zero rather than as absent.
+func int64Value(value types.Int64) *int64 {
+	if value.IsNull() || value.IsUnknown() {
+		return nil
+	}
+	return value.ValueInt64Pointer()
+}
+
+func stringValue(value types.String) *string {
+	if value.IsNull() || value.IsUnknown() {
+		return nil
+	}
+	return value.ValueStringPointer()
+}
+
 func stringList(ctx context.Context, list types.List) []string {
+	if list.IsNull() || list.IsUnknown() {
+		return nil
+	}
+
 	var values []string
 	list.ElementsAs(ctx, &values, false)
 	return values
@@ -201,7 +264,7 @@ func (r *SubnetResource) routesInput(ctx context.Context, list types.List) []cli
 		input = append(input, client.SubnetRoute{
 			Destination: route.Destination.ValueString(),
 			Via:         route.Via.ValueString(),
-			Metric:      route.Metric.ValueInt64Pointer(),
+			Metric:      int64Value(route.Metric),
 		})
 	}
 	return input
@@ -225,13 +288,10 @@ func (r *SubnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	subnet := result.Subnet
-	data.Name = types.StringValue(subnet.Name)
-	data.VLAN = types.Int64PointerValue(subnet.VLAN)
-	data.Addressing = types.StringValue(subnet.Addressing)
-	data.IPPoolID = types.Int64PointerValue(subnet.IPPoolID)
-	data.Gateway = types.StringPointerValue(subnet.Gateway)
-	data.MTU = types.Int64PointerValue(subnet.MTU)
+	resp.Diagnostics.Append(applySubnet(ctx, &data, result.Subnet)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
