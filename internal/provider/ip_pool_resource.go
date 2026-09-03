@@ -137,7 +137,7 @@ func (r *IPPoolResource) rangesInput(ctx context.Context, list types.List) []cli
 			Kind:         poolRange.Kind.ValueString(),
 			StartAddress: poolRange.StartAddress.ValueString(),
 			EndAddress:   poolRange.EndAddress.ValueString(),
-			Description:  poolRange.Description.ValueStringPointer(),
+			Description:  stringValue(poolRange.Description),
 		})
 	}
 	return input
@@ -153,7 +153,7 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 	input := &client.IPPoolCreateInput{
 		Name:        data.Name.ValueString(),
 		CIDR:        data.CIDR.ValueString(),
-		Description: data.Description.ValueStringPointer(),
+		Description: stringValue(data.Description),
 		Ranges:      r.rangesInput(ctx, data.Ranges),
 	}
 
@@ -203,7 +203,7 @@ func (r *IPPoolResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	input := &client.IPPoolUpdateInput{
 		Name:        data.Name.ValueString(),
-		Description: data.Description.ValueStringPointer(),
+		Description: stringValue(data.Description),
 		Ranges:      r.rangesInput(ctx, data.Ranges),
 	}
 

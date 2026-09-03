@@ -32,8 +32,8 @@ type NetworkProfileCreateInput struct {
 type Uplink struct {
 	Name         string        `json:"name"`
 	Mode         string        `json:"mode"`
-	Identifier   string        `json:"identifier"`
-	Interfaces   []string      `json:"interfaces"`
+	Identifier   string        `json:"identifier,omitempty"`
+	Interfaces   []string      `json:"interfaces,omitempty"`
 	LACP         bool          `json:"lacp"`
 	HostNetworks []HostNetwork `json:"host_networks"`
 }

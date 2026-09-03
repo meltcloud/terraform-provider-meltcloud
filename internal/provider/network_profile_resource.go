@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
@@ -87,15 +88,18 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 		},
 		"identifier": schema.StringAttribute{
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "What the interfaces are matched against: `kernel_name` (the default) or `mac_address`",
 		},
 		"interfaces": schema.ListAttribute{
 			Optional:            true,
+			Computed:            true,
 			ElementType:         types.StringType,
 			MarkdownDescription: "The interfaces to match. Empty with mode `auto`, one with `single`, at least two with `bond`",
 		},
 		"lacp": schema.BoolAttribute{
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "Whether the bond runs LACP. Only available with mode `bond`",
 		},
 	}
@@ -189,7 +193,58 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 
 	data.ID = types.Int64Value(result.NetworkProfile.ID)
 
+	uplinkValues, diags := uplinkModels(ctx, result.NetworkProfile.Uplinks)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	uplinkList, diags := types.ListValueFrom(ctx, uplinkObjectType(), uplinkValues)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	data.Uplinks = uplinkList
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func uplinkObjectType() attr.Type {
+	return types.ObjectType{AttrTypes: map[string]attr.Type{
+		"name":         types.StringType,
+		"mode":         types.StringType,
+		"identifier":   types.StringType,
+		"interfaces":   types.ListType{ElemType: types.StringType},
+		"lacp":         types.BoolType,
+		"host_network": types.ListType{ElemType: hostNetworkObjectType()},
+	}}
+}
+
+func uplinkModels(ctx context.Context, uplinks []client.Uplink) ([]UplinkResourceModel, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	var models []UplinkResourceModel
+
+	for _, uplink := range uplinks {
+		interfaces, interfaceDiags := types.ListValueFrom(ctx, types.StringType, uplink.Interfaces)
+		diags.Append(interfaceDiags...)
+
+		hostNetworks, hostNetworkDiags := types.ListValueFrom(ctx, hostNetworkObjectType(), hostNetworkValues(uplink))
+		diags.Append(hostNetworkDiags...)
+		if diags.HasError() {
+			return nil, diags
+		}
+
+		models = append(models, UplinkResourceModel{
+			Name:         types.StringValue(uplink.Name),
+			Mode:         types.StringValue(uplink.Mode),
+			Identifier:   types.StringValue(uplink.Identifier),
+			Interfaces:   interfaces,
+			LACP:         types.BoolValue(uplink.LACP),
+			HostNetworks: hostNetworks,
+		})
+	}
+
+	return models, diags
 }
 
 func (r *NetworkProfileResource) uplinksInput(ctx context.Context, uplinks []UplinkResourceModel) []client.Uplink {
