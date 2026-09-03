@@ -28,7 +28,6 @@ type EnrollmentImage struct {
 	InstallDiskForceOverwrite bool       `json:"install_disk_force_overwrite"`
 	InstallDiskMirror         bool       `json:"install_disk_mirror"`
 	InstallDiskMirrorDevice   *string    `json:"install_disk_mirror_device"`
-	VLAN                      *int64     `json:"vlan"`
 	EnableHTTP                bool       `json:"enable_http"`
 	HTTPURLISOAMD64           string     `json:"http_url_iso_amd64"`
 	HTTPURLISOARM64           string     `json:"http_url_iso_arm64"`
@@ -44,7 +43,6 @@ type EnrollmentImageCreateInput struct {
 	InstallDiskForceOverwrite *bool     `json:"install_disk_force_overwrite"`
 	InstallDiskMirror         *bool     `json:"install_disk_mirror"`
 	InstallDiskMirrorDevice   *string   `json:"install_disk_mirror_device,omitempty"`
-	VLAN                      *int64    `json:"vlan"`
 	EnableHTTP                *bool     `json:"enable_http"`
 }
 

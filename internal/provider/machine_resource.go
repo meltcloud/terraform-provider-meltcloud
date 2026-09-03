@@ -32,11 +32,13 @@ type MachineResource struct {
 
 // MachineResourceModel describes the resource data model.
 type MachineResourceModel struct {
-	ID            types.Int64  `tfsdk:"id"`
-	UUID          types.String `tfsdk:"uuid"`
-	Name          types.String `tfsdk:"name"`
-	MachinePoolID types.Int64  `tfsdk:"machine_pool_id"`
-	Labels        types.List   `tfsdk:"label"`
+	ID                    types.Int64  `tfsdk:"id"`
+	UUID                  types.String `tfsdk:"uuid"`
+	Name                  types.String `tfsdk:"name"`
+	MachinePoolID         types.Int64  `tfsdk:"machine_pool_id"`
+	NetworkProfileID      types.Int64  `tfsdk:"network_profile_id"`
+	DepotNetworkProfileID types.Int64  `tfsdk:"depot_network_profile_id"`
+	Labels                types.List   `tfsdk:"label"`
 }
 
 type LabelResourceModel struct {
@@ -72,6 +74,14 @@ func machineResourceAttributes() map[string]schema.Attribute {
 		},
 		"machine_pool_id": schema.Int64Attribute{
 			MarkdownDescription: "ID of the associated machine pool",
+			Optional:            true,
+		},
+		"network_profile_id": schema.Int64Attribute{
+			MarkdownDescription: "ID of the Network Profile the machine runs with",
+			Optional:            true,
+		},
+		"depot_network_profile_id": schema.Int64Attribute{
+			MarkdownDescription: "ID of the Network Profile the machine uses while it has no pool, and in recovery",
 			Optional:            true,
 		},
 	}
@@ -151,10 +161,12 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	machineCreateInput := &client.MachineCreateInput{
-		UUID:          uuid,
-		Name:          data.Name.ValueString(),
-		MachinePoolID: data.MachinePoolID.ValueInt64(),
-		Labels:        r.labelInput(labels),
+		UUID:                  uuid,
+		Name:                  data.Name.ValueString(),
+		MachinePoolID:         data.MachinePoolID.ValueInt64(),
+		NetworkProfileID:      data.NetworkProfileID.ValueInt64Pointer(),
+		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64Pointer(),
+		Labels:                r.labelInput(labels),
 	}
 
 	result, err2 := r.client.Machine().Create(ctx, machineCreateInput)
@@ -190,6 +202,8 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.UUID = types.StringValue(result.Machine.UUID.String())
 	data.Name = types.StringValue(result.Machine.Name)
 	data.MachinePoolID = types.Int64Value(result.Machine.MachinePoolID)
+	data.NetworkProfileID = types.Int64PointerValue(result.Machine.NetworkProfileID)
+	data.DepotNetworkProfileID = types.Int64PointerValue(result.Machine.DepotNetworkProfileID)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
@@ -224,9 +238,11 @@ func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	machineUpdateInput := &client.MachineUpdateInput{
-		Name:          data.Name.ValueString(),
-		MachinePoolID: data.MachinePoolID.ValueInt64(),
-		Labels:        r.labelInput(labels),
+		Name:                  data.Name.ValueString(),
+		MachinePoolID:         data.MachinePoolID.ValueInt64(),
+		NetworkProfileID:      data.NetworkProfileID.ValueInt64Pointer(),
+		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64Pointer(),
+		Labels:                r.labelInput(labels),
 	}
 
 	result, err := r.client.Machine().Update(ctx, data.ID.ValueInt64(), machineUpdateInput)
