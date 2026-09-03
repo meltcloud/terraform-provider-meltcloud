@@ -23,8 +23,21 @@ A [Subnet](https://docs.meltcloud.io/concepts/networking) is one segment of a Ne
 ### Read-Only
 
 - `addressing` (String) How a Machine gets an address: `dhcp`, where an existing DHCP server provides them, or `ipam`, where meltcloud does
+- `dns` (List of String) The resolvers to configure. With `dhcp`, setting these replaces what the server sends in option 6
+- `domains` (List of String) The search domains to configure. With `dhcp`, setting these replaces what the server sends in options 15 and 119
 - `gateway` (String) The default route, configured only where the Host Network is primary. Only with addressing `ipam`: a DHCP server delivers its own
 - `ip_pool_id` (Number) ID of the IP Pool the addresses come from. Required with addressing `ipam`
 - `mtu` (Number) The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26
 - `name` (String) Name of the subnet, unique within its Network
+- `ntp` (List of String) The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42
+- `routes` (Attributes List) (see [below for nested schema](#nestedatt--routes))
 - `vlan` (Number) VLAN ID of the segment. Leave empty when the segment carries no VLAN
+
+<a id="nestedatt--routes"></a>
+### Nested Schema for `routes`
+
+Read-Only:
+
+- `destination` (String) The network this route reaches, in CIDR notation
+- `metric` (Number) Lower wins when several routes match
+- `via` (String) The router that reaches it
