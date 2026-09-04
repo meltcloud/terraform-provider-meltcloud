@@ -21,18 +21,27 @@ A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profil
 
 ### Read-Only
 
-- `links` (Attributes List) (see [below for nested schema](#nestedatt--links))
 - `name` (String) Name of the network profile
 - `status` (String) Status of the Network Profile
+- `uplinks` (Attributes List) (see [below for nested schema](#nestedatt--uplinks))
 
-<a id="nestedatt--links"></a>
-### Nested Schema for `links`
+<a id="nestedatt--uplinks"></a>
+### Nested Schema for `uplinks`
 
 Read-Only:
 
-- `host_networking` (Boolean) Whether to use host networking
-- `interfaces` (List of String) List of interface names
-- `lacp` (Boolean) Whether to use LACP (Link Aggregation Control Protocol)
-- `name` (String) Link name
-- `native_vlan` (Boolean) Whether to use the native VLAN
-- `vlans` (List of Number) List of VLAN IDs
+- `host_networks` (Attributes List) (see [below for nested schema](#nestedatt--uplinks--host_networks))
+- `identifier` (String) What the interfaces are matched against: `kernel_name` (the default) or `mac_address`
+- `interfaces` (List of String) The interfaces to match. Empty with mode `auto`, one with `single`, at least two with `bond`
+- `lacp` (Boolean) Whether the bond runs LACP. Only available with mode `bond`
+- `mode` (String) How many interfaces the uplink expects: `auto` for the machine's only interface, `single` for one named interface, `bond` for several bonded together
+- `name` (String) Name of the uplink, at most 10 lowercase alphanumeric characters
+
+<a id="nestedatt--uplinks--host_networks"></a>
+### Nested Schema for `uplinks.host_networks`
+
+Read-Only:
+
+- `primary` (Boolean) Whether this host network supplies the default route, DNS and NTP. Exactly one across the profile
+- `subnet_id` (Number) ID of the Subnet the machine is addressed on
+- `vlan_tagged` (Boolean) Whether the subnet's VLAN arrives tagged, which configures a VLAN subinterface. At most one untagged host network per uplink

@@ -36,7 +36,6 @@ type EnrollmentImageDataSourceModel struct {
 	InstallDiskForceOverwrite types.Bool        `tfsdk:"install_disk_force_overwrite"`
 	InstallDiskMirror         types.Bool        `tfsdk:"install_disk_mirror"`
 	InstallDiskMirrorDevice   types.String      `tfsdk:"install_disk_mirror_device"`
-	VLAN                      types.Int64       `tfsdk:"vlan"`
 	EnableHTTP                types.Bool        `tfsdk:"enable_http"`
 	HTTPURLISOAMD64           types.String      `tfsdk:"http_url_iso_amd64"`
 	HTTPURLISOARM64           types.String      `tfsdk:"http_url_iso_arm64"`
@@ -93,10 +92,6 @@ func (d *EnrollmentImageDataSource) Schema(ctx context.Context, req datasource.S
 			},
 			"install_disk_mirror_device": schema.StringAttribute{
 				MarkdownDescription: enrollmentImageResourceAttributes()["install_disk_mirror_device"].GetMarkdownDescription(),
-				Computed:            true,
-			},
-			"vlan": schema.Int64Attribute{
-				MarkdownDescription: enrollmentImageResourceAttributes()["vlan"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"enable_http": schema.BoolAttribute{
@@ -192,7 +187,6 @@ func (d *EnrollmentImageDataSource) Read(ctx context.Context, req datasource.Rea
 	data.Status = types.StringValue(enrollmentImage.Status)
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(enrollmentImage.ExpiresAt)
 	data.InstallDiskDevice = types.StringPointerValue(enrollmentImage.InstallDiskDevice)
-	data.VLAN = types.Int64PointerValue(enrollmentImage.VLAN)
 	data.EnableHTTP = types.BoolValue(enrollmentImage.EnableHTTP)
 	data.InstallDiskForceOverwrite = types.BoolValue(enrollmentImage.InstallDiskForceOverwrite)
 	data.InstallDiskMirror = types.BoolValue(enrollmentImage.InstallDiskMirror)
