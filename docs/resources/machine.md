@@ -66,15 +66,15 @@ resource "meltcloud_machine" "node2" {
 
 ### Required
 
+- `depot_network_profile_id` (Number) ID of the Network Profile the machine uses while it has no pool, and in recovery
+- `network_profile_id` (Number) ID of the Network Profile the machine runs with
 - `uuid` (String) UUID of the Machine
 
 ### Optional
 
-- `depot_network_profile_id` (Number) ID of the Network Profile the machine uses while it has no pool, and in recovery
 - `label` (Block List) (see [below for nested schema](#nestedblock--label))
 - `machine_pool_id` (Number) ID of the associated machine pool
 - `name` (String) Name of the Machine
-- `network_profile_id` (Number) ID of the Network Profile the machine runs with
 
 ### Read-Only
 

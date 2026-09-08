@@ -22,8 +22,6 @@ type IPPool struct {
 	Ranges      []IPPoolRange `json:"ranges"`
 }
 
-// IPPoolRange is allocatable — where addresses are handed out from — or
-// excluded, a hole inside one.
 type IPPoolRange struct {
 	Kind         string  `json:"kind"`
 	StartAddress string  `json:"start_address"`
@@ -38,7 +36,6 @@ type IPPoolCreateInput struct {
 	Ranges      []IPPoolRange `json:"ranges,omitempty"`
 }
 
-// IPPoolUpdateInput has no CIDR: every address handed out carries it.
 type IPPoolUpdateInput struct {
 	Name        string        `json:"name"`
 	Description *string       `json:"description,omitempty"`

@@ -78,11 +78,11 @@ func machineResourceAttributes() map[string]schema.Attribute {
 		},
 		"network_profile_id": schema.Int64Attribute{
 			MarkdownDescription: "ID of the Network Profile the machine runs with",
-			Optional:            true,
+			Required:            true,
 		},
 		"depot_network_profile_id": schema.Int64Attribute{
 			MarkdownDescription: "ID of the Network Profile the machine uses while it has no pool, and in recovery",
-			Optional:            true,
+			Required:            true,
 		},
 	}
 }
@@ -164,8 +164,8 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 		UUID:                  uuid,
 		Name:                  data.Name.ValueString(),
 		MachinePoolID:         data.MachinePoolID.ValueInt64(),
-		NetworkProfileID:      data.NetworkProfileID.ValueInt64Pointer(),
-		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64Pointer(),
+		NetworkProfileID:      data.NetworkProfileID.ValueInt64(),
+		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64(),
 		Labels:                r.labelInput(labels),
 	}
 
@@ -202,8 +202,8 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.UUID = types.StringValue(result.Machine.UUID.String())
 	data.Name = types.StringValue(result.Machine.Name)
 	data.MachinePoolID = types.Int64Value(result.Machine.MachinePoolID)
-	data.NetworkProfileID = types.Int64PointerValue(result.Machine.NetworkProfileID)
-	data.DepotNetworkProfileID = types.Int64PointerValue(result.Machine.DepotNetworkProfileID)
+	data.NetworkProfileID = types.Int64Value(result.Machine.NetworkProfileID)
+	data.DepotNetworkProfileID = types.Int64Value(result.Machine.DepotNetworkProfileID)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
@@ -240,8 +240,8 @@ func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest
 	machineUpdateInput := &client.MachineUpdateInput{
 		Name:                  data.Name.ValueString(),
 		MachinePoolID:         data.MachinePoolID.ValueInt64(),
-		NetworkProfileID:      data.NetworkProfileID.ValueInt64Pointer(),
-		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64Pointer(),
+		NetworkProfileID:      data.NetworkProfileID.ValueInt64(),
+		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64(),
 		Labels:                r.labelInput(labels),
 	}
 

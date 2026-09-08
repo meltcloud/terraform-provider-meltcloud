@@ -69,8 +69,6 @@ resource "meltcloud_machine_pool" "example" {
 
   name    = "pool1"
   version = "1.31"
-
-  network_profile_id = meltcloud_network_profile.example.id
 }
 
 resource "meltcloud_network_profile" "example" {

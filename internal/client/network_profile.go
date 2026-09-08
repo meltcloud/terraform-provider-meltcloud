@@ -26,9 +26,6 @@ type NetworkProfileCreateInput struct {
 	Uplinks []Uplink `json:"uplinks"`
 }
 
-// Uplink is one group of interfaces on a machine. Mode says how many to expect
-// — auto, single or bond — and Identifier what Interfaces are matched against,
-// kernel_name or mac_address.
 type Uplink struct {
 	Name         string        `json:"name"`
 	Mode         string        `json:"mode"`
@@ -38,8 +35,6 @@ type Uplink struct {
 	HostNetworks []HostNetwork `json:"host_networks"`
 }
 
-// HostNetwork attaches an uplink to a subnet. Exactly one across the profile is
-// primary, which decides the default route, DNS and NTP.
 type HostNetwork struct {
 	SubnetID   int64 `json:"subnet_id"`
 	VLANTagged bool  `json:"vlan_tagged"`
