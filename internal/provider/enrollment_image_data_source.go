@@ -32,6 +32,7 @@ type EnrollmentImageDataSourceModel struct {
 	Name                      types.String      `tfsdk:"name"`
 	Status                    types.String      `tfsdk:"status"`
 	ExpiresAt                 timetypes.RFC3339 `tfsdk:"expires_at"`
+	NetworkProfileID          types.Int64       `tfsdk:"network_profile_id"`
 	InstallDiskDevice         types.String      `tfsdk:"install_disk_device"`
 	InstallDiskForceOverwrite types.Bool        `tfsdk:"install_disk_force_overwrite"`
 	InstallDiskMirror         types.Bool        `tfsdk:"install_disk_mirror"`
@@ -76,6 +77,10 @@ func (d *EnrollmentImageDataSource) Schema(ctx context.Context, req datasource.S
 			"expires_at": schema.StringAttribute{
 				CustomType:          timetypes.RFC3339Type{},
 				MarkdownDescription: enrollmentImageResourceAttributes()["expires_at"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"network_profile_id": schema.Int64Attribute{
+				MarkdownDescription: enrollmentImageResourceAttributes()["network_profile_id"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"install_disk_device": schema.StringAttribute{
@@ -186,6 +191,7 @@ func (d *EnrollmentImageDataSource) Read(ctx context.Context, req datasource.Rea
 	data.Name = types.StringValue(enrollmentImage.Name)
 	data.Status = types.StringValue(enrollmentImage.Status)
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(enrollmentImage.ExpiresAt)
+	data.NetworkProfileID = types.Int64Value(enrollmentImage.NetworkProfileID)
 	data.InstallDiskDevice = types.StringPointerValue(enrollmentImage.InstallDiskDevice)
 	data.EnableHTTP = types.BoolValue(enrollmentImage.EnableHTTP)
 	data.InstallDiskForceOverwrite = types.BoolValue(enrollmentImage.InstallDiskForceOverwrite)

@@ -37,6 +37,7 @@ type EnrollmentImageResourceModel struct {
 	ID                        types.Int64       `tfsdk:"id"`
 	Name                      types.String      `tfsdk:"name"`
 	ExpiresAt                 timetypes.RFC3339 `tfsdk:"expires_at"`
+	NetworkProfileID          types.Int64       `tfsdk:"network_profile_id"`
 	InstallDiskDevice         types.String      `tfsdk:"install_disk_device"`
 	InstallDiskForceOverwrite types.Bool        `tfsdk:"install_disk_force_overwrite"`
 	InstallDiskMirror         types.Bool        `tfsdk:"install_disk_mirror"`
@@ -77,6 +78,13 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 			Required:            true,
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
+			},
+		},
+		"network_profile_id": schema.Int64Attribute{
+			Required:            true,
+			MarkdownDescription: "ID of the Network Profile a Machine enrolls with",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.RequiresReplace(),
 			},
 		},
 		"install_disk_device": schema.StringAttribute{
@@ -264,6 +272,7 @@ func (r *EnrollmentImageResource) Create(ctx context.Context, req resource.Creat
 	enrollmentImageCreateInput := &client.EnrollmentImageCreateInput{
 		Name:                      data.Name.ValueString(),
 		ExpiresAt:                 expiresAt.UTC(),
+		NetworkProfileID:          data.NetworkProfileID.ValueInt64(),
 		InstallDiskDevice:         installDiskDevice,
 		InstallDiskForceOverwrite: installDiskForceOverwrite,
 		InstallDiskMirror:         installDiskMirror,
@@ -329,6 +338,7 @@ func (r *EnrollmentImageResource) Update(ctx context.Context, req resource.Updat
 }
 
 func (r *EnrollmentImageResource) setValues(result *client.EnrollmentImage, data *EnrollmentImageResourceModel) {
+	data.NetworkProfileID = types.Int64Value(result.NetworkProfileID)
 	data.EnableHTTP = types.BoolValue(result.EnableHTTP)
 	data.InstallDiskDevice = types.StringPointerValue(result.InstallDiskDevice)
 	data.InstallDiskForceOverwrite = types.BoolValue(result.InstallDiskForceOverwrite)

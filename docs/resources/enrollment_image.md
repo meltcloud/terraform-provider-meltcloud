@@ -43,6 +43,7 @@ resource "meltcloud_enrollment_image" "mirrored" {
 
 - `expires_at` (String) Timestamp when the image should expire
 - `name` (String) Name of the Enrollment Image, not case-sensitive. Must be unique within the organization.
+- `network_profile_id` (Number) ID of the Network Profile a Machine enrolls with
 
 ### Optional
 
