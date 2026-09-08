@@ -26,6 +26,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &NetworkProfileResource{}
 var _ resource.ResourceWithImportState = &NetworkProfileResource{}
+var _ resource.ResourceWithValidateConfig = &NetworkProfileResource{}
 
 func NewNetworkProfileResource() resource.Resource {
 	return &NetworkProfileResource{}
@@ -153,6 +154,90 @@ func (r *NetworkProfileResource) Schema(ctx context.Context, req resource.Schema
 				},
 			},
 		},
+	}
+}
+
+// ValidateConfig enforces what a profile has to say before it is built, because a profile is
+// replaced rather than updated: an invalid one is refused only after the old one is gone.
+// Foundry checks the same in Networking::Profile and Networking::Uplink.
+func (r *NetworkProfileResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data NetworkProfileResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() || data.Uplinks.IsNull() || data.Uplinks.IsUnknown() {
+		return
+	}
+
+	var uplinks []UplinkResourceModel
+	resp.Diagnostics.Append(data.Uplinks.ElementsAs(ctx, &uplinks, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	primaries := 0
+	autos := 0
+
+	for i, uplink := range uplinks {
+		uplinkPath := path.Root("uplink").AtListIndex(i)
+
+		if uplink.Mode.ValueString() == "auto" {
+			autos++
+		}
+
+		if !uplink.Mode.IsUnknown() && !uplink.Interfaces.IsUnknown() {
+			validateInterfaceCount(resp, uplinkPath, uplink)
+		}
+
+		var hostNetworks []HostNetworkResourceModel
+		if uplink.HostNetworks.IsNull() || uplink.HostNetworks.IsUnknown() {
+			continue
+		}
+		resp.Diagnostics.Append(uplink.HostNetworks.ElementsAs(ctx, &hostNetworks, false)...)
+
+		for _, hostNetwork := range hostNetworks {
+			if hostNetwork.Primary.ValueBool() {
+				primaries++
+			}
+		}
+	}
+
+	if autos > 0 && len(uplinks) > 1 {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("uplink"),
+			"Invalid Attribute Combination",
+			"An auto uplink resolves to whichever interface the machine has, so it must be the only uplink.",
+		)
+	}
+
+	if !resp.Diagnostics.HasError() && primaries != 1 {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("uplink"),
+			"Invalid Attribute Combination",
+			fmt.Sprintf("Exactly one host network across the profile must be primary, which carries the default route, DNS and NTP. Found %d.", primaries),
+		)
+	}
+}
+
+func validateInterfaceCount(resp *resource.ValidateConfigResponse, uplinkPath path.Path, uplink UplinkResourceModel) {
+	count := len(uplink.Interfaces.Elements())
+	interfacesPath := uplinkPath.AtName("interfaces")
+
+	switch uplink.Mode.ValueString() {
+	case "auto":
+		if count > 0 {
+			resp.Diagnostics.AddAttributeError(interfacesPath, "Invalid Attribute Combination",
+				"An auto uplink names no interfaces, it resolves to the machine's only one.")
+		}
+	case "single":
+		if count != 1 {
+			resp.Diagnostics.AddAttributeError(interfacesPath, "Invalid Attribute Combination",
+				"A single uplink names exactly one interface.")
+		}
+	case "bond":
+		if count < 2 {
+			resp.Diagnostics.AddAttributeError(interfacesPath, "Invalid Attribute Combination",
+				"A bond uplink names at least two interfaces.")
+		}
 	}
 }
 
