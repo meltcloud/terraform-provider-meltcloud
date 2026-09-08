@@ -30,12 +30,11 @@ type MachinePoolResource struct {
 
 // MachinePoolResourceModel describes the resource data model.
 type MachinePoolResourceModel struct {
-	ID               types.Int64  `tfsdk:"id"`
-	ClusterId        types.Int64  `tfsdk:"cluster_id"`
-	Name             types.String `tfsdk:"name"`
-	Version          types.String `tfsdk:"version"`
-	PatchVersion     types.String `tfsdk:"patch_version"`
-	NetworkProfileID types.Int64  `tfsdk:"network_profile_id"`
+	ID           types.Int64  `tfsdk:"id"`
+	ClusterId    types.Int64  `tfsdk:"cluster_id"`
+	Name         types.String `tfsdk:"name"`
+	Version      types.String `tfsdk:"version"`
+	PatchVersion types.String `tfsdk:"patch_version"`
 }
 
 func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -73,17 +72,13 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
 			Computed:            true,
 		},
-		"network_profile_id": schema.Int64Attribute{
-			MarkdownDescription: "ID of the network profile",
-			Optional:            true,
-		},
 	}
 }
 
 func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machinePoolDesc + "\n\n" +
-			"~> Be aware that changing the version or the network profile will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).",
+			"~> Be aware that changing the version will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).",
 
 		Attributes: machinePoolResourceAttributes(),
 	}
@@ -117,16 +112,9 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	var profileID *int64 = nil
-	if !data.NetworkProfileID.IsNull() {
-		var value = data.NetworkProfileID.ValueInt64()
-		profileID = &value
-	}
-
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
-		Name:             data.Name.ValueString(),
-		UserVersion:      data.Version.ValueString(),
-		NetworkProfileID: profileID,
+		Name:        data.Name.ValueString(),
+		UserVersion: data.Version.ValueString(),
 	}
 
 	result, err := r.client.MachinePool().Create(ctx, data.ClusterId.ValueInt64(), machinePoolCreateInput)
@@ -161,11 +149,6 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	data.Name = types.StringValue(result.MachinePool.Name)
-	if result.MachinePool.NetworkProfileID == nil {
-		data.NetworkProfileID = types.Int64Null()
-	} else {
-		data.NetworkProfileID = types.Int64Value(*result.MachinePool.NetworkProfileID)
-	}
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 
@@ -180,15 +163,9 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	var profileID *int64
-	if !data.NetworkProfileID.IsNull() && !data.NetworkProfileID.IsUnknown() {
-		profileID = data.NetworkProfileID.ValueInt64Pointer()
-	}
-
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
-		Name:             data.Name.ValueString(),
-		UserVersion:      data.Version.ValueString(),
-		NetworkProfileID: profileID,
+		Name:        data.Name.ValueString(),
+		UserVersion: data.Version.ValueString(),
 	}
 
 	result, err := r.client.MachinePool().Update(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64(), machinePoolUpdateInput)

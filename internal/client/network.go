@@ -15,9 +15,8 @@ type NetworkResult struct {
 }
 
 type Network struct {
-	ID      int64     `json:"id"`
-	Name    string    `json:"name"`
-	Subnets []*Subnet `json:"subnets,omitempty"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 type NetworkCreateInput struct {
