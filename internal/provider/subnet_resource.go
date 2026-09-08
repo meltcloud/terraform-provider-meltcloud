@@ -22,6 +22,7 @@ import (
 
 var _ resource.Resource = &SubnetResource{}
 var _ resource.ResourceWithImportState = &SubnetResource{}
+var _ resource.ResourceWithValidateConfig = &SubnetResource{}
 
 func NewSubnetResource() resource.Resource {
 	return &SubnetResource{}
@@ -174,6 +175,44 @@ func (r *SubnetResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 		},
+	}
+}
+
+// ValidateConfig enforces what addressing decides: an ipam subnet hands out addresses from a
+// pool and needs both the pool and a gateway, a dhcp subnet learns both from the wire.
+func (r *SubnetResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data SubnetResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() || data.Addressing.IsUnknown() {
+		return
+	}
+
+	switch data.Addressing.ValueString() {
+	case "ipam":
+		if data.IPPoolID.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("ip_pool_id"),
+				"Missing Attribute Configuration",
+				"ip_pool_id must be set on an ipam subnet, which hands out addresses from that pool.",
+			)
+		}
+	case "dhcp":
+		if !data.IPPoolID.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("ip_pool_id"),
+				"Invalid Attribute Combination",
+				"ip_pool_id is only allowed on an ipam subnet.",
+			)
+		}
+
+		if !data.Gateway.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("gateway"),
+				"Invalid Attribute Combination",
+				"gateway is only allowed on an ipam subnet, a dhcp subnet learns it from the wire.",
+			)
+		}
 	}
 }
 

@@ -24,6 +24,7 @@ type EnrollmentImage struct {
 	Name                      string     `json:"name"`
 	ExpiresAt                 time.Time  `json:"expires_at"`
 	Status                    string     `json:"status"`
+	NetworkProfileID          int64      `json:"network_profile_id"`
 	InstallDiskDevice         *string    `json:"install_disk_device"`
 	InstallDiskForceOverwrite bool       `json:"install_disk_force_overwrite"`
 	InstallDiskMirror         bool       `json:"install_disk_mirror"`
@@ -39,6 +40,7 @@ type EnrollmentImage struct {
 type EnrollmentImageCreateInput struct {
 	Name                      string    `json:"name"`
 	ExpiresAt                 time.Time `json:"expires_at"`
+	NetworkProfileID          int64     `json:"network_profile_id"`
 	InstallDiskDevice         *string   `json:"install_disk_device,omitempty"`
 	InstallDiskForceOverwrite *bool     `json:"install_disk_force_overwrite"`
 	InstallDiskMirror         *bool     `json:"install_disk_mirror"`
