@@ -4,14 +4,14 @@ page_title: "meltcloud_machine_pool Resource - meltcloud"
 subcategory: ""
 description: |-
   A Machine Pool https://docs.meltcloud.io/tasks/machine-pools/create is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
-  ~> Be aware that changing the version or the network profile will cause a new Revision that will be rolled out immediately, causing a reboot of all Machines https://docs.meltcloud.io/tasks/machine-pools/upgrade.
+  ~> Be aware that changing the version will cause a new Revision that will be rolled out immediately, causing a reboot of all Machines https://docs.meltcloud.io/tasks/machine-pools/upgrade.
 ---
 
 # meltcloud_machine_pool (Resource)
 
 A [Machine Pool](https://docs.meltcloud.io/tasks/machine-pools/create) is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
 
-~> Be aware that changing the version or the network profile will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).
+~> Be aware that changing the version will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).
 
 ## Example Usage
 
@@ -42,10 +42,6 @@ resource "meltcloud_machine_pool" "example" {
 - `cluster_id` (Number) ID of the associated cluster
 - `name` (String) Name of the machine pool
 - `version` (String) Kubernetes minor version of the machine pool (Kubelet)
-
-### Optional
-
-- `network_profile_id` (Number) ID of the network profile
 
 ### Read-Only
 

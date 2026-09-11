@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type NetworkProfileRequest struct {
@@ -15,29 +16,30 @@ type NetworkProfileResult struct {
 }
 
 type NetworkProfile struct {
-	ID     int64  `json:"id"`
-	Name   string `json:"name"`
-	Status string `json:"status"`
-	Links  []Link `json:"links"`
+	ID      int64    `json:"id"`
+	Name    string   `json:"name"`
+	Status  string   `json:"status"`
+	Uplinks []Uplink `json:"uplinks"`
 }
 
 type NetworkProfileCreateInput struct {
-	Name  string `json:"name"`
-	Links []Link `json:"links"`
+	Name    string   `json:"name"`
+	Uplinks []Uplink `json:"uplinks"`
 }
 
-type Link struct {
-	Name           string   `json:"name"`
-	Interfaces     []string `json:"interfaces"`
-	VLANs          []int64  `json:"vlans"`
-	HostNetworking bool     `json:"host_networking"`
-	LACP           bool     `json:"lacp"`
-	NativeVLAN     bool     `json:"native_vlan"`
+type Uplink struct {
+	Name         string        `json:"name"`
+	Mode         string        `json:"mode"`
+	Identifier   string        `json:"identifier"`
+	Interfaces   []string      `json:"interfaces"`
+	LACP         bool          `json:"lacp"`
+	HostNetworks []HostNetwork `json:"host_networks"`
 }
 
-type NetworkProfileUpdateInput struct {
-	Name  string `json:"name"`
-	Links []Link `json:"links"`
+type HostNetwork struct {
+	SubnetID   int64 `json:"subnet_id"`
+	VLANTagged bool  `json:"vlan_tagged"`
+	Primary    bool  `json:"primary"`
 }
 
 func (c *Client) NetworkProfile() *NetworkProfileRequest {
@@ -47,11 +49,21 @@ func (c *Client) NetworkProfile() *NetworkProfileRequest {
 }
 
 func (mr *NetworkProfileRequest) Get(ctx context.Context, id int64) (*NetworkProfileResult, *Error) {
-	subPath := fmt.Sprintf("%s/%d", "network_profiles", id)
-	clientRequest := &ClientRequest{
-		Path:   subPath,
+	return mr.get(ctx, &ClientRequest{
+		Path:   fmt.Sprintf("%s/%d", "network_profiles", id),
 		Result: &NetworkProfileResult{},
-	}
+	})
+}
+
+func (mr *NetworkProfileRequest) GetByName(ctx context.Context, name string) (*NetworkProfileResult, *Error) {
+	return mr.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%s", "network_profiles", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &NetworkProfileResult{},
+	})
+}
+
+func (mr *NetworkProfileRequest) get(ctx context.Context, clientRequest *ClientRequest) (*NetworkProfileResult, *Error) {
 
 	result, err := mr.client.Get(ctx, clientRequest)
 
@@ -72,31 +84,10 @@ func (mr *NetworkProfileRequest) Create(ctx context.Context, input *NetworkProfi
 	clientRequest := &ClientRequest{
 		Path:   "network_profiles",
 		Result: &NetworkProfileResult{},
-		Body:   input,
+		Body:   map[string]any{"network_profile": input},
 	}
 
 	result, err := mr.client.Post(ctx, clientRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	profileResult, ok := result.(*NetworkProfileResult)
-	if !ok {
-		return nil, &ErrorTypeAssert
-	}
-
-	return profileResult, nil
-}
-
-func (mr *NetworkProfileRequest) Update(ctx context.Context, id int64, input *NetworkProfileUpdateInput) (*NetworkProfileResult, *Error) {
-	subPath := fmt.Sprintf("%s/%d", "network_profiles", id)
-	clientRequest := &ClientRequest{
-		Path:   subPath,
-		Result: &NetworkProfileResult{},
-		Body:   input,
-	}
-
-	result, err := mr.client.Put(ctx, clientRequest)
 	if err != nil {
 		return nil, err
 	}

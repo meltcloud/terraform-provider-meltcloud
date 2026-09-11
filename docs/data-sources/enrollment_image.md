@@ -45,5 +45,5 @@ data "meltcloud_enrollment_image" "example_name" {
 - `install_disk_mirror` (Boolean) Whether the install disk is mirrored onto a second disk (RAID1) for redundancy. Requires `install_disk_device` and `install_disk_mirror_device` to be set, since auto-detection cannot decide which of two disks is the primary and which the mirror.
 - `install_disk_mirror_device` (String) Device path of the disk used as the mirror, i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-2`. Required (and only allowed) if `install_disk_mirror` is enabled, and must differ from `install_disk_device`. It is never auto-detected.
 - `last_used_at` (String) Timestamp when the image was last used for an enrollment
+- `network_profile_id` (Number) ID of the Network Profile a Machine enrolls with. It becomes both the Machine's Network Profile and its depot Network Profile
 - `status` (String) Status of the Enrollment Image
-- `vlan` (Number) The VLAN to use as the enrollment network

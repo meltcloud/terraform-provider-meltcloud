@@ -15,24 +15,21 @@ type MachinePoolResult struct {
 }
 
 type MachinePool struct {
-	ID               int64  `json:"id"`
-	Name             string `json:"name"`
-	UserVersion      string `json:"user_version"`
-	PatchVersion     string `json:"patch_version"`
-	Status           string `json:"status"`
-	NetworkProfileID *int64 `json:"network_profile_id"`
+	ID           int64  `json:"id"`
+	Name         string `json:"name"`
+	UserVersion  string `json:"user_version"`
+	PatchVersion string `json:"patch_version"`
+	Status       string `json:"status"`
 }
 
 type MachinePoolCreateInput struct {
-	Name             string `json:"name"`
-	UserVersion      string `json:"user_version"`
-	NetworkProfileID *int64 `json:"network_profile_id"`
+	Name        string `json:"name"`
+	UserVersion string `json:"user_version"`
 }
 
 type MachinePoolUpdateInput struct {
-	Name             string `json:"name"`
-	UserVersion      string `json:"user_version"`
-	NetworkProfileID *int64 `json:"network_profile_id"`
+	Name        string `json:"name"`
+	UserVersion string `json:"user_version"`
 }
 
 func (c *Client) MachinePool() *MachinePoolRequest {

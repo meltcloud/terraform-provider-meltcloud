@@ -31,9 +31,9 @@ resource "time_offset" "in_a_year" {
 resource "meltcloud_enrollment_image" "example" {
   name                         = "my-image"
   expires_at                   = time_offset.in_a_year.rfc3339
+  network_profile_id           = meltcloud_network_profile.example.id
   install_disk_device          = "/dev/vda"
   install_disk_force_overwrite = true
-  vlan                         = 101
   enable_http                  = true
 }
 
@@ -69,30 +69,91 @@ resource "meltcloud_machine_pool" "example" {
 
   name    = "pool1"
   version = "1.31"
+}
 
-  network_profile_id = meltcloud_network_profile.example.id
+resource "meltcloud_ip_pool" "example" {
+  name = "pool1"
+  cidr = "10.0.10.0/24"
+
+  range {
+    kind          = "allocatable"
+    start_address = "10.0.10.100"
+    end_address   = "10.0.10.200"
+  }
+
+  range {
+    kind          = "excluded"
+    start_address = "10.0.10.150"
+    end_address   = "10.0.10.159"
+    description   = "printers"
+  }
+}
+
+data "meltcloud_ip_pool" "example_name" {
+  name = meltcloud_ip_pool.example.name
+}
+
+resource "meltcloud_network" "example" {
+  name = "network1"
+}
+
+data "meltcloud_network" "example_name" {
+  name = meltcloud_network.example.name
+}
+
+resource "meltcloud_subnet" "mgmt" {
+  network_id = meltcloud_network.example.id
+  name       = "mgmt"
+  addressing = "ipam"
+  ip_pool_id = meltcloud_ip_pool.example.id
+  gateway    = "10.0.10.1"
+  dns        = ["10.0.10.53"]
+  mtu        = 9000
+
+  route {
+    destination = "10.20.0.0/16"
+    via         = "10.0.10.254"
+    metric      = 200
+  }
+}
+
+resource "meltcloud_subnet" "storage" {
+  network_id = meltcloud_network.example.id
+  name       = "storage"
+  addressing = "dhcp"
+  vlan       = 300
+}
+
+data "meltcloud_subnet" "mgmt_name" {
+  network_id = meltcloud_network.example.id
+  name       = meltcloud_subnet.mgmt.name
 }
 
 resource "meltcloud_network_profile" "example" {
   name = "profile1"
 
-  link {
-    name            = "link0"
-    interfaces      = ["eth0", "eth1"]
-    vlans           = []
-    host_networking = false
-    lacp            = true
-    native_vlan     = false
-  }
+  uplink {
+    name       = "wl-prd"
+    mode       = "bond"
+    lacp       = true
+    identifier = "kernel_name"
+    interfaces = ["eth0", "eth1"]
 
-  link {
-    name            = "link1"
-    interfaces      = ["eth2"]
-    vlans           = [300, 301]
-    host_networking = true
-    lacp            = false
-    native_vlan     = true
+    host_network {
+      subnet_id   = meltcloud_subnet.mgmt.id
+      vlan_tagged = false
+      primary     = true
+    }
+
+    host_network {
+      subnet_id   = meltcloud_subnet.storage.id
+      vlan_tagged = true
+    }
   }
+}
+
+data "meltcloud_network_profile" "example_name" {
+  name = meltcloud_network_profile.example.name
 }
 
 data "meltcloud_machine_pool" "example_id" {
@@ -104,7 +165,9 @@ resource "meltcloud_machine" "node1" {
   uuid = "0442228d-023e-42ab-af34-da267d3e9c37"
   name = "meltcloud-node01"
 
-  machine_pool_id = meltcloud_machine_pool.example.id
+  machine_pool_id          = meltcloud_machine_pool.example.id
+  network_profile_id       = meltcloud_network_profile.example.id
+  depot_network_profile_id = meltcloud_network_profile.example.id
 
   label {
     key   = "topology.kubernetes.io/region"

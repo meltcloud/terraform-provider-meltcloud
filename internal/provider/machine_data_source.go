@@ -164,7 +164,7 @@ func (d *MachineDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	data.ID = types.Int64Value(machine.ID)
 	data.UUID = types.StringValue(machine.UUID.String())
 	data.Name = types.StringValue(machine.Name)
-	data.MachinePoolID = types.Int64Value(machine.MachinePoolID)
+	data.MachinePoolID = types.Int64PointerValue(machine.MachinePoolID)
 	data.Status = types.StringValue(machine.Status)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

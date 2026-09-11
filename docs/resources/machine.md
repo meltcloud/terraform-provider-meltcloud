@@ -66,6 +66,8 @@ resource "meltcloud_machine" "node2" {
 
 ### Required
 
+- `depot_network_profile_id` (Number) ID of the Network Profile the Machine uses while it has no pool, and in recovery
+- `network_profile_id` (Number) ID of the Network Profile the Machine runs with
 - `uuid` (String) UUID of the Machine
 
 ### Optional

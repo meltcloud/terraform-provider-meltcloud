@@ -3,35 +3,54 @@
 page_title: "meltcloud_network_profile Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Network Profile https://docs.meltcloud.io/concepts/networking/network-profiles specifies the network configuration for Machines https://docs.meltcloud.io/concepts/machines in a Machine Pool https://docs.meltcloud.io/tasks/machine-pools/create.
+  A Network Profile https://docs.meltcloud.io/concepts/networking/network-profiles says how a Machine https://docs.meltcloud.io/concepts/machines attaches to your fabric: which physical interfaces it uses, and which Subnets it gets an address on.
 ---
 
 # meltcloud_network_profile (Resource)
 
-A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) specifies the network configuration for [Machines](https://docs.meltcloud.io/concepts/machines) in a [Machine Pool](https://docs.meltcloud.io/tasks/machine-pools/create).
+A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) says how a [Machine](https://docs.meltcloud.io/concepts/machines) attaches to your fabric: which physical interfaces it uses, and which Subnets it gets an address on.
 
 ## Example Usage
 
 ```terraform
+# one interface, auto-configured, addressed on the untagged segment
 resource "meltcloud_network_profile" "example" {
   name = "profile1"
 
-  link {
-    name            = "link0"
-    interfaces      = ["eth0", "eth1"]
-    vlans           = []
-    host_networking = false
-    lacp            = true
-    native_vlan     = false
-  }
+  uplink {
+    name = "up0"
+    mode = "auto"
 
-  link {
-    name            = "link1"
-    interfaces      = ["eth2"]
-    vlans           = [300, 301]
-    host_networking = true
-    lacp            = false
-    native_vlan     = true
+    host_network {
+      subnet_id   = meltcloud_subnet.mgmt.id
+      vlan_tagged = false
+      primary     = true
+    }
+  }
+}
+
+# two interfaces bonded, carrying the management segment untagged and storage on a tagged VLAN
+resource "meltcloud_network_profile" "bonded" {
+  name = "profile2"
+
+  uplink {
+    name       = "up0"
+    mode       = "bond"
+    identifier = "kernel_name"
+    interfaces = ["eth0", "eth1"]
+    lacp       = true
+
+    host_network {
+      subnet_id   = meltcloud_subnet.mgmt.id
+      vlan_tagged = false
+      primary     = true
+    }
+
+    host_network {
+      subnet_id   = meltcloud_subnet.storage.id
+      vlan_tagged = true
+      primary     = false
+    }
   }
 }
 ```
@@ -41,27 +60,42 @@ resource "meltcloud_network_profile" "example" {
 
 ### Required
 
-- `name` (String) Name of the network profile
+- `name` (String) Name of the Network Profile, unique within the organization
 
 ### Optional
 
-- `link` (Block List) (see [below for nested schema](#nestedblock--link))
+- `uplink` (Block List) (see [below for nested schema](#nestedblock--uplink))
 
 ### Read-Only
 
-- `id` (Number) Internal ID of the network profile on meltcloud
+- `id` (Number) Internal ID of the Network Profile on meltcloud
 
-<a id="nestedblock--link"></a>
-### Nested Schema for `link`
+<a id="nestedblock--uplink"></a>
+### Nested Schema for `uplink`
 
 Required:
 
-- `host_networking` (Boolean) Whether to use host networking
-- `interfaces` (List of String) List of interface names
-- `lacp` (Boolean) Whether to use LACP (Link Aggregation Control Protocol)
-- `name` (String) Link name
-- `native_vlan` (Boolean) Whether to use the native VLAN
-- `vlans` (List of Number) List of VLAN IDs
+- `mode` (String) How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one named interface, `bond` for several bonded together
+- `name` (String) Name of the Uplink, at most 10 lowercase alphanumeric characters
+
+Optional:
+
+- `host_network` (Block List) (see [below for nested schema](#nestedblock--uplink--host_network))
+- `identifier` (String) What the interfaces are matched against: `kernel_name` (the default) or `mac_address`
+- `interfaces` (List of String) The interfaces to match. Empty with mode `auto`, one with `single`, at least two with `bond`
+- `lacp` (Boolean) Whether the bond runs LACP. Only with mode `bond`
+
+<a id="nestedblock--uplink--host_network"></a>
+### Nested Schema for `uplink.host_network`
+
+Required:
+
+- `subnet_id` (Number) ID of the Subnet the Machine gets an address on
+
+Optional:
+
+- `primary` (Boolean) Whether this Host Network supplies the default route, DNS and NTP. Exactly one across the Network Profile
+- `vlan_tagged` (Boolean) Whether the Subnet's VLAN arrives tagged, which configures a VLAN subinterface. At most one untagged Host Network per Uplink
 
 ## Import
 

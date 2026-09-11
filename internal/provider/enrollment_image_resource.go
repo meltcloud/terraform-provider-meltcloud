@@ -37,11 +37,11 @@ type EnrollmentImageResourceModel struct {
 	ID                        types.Int64       `tfsdk:"id"`
 	Name                      types.String      `tfsdk:"name"`
 	ExpiresAt                 timetypes.RFC3339 `tfsdk:"expires_at"`
+	NetworkProfileID          types.Int64       `tfsdk:"network_profile_id"`
 	InstallDiskDevice         types.String      `tfsdk:"install_disk_device"`
 	InstallDiskForceOverwrite types.Bool        `tfsdk:"install_disk_force_overwrite"`
 	InstallDiskMirror         types.Bool        `tfsdk:"install_disk_mirror"`
 	InstallDiskMirrorDevice   types.String      `tfsdk:"install_disk_mirror_device"`
-	VLAN                      types.Int64       `tfsdk:"vlan"`
 	EnableHTTP                types.Bool        `tfsdk:"enable_http"`
 	HTTPURLISOAMD64           types.String      `tfsdk:"http_url_iso_amd64"`
 	HTTPURLISOARM64           types.String      `tfsdk:"http_url_iso_arm64"`
@@ -80,6 +80,13 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 				stringplanmodifier.RequiresReplace(),
 			},
 		},
+		"network_profile_id": schema.Int64Attribute{
+			Required:            true,
+			MarkdownDescription: "ID of the Network Profile a Machine enrolls with. It becomes both the Machine's Network Profile and its depot Network Profile",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.RequiresReplace(),
+			},
+		},
 		"install_disk_device": schema.StringAttribute{
 			Optional:            true,
 			MarkdownDescription: "Device path of the disk where the system should be installed to. Use a `/dev/disk/by-path/` path (i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-1`) rather than a kernel name such as `/dev/sda`, as those can change between boots; see [Choosing Disk Devices](https://docs.meltcloud.io/tasks/enrollment-images#choosing-disk-devices). If not specified, the disk is auto-detected, which only works if Linux sees exactly one block device (i.e. a single attached disk, or a Dell BOSS RAID pair that shows up as one). It must be specified if `install_disk_mirror` is enabled.",
@@ -108,14 +115,6 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Device path of the disk used as the mirror, i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-2`. Required (and only allowed) if `install_disk_mirror` is enabled, and must differ from `install_disk_device`. It is never auto-detected.",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
-			},
-		},
-		"vlan": schema.Int64Attribute{
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: "The VLAN to use as the enrollment network",
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.RequiresReplace(),
 			},
 		},
 		"enable_http": schema.BoolAttribute{
@@ -245,11 +244,6 @@ func (r *EnrollmentImageResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	var vlan *int64
-	if !data.VLAN.IsNull() && !data.VLAN.IsUnknown() {
-		vlan = data.VLAN.ValueInt64Pointer()
-	}
-
 	var installDiskForceOverwrite *bool
 	if !data.InstallDiskForceOverwrite.IsNull() && !data.InstallDiskForceOverwrite.IsUnknown() {
 		installDiskForceOverwrite = data.InstallDiskForceOverwrite.ValueBoolPointer()
@@ -278,11 +272,11 @@ func (r *EnrollmentImageResource) Create(ctx context.Context, req resource.Creat
 	enrollmentImageCreateInput := &client.EnrollmentImageCreateInput{
 		Name:                      data.Name.ValueString(),
 		ExpiresAt:                 expiresAt.UTC(),
+		NetworkProfileID:          data.NetworkProfileID.ValueInt64(),
 		InstallDiskDevice:         installDiskDevice,
 		InstallDiskForceOverwrite: installDiskForceOverwrite,
 		InstallDiskMirror:         installDiskMirror,
 		InstallDiskMirrorDevice:   installDiskMirrorDevice,
-		VLAN:                      vlan,
 		EnableHTTP:                enableHTTP,
 	}
 
@@ -344,7 +338,7 @@ func (r *EnrollmentImageResource) Update(ctx context.Context, req resource.Updat
 }
 
 func (r *EnrollmentImageResource) setValues(result *client.EnrollmentImage, data *EnrollmentImageResourceModel) {
-	data.VLAN = types.Int64PointerValue(result.VLAN)
+	data.NetworkProfileID = types.Int64Value(result.NetworkProfileID)
 	data.EnableHTTP = types.BoolValue(result.EnableHTTP)
 	data.InstallDiskDevice = types.StringPointerValue(result.InstallDiskDevice)
 	data.InstallDiskForceOverwrite = types.BoolValue(result.InstallDiskForceOverwrite)

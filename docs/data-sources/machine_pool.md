@@ -31,7 +31,6 @@ data "meltcloud_machine_pool" "example_id" {
 ### Read-Only
 
 - `name` (String) Name of the machine pool
-- `network_profile_id` (Number) ID of the network profile
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
 - `status` (String) Status of the Machine Pool
 - `version` (String) Kubernetes minor version of the machine pool (Kubelet)
