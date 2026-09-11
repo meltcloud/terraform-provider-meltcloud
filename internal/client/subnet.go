@@ -77,7 +77,6 @@ func (sr *SubnetRequest) GetByName(ctx context.Context, networkID int64, name st
 }
 
 func (sr *SubnetRequest) get(ctx context.Context, clientRequest *ClientRequest) (*SubnetResult, *Error) {
-
 	result, err := sr.client.Get(ctx, clientRequest)
 	if err != nil {
 		return nil, err

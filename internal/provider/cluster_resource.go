@@ -19,8 +19,10 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &ClusterResource{}
-var _ resource.ResourceWithImportState = &ClusterResource{}
+var (
+	_ resource.Resource                = &ClusterResource{}
+	_ resource.ResourceWithImportState = &ClusterResource{}
+)
 
 func NewClusterResource() resource.Resource {
 	return &ClusterResource{}
@@ -325,7 +327,7 @@ func (r *ClusterResource) setValues(result *client.Cluster, data *ClusterResourc
 func (r *ClusterResource) getKubeConfigResourceModel(kubeconfig string) (*KubeConfigResourceModel, error) {
 	kubeConfig, err := kubernetes.ParseKubeConfig(kubeconfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse kubeconfig error %+v", err)
+		return nil, fmt.Errorf("failed to parse kubeconfig: %w", err)
 	}
 
 	return &KubeConfigResourceModel{
@@ -381,7 +383,6 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	diags := resp.State.SetAttribute(ctx, path.Root("kubeconfig"), kubeConfigResourceModel)
 	resp.Diagnostics.Append(diags...)
-
 }
 
 func (r *ClusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

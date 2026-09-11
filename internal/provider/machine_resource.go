@@ -18,8 +18,10 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &MachineResource{}
-var _ resource.ResourceWithImportState = &MachineResource{}
+var (
+	_ resource.Resource                = &MachineResource{}
+	_ resource.ResourceWithImportState = &MachineResource{}
+)
 
 func NewMachineResource() resource.Resource {
 	return &MachineResource{}
@@ -219,7 +221,6 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 }
 
 func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

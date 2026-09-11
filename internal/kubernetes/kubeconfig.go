@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"fmt"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -50,7 +51,7 @@ func ParseKubeConfig(config string) (*KubeConfig, error) {
 	var kubeConfig KubeConfig
 
 	if err := yaml.Unmarshal([]byte(config), &kubeConfig); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal YAML config with error %+v", err)
+		return nil, fmt.Errorf("failed to unmarshal YAML config: %w", err)
 	}
 
 	return &kubeConfig, nil

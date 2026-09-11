@@ -64,9 +64,7 @@ func (mr *NetworkProfileRequest) GetByName(ctx context.Context, name string) (*N
 }
 
 func (mr *NetworkProfileRequest) get(ctx context.Context, clientRequest *ClientRequest) (*NetworkProfileResult, *Error) {
-
 	result, err := mr.client.Get(ctx, clientRequest)
-
 	if err != nil {
 		return nil, err
 	}
