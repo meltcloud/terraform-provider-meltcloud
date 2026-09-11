@@ -63,19 +63,19 @@ func (r *NetworkProfileResource) Metadata(ctx context.Context, req resource.Meta
 	resp.TypeName = req.ProviderTypeName + "_network_profile"
 }
 
-const networkProfileDesc = "A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) specifies the network configuration for [Machines](https://docs.meltcloud.io/concepts/machines) in a [Machine Pool](https://docs.meltcloud.io/tasks/machine-pools/create)."
+const networkProfileDesc = "A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) says how a [Machine](https://docs.meltcloud.io/concepts/machines) attaches to your fabric: which physical interfaces it uses, and which Subnets it gets an address on."
 
 func networkProfileResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.Int64Attribute{
 			Computed:            true,
-			MarkdownDescription: "Internal ID of the network profile on meltcloud",
+			MarkdownDescription: "Internal ID of the Network Profile on meltcloud",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.UseStateForUnknown(),
 			},
 		},
 		"name": schema.StringAttribute{
-			MarkdownDescription: "Name of the network profile",
+			MarkdownDescription: "Name of the Network Profile, unique within the organization",
 			Required:            true,
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
@@ -88,11 +88,11 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "Name of the uplink, at most 10 lowercase alphanumeric characters",
+			MarkdownDescription: "Name of the Uplink, at most 10 lowercase alphanumeric characters",
 		},
 		"mode": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "How many interfaces the uplink expects: `auto` for the machine's only interface, `single` for one named interface, `bond` for several bonded together",
+			MarkdownDescription: "How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one named interface, `bond` for several bonded together",
 		},
 		"identifier": schema.StringAttribute{
 			Optional:            true,
@@ -109,7 +109,7 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(false),
-			MarkdownDescription: "Whether the bond runs LACP. Only available with mode `bond`",
+			MarkdownDescription: "Whether the bond runs LACP. Only with mode `bond`",
 		},
 	}
 }
@@ -118,15 +118,15 @@ func hostNetworkResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"subnet_id": schema.Int64Attribute{
 			Required:            true,
-			MarkdownDescription: "ID of the Subnet the machine is addressed on",
+			MarkdownDescription: "ID of the Subnet the Machine gets an address on",
 		},
 		"vlan_tagged": schema.BoolAttribute{
 			Required:            true,
-			MarkdownDescription: "Whether the subnet's VLAN arrives tagged, which configures a VLAN subinterface. At most one untagged host network per uplink",
+			MarkdownDescription: "Whether the Subnet's VLAN arrives tagged, which configures a VLAN subinterface. At most one untagged Host Network per Uplink",
 		},
 		"primary": schema.BoolAttribute{
 			Required:            true,
-			MarkdownDescription: "Whether this host network supplies the default route, DNS and NTP. Exactly one across the profile",
+			MarkdownDescription: "Whether this Host Network supplies the default route, DNS and NTP. Exactly one across the Network Profile",
 		},
 	}
 }

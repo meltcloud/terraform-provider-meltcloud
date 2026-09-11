@@ -36,20 +36,20 @@ func (r *NetworkResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_network"
 }
 
-const networkDesc = "A [Network](https://docs.meltcloud.io/concepts/networking) groups the Subnets a Machine can be addressed on."
+const networkDesc = "A [Network](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) groups the Subnets that serve the same purpose."
 
 func networkResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.Int64Attribute{
 			Computed:            true,
-			MarkdownDescription: "Internal ID of the network on meltcloud",
+			MarkdownDescription: "Internal ID of the Network on meltcloud",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.UseStateForUnknown(),
 			},
 		},
 		"name": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "Name of the network, unique within the organization",
+			MarkdownDescription: "Name of the Network, unique within the organization",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
 			},

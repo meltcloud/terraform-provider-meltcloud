@@ -57,34 +57,34 @@ func (r *SubnetResource) Metadata(ctx context.Context, req resource.MetadataRequ
 	resp.TypeName = req.ProviderTypeName + "_subnet"
 }
 
-const subnetDesc = "A [Subnet](https://docs.meltcloud.io/concepts/networking) is one segment of a Network: which VLAN it is, how a Machine gets an address on it, and what it delivers besides the address."
+const subnetDesc = "A [Subnet](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one segment of your fabric: a VLAN, and how a Machine gets an address on it."
 
 func subnetResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.Int64Attribute{
 			Computed:            true,
-			MarkdownDescription: "Internal ID of the subnet on meltcloud",
+			MarkdownDescription: "Internal ID of the Subnet on meltcloud",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.UseStateForUnknown(),
 			},
 		},
 		"network_id": schema.Int64Attribute{
 			Required:            true,
-			MarkdownDescription: "ID of the Network this subnet belongs to",
+			MarkdownDescription: "ID of the Network this Subnet belongs to",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
 			},
 		},
 		"name": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "Name of the subnet, unique within its Network",
+			MarkdownDescription: "Name of the Subnet, unique within its Network",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
 			},
 		},
 		"vlan": schema.Int64Attribute{
 			Optional:            true,
-			MarkdownDescription: "VLAN ID of the segment. Leave empty when the segment carries no VLAN",
+			MarkdownDescription: "VLAN ID of the segment. Leave empty when the segment has no VLAN",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
 			},
@@ -98,7 +98,7 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 		},
 		"ip_pool_id": schema.Int64Attribute{
 			Optional:            true,
-			MarkdownDescription: "ID of the IP Pool the addresses come from. Required with addressing `ipam`",
+			MarkdownDescription: "ID of the IP Pool addresses come from. Required with addressing `ipam`",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
 			},

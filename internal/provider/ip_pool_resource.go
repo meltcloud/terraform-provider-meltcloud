@@ -48,31 +48,31 @@ func (r *IPPoolResource) Metadata(ctx context.Context, req resource.MetadataRequ
 	resp.TypeName = req.ProviderTypeName + "_ip_pool"
 }
 
-const ipPoolDesc = "An [IP Pool](https://docs.meltcloud.io/concepts/networking) hands out addresses from a CIDR. A Subnet with addressing `ipam` draws from one."
+const ipPoolDesc = "An [IP Pool](https://docs.meltcloud.io/concepts/networking/dhcp-and-ipam) holds a CIDR and the ranges inside it that addresses may come from. A Subnet with addressing `ipam` takes its addresses from one."
 
 func ipPoolResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.Int64Attribute{
 			Computed:            true,
-			MarkdownDescription: "Internal ID of the IP pool on meltcloud",
+			MarkdownDescription: "Internal ID of the IP Pool on meltcloud",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.UseStateForUnknown(),
 			},
 		},
 		"name": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "Name of the IP pool, unique within the organization",
+			MarkdownDescription: "Name of the IP Pool, unique within the organization",
 		},
 		"cidr": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "The network addresses are handed out from. Every address carries its prefix, so it cannot be changed: it has to be the network of the segment the pool serves",
+			MarkdownDescription: "The CIDR addresses come from. It has to be the prefix of the segment the IP Pool serves, and cannot be changed",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
 			},
 		},
 		"description": schema.StringAttribute{
 			Optional:            true,
-			MarkdownDescription: "What this IP pool is for",
+			MarkdownDescription: "What this IP Pool is for",
 		},
 	}
 }
@@ -81,7 +81,7 @@ func ipPoolRangeResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"kind": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "`allocatable`, where addresses are handed out from, or `excluded`, a hole inside one",
+			MarkdownDescription: "`allocatable`, which addresses are taken from, or `excluded`, which keeps the addresses inside one of them free",
 		},
 		"start_address": schema.StringAttribute{
 			Required:            true,

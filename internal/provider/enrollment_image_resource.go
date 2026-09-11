@@ -82,7 +82,7 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 		},
 		"network_profile_id": schema.Int64Attribute{
 			Required:            true,
-			MarkdownDescription: "ID of the Network Profile a Machine enrolls with",
+			MarkdownDescription: "ID of the Network Profile a Machine enrolls with. It becomes both the Machine's Network Profile and its depot Network Profile",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
 			},

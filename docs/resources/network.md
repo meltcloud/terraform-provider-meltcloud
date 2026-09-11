@@ -3,12 +3,12 @@
 page_title: "meltcloud_network Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Network https://docs.meltcloud.io/concepts/networking groups the Subnets a Machine can be addressed on.
+  A Network https://docs.meltcloud.io/concepts/networking/networks-and-subnets groups the Subnets that serve the same purpose.
 ---
 
 # meltcloud_network (Resource)
 
-A [Network](https://docs.meltcloud.io/concepts/networking) groups the Subnets a Machine can be addressed on.
+A [Network](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) groups the Subnets that serve the same purpose.
 
 ## Example Usage
 
@@ -23,11 +23,11 @@ resource "meltcloud_network" "example" {
 
 ### Required
 
-- `name` (String) Name of the network, unique within the organization
+- `name` (String) Name of the Network, unique within the organization
 
 ### Read-Only
 
-- `id` (Number) Internal ID of the network on meltcloud
+- `id` (Number) Internal ID of the Network on meltcloud
 
 ## Import
 

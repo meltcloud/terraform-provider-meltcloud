@@ -3,12 +3,12 @@
 page_title: "meltcloud_subnet Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Subnet https://docs.meltcloud.io/concepts/networking is one segment of a Network: which VLAN it is, how a Machine gets an address on it, and what it delivers besides the address.
+  A Subnet https://docs.meltcloud.io/concepts/networking/networks-and-subnets is one segment of your fabric: a VLAN, and how a Machine gets an address on it.
 ---
 
 # meltcloud_subnet (Data Source)
 
-A [Subnet](https://docs.meltcloud.io/concepts/networking) is one segment of a Network: which VLAN it is, how a Machine gets an address on it, and what it delivers besides the address.
+A [Subnet](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one segment of your fabric: a VLAN, and how a Machine gets an address on it.
 
 
 
@@ -17,12 +17,12 @@ A [Subnet](https://docs.meltcloud.io/concepts/networking) is one segment of a Ne
 
 ### Required
 
-- `network_id` (Number) ID of the Network this subnet belongs to
+- `network_id` (Number) ID of the Network this Subnet belongs to
 
 ### Optional
 
-- `id` (Number) Internal ID of the subnet on meltcloud
-- `name` (String) Name of the subnet, unique within its Network
+- `id` (Number) Internal ID of the Subnet on meltcloud
+- `name` (String) Name of the Subnet, unique within its Network
 
 ### Read-Only
 
@@ -30,11 +30,11 @@ A [Subnet](https://docs.meltcloud.io/concepts/networking) is one segment of a Ne
 - `dns` (List of String) The resolvers to configure. With `dhcp`, setting these replaces what the server sends in option 6
 - `domains` (List of String) The search domains to configure. With `dhcp`, setting these replaces what the server sends in options 15 and 119
 - `gateway` (String) The default route, configured only where the Host Network is primary. Only with addressing `ipam`: a DHCP server delivers its own
-- `ip_pool_id` (Number) ID of the IP Pool the addresses come from. Required with addressing `ipam`
+- `ip_pool_id` (Number) ID of the IP Pool addresses come from. Required with addressing `ipam`
 - `mtu` (Number) The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26
 - `ntp` (List of String) The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42
 - `routes` (Attributes List) (see [below for nested schema](#nestedatt--routes))
-- `vlan` (Number) VLAN ID of the segment. Leave empty when the segment carries no VLAN
+- `vlan` (Number) VLAN ID of the segment. Leave empty when the segment has no VLAN
 
 <a id="nestedatt--routes"></a>
 ### Nested Schema for `routes`
