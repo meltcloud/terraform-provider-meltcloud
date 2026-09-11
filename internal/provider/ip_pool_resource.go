@@ -119,7 +119,6 @@ func (r *IPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	}
 }
 
-// ValidateConfig reads the addresses a range spans, which the schema cannot compare.
 func (r *IPPoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var data IPPoolResourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -242,7 +241,7 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	result, err := r.client.IPPool().Create(ctx, input)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create IP pool, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create IP Pool, got error: %s", err))
 		return
 	}
 
@@ -264,7 +263,7 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 			return
 		}
 
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read IP pool, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read IP Pool, got error: %s", err))
 		return
 	}
 
@@ -282,8 +281,6 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// The ranges sent are the ranges the pool ends up with, so a plan describes the
-// pool it wants rather than the changes to it.
 func (r *IPPoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data IPPoolResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -299,7 +296,7 @@ func (r *IPPoolResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	_, err := r.client.IPPool().Update(ctx, data.ID.ValueInt64(), input)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update IP pool, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update IP Pool, got error: %s", err))
 		return
 	}
 
@@ -315,7 +312,7 @@ func (r *IPPoolResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	_, err := r.client.IPPool().Delete(ctx, data.ID.ValueInt64())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete IP pool, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete IP Pool, got error: %s", err))
 		return
 	}
 }

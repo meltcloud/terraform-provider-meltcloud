@@ -90,7 +90,7 @@ func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest
 
 	result, err := r.client.Network().Create(ctx, &client.NetworkCreateInput{Name: data.Name.ValueString()})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create network, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Network, got error: %s", err))
 		return
 	}
 
@@ -112,7 +112,7 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 			return
 		}
 
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read network, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Network, got error: %s", err))
 		return
 	}
 
@@ -121,7 +121,7 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	resp.Diagnostics.AddError("Not Supported", "A network cannot be changed; it is replaced.")
+	resp.Diagnostics.AddError("Not Supported", "A Network cannot be changed; it is replaced.")
 }
 
 func (r *NetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -133,7 +133,7 @@ func (r *NetworkResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	_, err := r.client.Network().Delete(ctx, data.ID.ValueInt64())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete network, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Network, got error: %s", err))
 		return
 	}
 }

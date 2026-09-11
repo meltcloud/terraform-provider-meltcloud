@@ -13,9 +13,10 @@ resource "meltcloud_subnet" "storage" {
   network_id = meltcloud_network.example.id
   name       = "storage"
   addressing = "dhcp"
-  vlan       = 300
 
   # settings to override, or to add where the DHCP server delivers none
+  vlan = 300
+
   route {
     destination = "10.30.0.0/16"
     via         = "10.20.0.254"

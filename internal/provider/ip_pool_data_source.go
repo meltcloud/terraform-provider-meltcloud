@@ -113,7 +113,7 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	result, err := d.readIPPool(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read IP pool, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read IP Pool, got error: %s", err))
 		return
 	}
 

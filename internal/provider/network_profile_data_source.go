@@ -145,7 +145,7 @@ func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.Read
 
 	result, err := d.readNetworkProfile(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read network profile, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Network Profile, got error: %s", err))
 		return
 	}
 

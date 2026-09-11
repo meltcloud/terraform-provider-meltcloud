@@ -190,8 +190,6 @@ func (r *SubnetResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	}
 }
 
-// ValidateConfig enforces what addressing decides: an ipam subnet hands out addresses from a
-// pool and needs both the pool and a gateway, a dhcp subnet learns both from the wire.
 func (r *SubnetResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var data SubnetResourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -267,7 +265,7 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	result, err := r.client.Subnet().Create(ctx, data.NetworkID.ValueInt64(), input)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create subnet, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Subnet, got error: %s", err))
 		return
 	}
 
@@ -279,8 +277,6 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// applySubnet takes what the server made of the subnet, which is what every
-// attribute it fills in has to end up as.
 func applySubnet(ctx context.Context, data *SubnetResourceModel, subnet *client.Subnet) diag.Diagnostics {
 	var diags diag.Diagnostics
 
@@ -401,7 +397,7 @@ func (r *SubnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 			return
 		}
 
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read subnet, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Subnet, got error: %s", err))
 		return
 	}
 
@@ -414,7 +410,7 @@ func (r *SubnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 }
 
 func (r *SubnetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	resp.Diagnostics.AddError("Not Supported", "A subnet cannot be changed; it is replaced.")
+	resp.Diagnostics.AddError("Not Supported", "A Subnet cannot be changed; it is replaced.")
 }
 
 func (r *SubnetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -426,7 +422,7 @@ func (r *SubnetResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	_, err := r.client.Subnet().Delete(ctx, data.NetworkID.ValueInt64(), data.ID.ValueInt64())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete subnet, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Subnet, got error: %s", err))
 		return
 	}
 }

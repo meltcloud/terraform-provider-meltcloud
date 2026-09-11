@@ -173,9 +173,6 @@ func (r *NetworkProfileResource) Schema(ctx context.Context, req resource.Schema
 	}
 }
 
-// ValidateConfig enforces what a profile has to say before it is built, because a profile is
-// replaced rather than updated: an invalid one is refused only after the old one is gone.
-// Foundry checks the same in Networking::Profile and Networking::Uplink.
 func (r *NetworkProfileResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var data NetworkProfileResourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -299,7 +296,7 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 
 	result, err := r.client.NetworkProfile().Create(ctx, networkProfileCreateInput)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create network profile, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Network Profile, got error: %s", err))
 		return
 	}
 
@@ -404,7 +401,7 @@ func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequ
 			return
 		}
 
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read network profile, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Network Profile, got error: %s", err))
 		return
 	}
 
@@ -461,7 +458,7 @@ func hostNetworkValues(uplink client.Uplink) []HostNetworkResourceModel {
 }
 
 func (r *NetworkProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	resp.Diagnostics.AddError("Not Supported", "A network profile cannot be changed; it is replaced.")
+	resp.Diagnostics.AddError("Not Supported", "A Network Profile cannot be changed; it is replaced.")
 }
 
 func (r *NetworkProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -474,7 +471,7 @@ func (r *NetworkProfileResource) Delete(ctx context.Context, req resource.Delete
 
 	_, err := r.client.NetworkProfile().Delete(ctx, data.ID.ValueInt64())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete network profile, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Network Profile, got error: %s", err))
 		return
 	}
 }
