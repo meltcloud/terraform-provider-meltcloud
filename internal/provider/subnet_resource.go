@@ -39,8 +39,8 @@ type SubnetResourceModel struct {
 	ID         types.Int64  `tfsdk:"id"`
 	NetworkID  types.Int64  `tfsdk:"network_id"`
 	Name       types.String `tfsdk:"name"`
-	VLAN       types.Int64  `tfsdk:"vlan"`
 	Addressing types.String `tfsdk:"addressing"`
+	VLAN       types.Int64  `tfsdk:"vlan"`
 	IPPoolID   types.Int64  `tfsdk:"ip_pool_id"`
 	Gateway    types.String `tfsdk:"gateway"`
 	DNS        types.List   `tfsdk:"dns"`
@@ -85,16 +85,6 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 				stringplanmodifier.RequiresReplace(),
 			},
 		},
-		"vlan": schema.Int64Attribute{
-			Optional: true,
-			Validators: []validator.Int64{
-				int64validator.Between(1, 4094),
-			},
-			MarkdownDescription: "VLAN ID of the segment. Leave empty when the segment has no VLAN",
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.RequiresReplace(),
-			},
-		},
 		"addressing": schema.StringAttribute{
 			Required: true,
 			Validators: []validator.String{
@@ -103,6 +93,16 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "How a Machine gets an address: `dhcp`, where an existing DHCP server provides them, or `ipam`, where meltcloud does",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
+			},
+		},
+		"vlan": schema.Int64Attribute{
+			Optional: true,
+			Validators: []validator.Int64{
+				int64validator.Between(1, 4094),
+			},
+			MarkdownDescription: "VLAN ID of the segment. Leave empty when the segment has no VLAN",
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.RequiresReplace(),
 			},
 		},
 		"ip_pool_id": schema.Int64Attribute{
@@ -252,8 +252,8 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	input := &client.SubnetCreateInput{
 		Name:       data.Name.ValueString(),
-		VLAN:       int64Value(data.VLAN),
 		Addressing: data.Addressing.ValueString(),
+		VLAN:       int64Value(data.VLAN),
 		IPPoolID:   int64Value(data.IPPoolID),
 		Gateway:    stringValue(data.Gateway),
 		DNS:        stringList(ctx, data.DNS),
@@ -295,8 +295,8 @@ func applySubnet(ctx context.Context, data *SubnetResourceModel, subnet *client.
 	data.ID = types.Int64Value(subnet.ID)
 	data.NetworkID = types.Int64Value(subnet.NetworkID)
 	data.Name = types.StringValue(subnet.Name)
-	data.VLAN = types.Int64PointerValue(subnet.VLAN)
 	data.Addressing = types.StringValue(subnet.Addressing)
+	data.VLAN = types.Int64PointerValue(subnet.VLAN)
 	data.IPPoolID = types.Int64PointerValue(subnet.IPPoolID)
 	data.Gateway = types.StringPointerValue(subnet.Gateway)
 	data.MTU = types.Int64PointerValue(subnet.MTU)

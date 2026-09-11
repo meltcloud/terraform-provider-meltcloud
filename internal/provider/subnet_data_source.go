@@ -24,8 +24,8 @@ type SubnetDataSourceModel struct {
 	ID         types.Int64            `tfsdk:"id"`
 	NetworkID  types.Int64            `tfsdk:"network_id"`
 	Name       types.String           `tfsdk:"name"`
-	VLAN       types.Int64            `tfsdk:"vlan"`
 	Addressing types.String           `tfsdk:"addressing"`
+	VLAN       types.Int64            `tfsdk:"vlan"`
 	IPPoolID   types.Int64            `tfsdk:"ip_pool_id"`
 	Gateway    types.String           `tfsdk:"gateway"`
 	MTU        types.Int64            `tfsdk:"mtu"`
@@ -55,12 +55,12 @@ func (d *SubnetDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: attributes["network_id"].GetMarkdownDescription(),
 				Required:            true,
 			},
-			"vlan": schema.Int64Attribute{
-				MarkdownDescription: attributes["vlan"].GetMarkdownDescription(),
-				Computed:            true,
-			},
 			"addressing": schema.StringAttribute{
 				MarkdownDescription: attributes["addressing"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"vlan": schema.Int64Attribute{
+				MarkdownDescription: attributes["vlan"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"ip_pool_id": schema.Int64Attribute{
@@ -153,8 +153,8 @@ func (d *SubnetDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	subnet := result.Subnet
 	data.ID = types.Int64Value(subnet.ID)
 	data.Name = types.StringValue(subnet.Name)
-	data.VLAN = types.Int64PointerValue(subnet.VLAN)
 	data.Addressing = types.StringValue(subnet.Addressing)
+	data.VLAN = types.Int64PointerValue(subnet.VLAN)
 	data.IPPoolID = types.Int64PointerValue(subnet.IPPoolID)
 	data.Gateway = types.StringPointerValue(subnet.Gateway)
 	data.MTU = types.Int64PointerValue(subnet.MTU)
