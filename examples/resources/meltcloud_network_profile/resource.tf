@@ -1,4 +1,4 @@
-# one interface, found by the machine itself, addressed on the untagged segment
+# one interface, auto-configured, addressed on the untagged segment
 resource "meltcloud_network_profile" "example" {
   name = "profile1"
 

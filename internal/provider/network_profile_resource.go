@@ -121,11 +121,15 @@ func hostNetworkResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "ID of the Subnet the Machine gets an address on",
 		},
 		"vlan_tagged": schema.BoolAttribute{
-			Required:            true,
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 			MarkdownDescription: "Whether the Subnet's VLAN arrives tagged, which configures a VLAN subinterface. At most one untagged Host Network per Uplink",
 		},
 		"primary": schema.BoolAttribute{
-			Required:            true,
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 			MarkdownDescription: "Whether this Host Network supplies the default route, DNS and NTP. Exactly one across the Network Profile",
 		},
 	}

@@ -13,7 +13,7 @@ A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profil
 ## Example Usage
 
 ```terraform
-# one interface, found by the machine itself, addressed on the untagged segment
+# one interface, auto-configured, addressed on the untagged segment
 resource "meltcloud_network_profile" "example" {
   name = "profile1"
 
@@ -90,8 +90,11 @@ Optional:
 
 Required:
 
-- `primary` (Boolean) Whether this Host Network supplies the default route, DNS and NTP. Exactly one across the Network Profile
 - `subnet_id` (Number) ID of the Subnet the Machine gets an address on
+
+Optional:
+
+- `primary` (Boolean) Whether this Host Network supplies the default route, DNS and NTP. Exactly one across the Network Profile
 - `vlan_tagged` (Boolean) Whether the Subnet's VLAN arrives tagged, which configures a VLAN subinterface. At most one untagged Host Network per Uplink
 
 ## Import
