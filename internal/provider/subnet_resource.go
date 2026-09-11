@@ -2,6 +2,9 @@ package provider
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -83,14 +86,20 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 			},
 		},
 		"vlan": schema.Int64Attribute{
-			Optional:            true,
+			Optional: true,
+			Validators: []validator.Int64{
+				int64validator.Between(1, 4094),
+			},
 			MarkdownDescription: "VLAN ID of the segment. Leave empty when the segment has no VLAN",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
 			},
 		},
 		"addressing": schema.StringAttribute{
-			Required:            true,
+			Required: true,
+			Validators: []validator.String{
+				stringvalidator.OneOf("dhcp", "ipam"),
+			},
 			MarkdownDescription: "How a Machine gets an address: `dhcp`, where an existing DHCP server provides them, or `ipam`, where meltcloud does",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
@@ -135,7 +144,10 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 			},
 		},
 		"mtu": schema.Int64Attribute{
-			Optional:            true,
+			Optional: true,
+			Validators: []validator.Int64{
+				int64validator.Between(1000, 9216),
+			},
 			MarkdownDescription: "The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26",
 			PlanModifiers: []planmodifier.Int64{
 				int64planmodifier.RequiresReplace(),
