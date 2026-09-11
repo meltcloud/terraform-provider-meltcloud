@@ -201,9 +201,10 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	data.UUID = types.StringValue(result.Machine.UUID.String())
 	data.Name = types.StringValue(result.Machine.Name)
-	data.MachinePoolID = types.Int64Value(result.Machine.MachinePoolID)
-	data.NetworkProfileID = types.Int64Value(result.Machine.NetworkProfileID)
-	data.DepotNetworkProfileID = types.Int64Value(result.Machine.DepotNetworkProfileID)
+	data.MachinePoolID = types.Int64PointerValue(result.Machine.MachinePoolID)
+	revision := result.Machine.DesiredRevision()
+	data.NetworkProfileID = types.Int64Value(revision.NetworkProfileID)
+	data.DepotNetworkProfileID = types.Int64Value(revision.DepotNetworkProfileID)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
