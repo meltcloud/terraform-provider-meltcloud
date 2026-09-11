@@ -3,6 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
+	"terraform-provider-meltcloud/internal/client"
+
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -11,8 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"strings"
-	"terraform-provider-meltcloud/internal/client"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.

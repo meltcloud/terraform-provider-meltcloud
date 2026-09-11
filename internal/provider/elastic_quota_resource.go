@@ -16,8 +16,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ resource.Resource = &ElasticQuotaResource{}
-var _ resource.ResourceWithImportState = &ElasticQuotaResource{}
+var (
+	_ resource.Resource                = &ElasticQuotaResource{}
+	_ resource.ResourceWithImportState = &ElasticQuotaResource{}
+)
 
 func NewElasticQuotaResource() resource.Resource {
 	return &ElasticQuotaResource{}

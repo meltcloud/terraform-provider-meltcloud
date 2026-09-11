@@ -119,7 +119,6 @@ func (c *Client) Post(ctx context.Context, cr *ClientRequest) (interface{}, *Err
 		SetResult(cr.Result).
 		SetBody(cr.Body).
 		Post(cr.Path)
-
 	if err != nil {
 		return nil, &Error{Err: err}
 	}

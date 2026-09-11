@@ -16,8 +16,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ resource.Resource = &NetworkResource{}
-var _ resource.ResourceWithImportState = &NetworkResource{}
+var (
+	_ resource.Resource                = &NetworkResource{}
+	_ resource.ResourceWithImportState = &NetworkResource{}
+)
 
 func NewNetworkResource() resource.Resource {
 	return &NetworkResource{}

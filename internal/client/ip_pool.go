@@ -63,7 +63,6 @@ func (pr *IPPoolRequest) GetByName(ctx context.Context, name string) (*IPPoolRes
 }
 
 func (pr *IPPoolRequest) get(ctx context.Context, clientRequest *ClientRequest) (*IPPoolResult, *Error) {
-
 	result, err := pr.client.Get(ctx, clientRequest)
 	if err != nil {
 		return nil, err

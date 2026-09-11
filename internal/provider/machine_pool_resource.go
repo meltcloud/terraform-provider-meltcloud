@@ -16,8 +16,10 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &MachinePoolResource{}
-var _ resource.ResourceWithImportState = &MachinePoolResource{}
+var (
+	_ resource.Resource                = &MachinePoolResource{}
+	_ resource.ResourceWithImportState = &MachinePoolResource{}
+)
 
 func NewMachinePoolResource() resource.Resource {
 	return &MachinePoolResource{}
