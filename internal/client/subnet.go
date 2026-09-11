@@ -19,8 +19,8 @@ type Subnet struct {
 	ID         int64         `json:"id"`
 	NetworkID  int64         `json:"network_id"`
 	Name       string        `json:"name"`
-	VLAN       *int64        `json:"vlan"`
 	Addressing string        `json:"addressing"`
+	VLAN       *int64        `json:"vlan"`
 	IPPoolID   *int64        `json:"ip_pool_id"`
 	Gateway    *string       `json:"gateway"`
 	DNS        []string      `json:"dns"`
@@ -38,8 +38,8 @@ type SubnetRoute struct {
 
 type SubnetCreateInput struct {
 	Name       string        `json:"name"`
-	VLAN       *int64        `json:"vlan,omitempty"`
 	Addressing string        `json:"addressing"`
+	VLAN       *int64        `json:"vlan,omitempty"`
 	IPPoolID   *int64        `json:"ip_pool_id,omitempty"`
 	Gateway    *string       `json:"gateway,omitempty"`
 	DNS        []string      `json:"dns,omitempty"`
