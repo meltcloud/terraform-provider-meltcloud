@@ -146,7 +146,7 @@ func (d *SubnetDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	result, err := d.readSubnet(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read subnet, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Subnet, got error: %s", err))
 		return
 	}
 

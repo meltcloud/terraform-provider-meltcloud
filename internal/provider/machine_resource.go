@@ -77,11 +77,11 @@ func machineResourceAttributes() map[string]schema.Attribute {
 			Optional:            true,
 		},
 		"network_profile_id": schema.Int64Attribute{
-			MarkdownDescription: "ID of the Network Profile the machine runs with",
+			MarkdownDescription: "ID of the Network Profile the Machine runs with",
 			Required:            true,
 		},
 		"depot_network_profile_id": schema.Int64Attribute{
-			MarkdownDescription: "ID of the Network Profile the machine uses while it has no pool, and in recovery",
+			MarkdownDescription: "ID of the Network Profile the Machine uses while it has no pool, and in recovery",
 			Required:            true,
 		},
 	}

@@ -72,7 +72,7 @@ func (d *NetworkDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	result, err := d.readNetwork(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read network, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Network, got error: %s", err))
 		return
 	}
 
