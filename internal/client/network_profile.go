@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type NetworkProfileRequest struct {
@@ -48,11 +49,21 @@ func (c *Client) NetworkProfile() *NetworkProfileRequest {
 }
 
 func (mr *NetworkProfileRequest) Get(ctx context.Context, id int64) (*NetworkProfileResult, *Error) {
-	subPath := fmt.Sprintf("%s/%d", "network_profiles", id)
-	clientRequest := &ClientRequest{
-		Path:   subPath,
+	return mr.get(ctx, &ClientRequest{
+		Path:   fmt.Sprintf("%s/%d", "network_profiles", id),
 		Result: &NetworkProfileResult{},
-	}
+	})
+}
+
+func (mr *NetworkProfileRequest) GetByName(ctx context.Context, name string) (*NetworkProfileResult, *Error) {
+	return mr.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%s", "network_profiles", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &NetworkProfileResult{},
+	})
+}
+
+func (mr *NetworkProfileRequest) get(ctx context.Context, clientRequest *ClientRequest) (*NetworkProfileResult, *Error) {
 
 	result, err := mr.client.Get(ctx, clientRequest)
 

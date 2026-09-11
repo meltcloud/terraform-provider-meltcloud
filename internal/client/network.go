@@ -3,7 +3,11 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
+
+// byName turns the :id path segment into a name the API looks up.
+var byName = map[string]string{"by_name": "true"}
 
 type NetworkRequest struct {
 	client *Client
@@ -28,10 +32,21 @@ func (c *Client) Network() *NetworkRequest {
 }
 
 func (nr *NetworkRequest) Get(ctx context.Context, id int64) (*NetworkResult, *Error) {
-	clientRequest := &ClientRequest{
+	return nr.get(ctx, &ClientRequest{
 		Path:   fmt.Sprintf("%s/%d", "networks", id),
 		Result: &NetworkResult{},
-	}
+	})
+}
+
+func (nr *NetworkRequest) GetByName(ctx context.Context, name string) (*NetworkResult, *Error) {
+	return nr.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%s", "networks", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &NetworkResult{},
+	})
+}
+
+func (nr *NetworkRequest) get(ctx context.Context, clientRequest *ClientRequest) (*NetworkResult, *Error) {
 
 	result, err := nr.client.Get(ctx, clientRequest)
 	if err != nil {
