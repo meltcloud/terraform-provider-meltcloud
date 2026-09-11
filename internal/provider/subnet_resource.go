@@ -401,8 +401,6 @@ func (r *SubnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// A subnet is immutable in foundry: what it delivers reaches a machine, so a
-// change is a new subnet.
 func (r *SubnetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddError("Not Supported", "A subnet cannot be changed; it is replaced.")
 }

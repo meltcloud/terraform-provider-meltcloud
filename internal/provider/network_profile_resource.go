@@ -448,8 +448,6 @@ func hostNetworkValues(uplink client.Uplink) []HostNetworkResourceModel {
 	return hostNetworks
 }
 
-// A network profile is immutable in foundry, so every attribute replaces the
-// resource and Update is never called.
 func (r *NetworkProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddError("Not Supported", "A network profile cannot be changed; it is replaced.")
 }
