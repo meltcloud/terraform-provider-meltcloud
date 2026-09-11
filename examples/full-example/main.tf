@@ -148,7 +148,6 @@ resource "meltcloud_network_profile" "example" {
     host_network {
       subnet_id   = meltcloud_subnet.storage.id
       vlan_tagged = true
-      primary     = false
     }
   }
 }

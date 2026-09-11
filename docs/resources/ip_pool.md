@@ -18,8 +18,7 @@ resource "meltcloud_ip_pool" "example" {
   cidr        = "10.20.0.0/24"
   description = "workload addresses"
 
-  # addresses are handed out from allocatable ranges only, so everything outside
-  # one is left alone
+  # addresses are handed out from allocatable ranges only
   range {
     kind          = "allocatable"
     start_address = "10.20.0.10"
@@ -29,9 +28,9 @@ resource "meltcloud_ip_pool" "example" {
   # an excluded range prevents handing out addresses something else already uses
   range {
     kind          = "excluded"
-    start_address = "10.20.0.100"
-    end_address   = "10.20.0.110"
-    description   = "printers and switches"
+    start_address = "10.20.0.1"
+    end_address   = "10.20.0.3"
+    description   = "routers"
   }
 }
 ```

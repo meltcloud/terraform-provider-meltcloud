@@ -1,10 +1,11 @@
-# a DHCP server on the segment hands out the addresses; the subnet only replaces
-# what that server delivers besides them
+# a DHCP server on the segment hands out the addresses
 resource "meltcloud_subnet" "mgmt" {
   network_id = meltcloud_network.example.id
   name       = "mgmt"
   addressing = "dhcp"
-  mtu        = 9000
+
+  # settings to override, or to add where the DHCP server delivers none
+  mtu = 9000
 }
 
 # a tagged segment, still addressed by DHCP
@@ -14,6 +15,7 @@ resource "meltcloud_subnet" "storage" {
   addressing = "dhcp"
   vlan       = 300
 
+  # settings to override, or to add where the DHCP server delivers none
   route {
     destination = "10.30.0.0/16"
     via         = "10.20.0.254"
@@ -21,8 +23,7 @@ resource "meltcloud_subnet" "storage" {
   }
 }
 
-# meltcloud hands out the addresses, from an IP Pool, and delivers what a DHCP
-# server otherwise would
+# meltcloud hands out the addresses & network settings that a DHCP server would
 resource "meltcloud_subnet" "wl" {
   network_id = meltcloud_network.example.id
   name       = "wl"
