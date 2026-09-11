@@ -28,10 +28,12 @@ type NetworkProfileCreateInput struct {
 }
 
 type Uplink struct {
-	Name         string        `json:"name"`
-	Mode         string        `json:"mode"`
+	Name string `json:"name"`
+	Mode string `json:"mode"`
+	// An empty identifier is refused, and the zero value means the caller did not
+	// pick one, so it is left out for the backend to default.
 	Identifier   string        `json:"identifier,omitempty"`
-	Interfaces   []string      `json:"interfaces,omitempty"`
+	Interfaces   []string      `json:"interfaces"`
 	LACP         bool          `json:"lacp"`
 	HostNetworks []HostNetwork `json:"host_networks"`
 }

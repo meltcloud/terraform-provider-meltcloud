@@ -120,8 +120,6 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// A network is replaced rather than changed: its name is all it carries, and
-// changing that requires replacement.
 func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddError("Not Supported", "A network cannot be changed; it is replaced.")
 }
