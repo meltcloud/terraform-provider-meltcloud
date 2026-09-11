@@ -2,15 +2,16 @@ package provider
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
+
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
@@ -26,9 +27,11 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &NetworkProfileResource{}
-var _ resource.ResourceWithImportState = &NetworkProfileResource{}
-var _ resource.ResourceWithValidateConfig = &NetworkProfileResource{}
+var (
+	_ resource.Resource                   = &NetworkProfileResource{}
+	_ resource.ResourceWithImportState    = &NetworkProfileResource{}
+	_ resource.ResourceWithValidateConfig = &NetworkProfileResource{}
+)
 
 func NewNetworkProfileResource() resource.Resource {
 	return &NetworkProfileResource{}

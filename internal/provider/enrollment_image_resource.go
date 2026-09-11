@@ -3,13 +3,14 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
+	"terraform-provider-meltcloud/internal/client"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"regexp"
-	"strconv"
-	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -20,9 +21,11 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &EnrollmentImageResource{}
-var _ resource.ResourceWithImportState = &EnrollmentImageResource{}
-var _ resource.ResourceWithValidateConfig = &EnrollmentImageResource{}
+var (
+	_ resource.Resource                   = &EnrollmentImageResource{}
+	_ resource.ResourceWithImportState    = &EnrollmentImageResource{}
+	_ resource.ResourceWithValidateConfig = &EnrollmentImageResource{}
+)
 
 func NewEnrollmentImageResource() resource.Resource {
 	return &EnrollmentImageResource{}

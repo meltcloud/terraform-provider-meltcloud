@@ -3,12 +3,13 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"net/netip"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
+
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -21,9 +22,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ resource.Resource = &IPPoolResource{}
-var _ resource.ResourceWithImportState = &IPPoolResource{}
-var _ resource.ResourceWithValidateConfig = &IPPoolResource{}
+var (
+	_ resource.Resource                   = &IPPoolResource{}
+	_ resource.ResourceWithImportState    = &IPPoolResource{}
+	_ resource.ResourceWithValidateConfig = &IPPoolResource{}
+)
 
 func NewIPPoolResource() resource.Resource {
 	return &IPPoolResource{}

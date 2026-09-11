@@ -16,8 +16,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ resource.Resource = &ElasticNodePoolResource{}
-var _ resource.ResourceWithImportState = &ElasticNodePoolResource{}
+var (
+	_ resource.Resource                = &ElasticNodePoolResource{}
+	_ resource.ResourceWithImportState = &ElasticNodePoolResource{}
+)
 
 func NewElasticNodePoolResource() resource.Resource {
 	return &ElasticNodePoolResource{}

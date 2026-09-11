@@ -16,8 +16,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ resource.Resource = &ElasticFleetResource{}
-var _ resource.ResourceWithImportState = &ElasticFleetResource{}
+var (
+	_ resource.Resource                = &ElasticFleetResource{}
+	_ resource.ResourceWithImportState = &ElasticFleetResource{}
+)
 
 func NewElasticFleetResource() resource.Resource {
 	return &ElasticFleetResource{}

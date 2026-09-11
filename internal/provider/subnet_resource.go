@@ -2,16 +2,17 @@ package provider
 
 import (
 	"context"
+	"fmt"
+	"regexp"
+	"strconv"
+	"terraform-provider-meltcloud/internal/client"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"regexp"
-	"strconv"
-	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -23,9 +24,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ resource.Resource = &SubnetResource{}
-var _ resource.ResourceWithImportState = &SubnetResource{}
-var _ resource.ResourceWithValidateConfig = &SubnetResource{}
+var (
+	_ resource.Resource                   = &SubnetResource{}
+	_ resource.ResourceWithImportState    = &SubnetResource{}
+	_ resource.ResourceWithValidateConfig = &SubnetResource{}
+)
 
 func NewSubnetResource() resource.Resource {
 	return &SubnetResource{}

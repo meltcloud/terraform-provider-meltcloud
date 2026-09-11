@@ -15,8 +15,10 @@ import (
 )
 
 // Ensure MeltcloudProvider satisfies various provider interfaces.
-var _ provider.Provider = &MeltcloudProvider{}
-var _ provider.ProviderWithFunctions = &MeltcloudProvider{}
+var (
+	_ provider.Provider              = &MeltcloudProvider{}
+	_ provider.ProviderWithFunctions = &MeltcloudProvider{}
+)
 
 // MeltcloudProvider defines the provider implementation.
 type MeltcloudProvider struct {

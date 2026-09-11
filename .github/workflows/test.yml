@@ -46,6 +46,8 @@ jobs:
         with:
           terraform_version: '1.9.5'
           terraform_wrapper: false
+      - name: Check the examples are formatted
+        run: terraform fmt -check -recursive examples/
       - run: go generate ./...
       - name: git diff
         run: |
