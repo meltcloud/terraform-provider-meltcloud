@@ -21,14 +21,30 @@ type MachinesResult struct {
 }
 
 type Machine struct {
-	ID                    int64     `json:"id"`
-	UUID                  uuid.UUID `json:"uuid"`
-	Name                  string    `json:"name,omitempty"`
-	Status                string    `json:"status"`
-	MachinePoolID         int64     `json:"machine_pool_id,omitempty"`
-	NetworkProfileID      int64     `json:"network_profile_id"`
-	DepotNetworkProfileID int64     `json:"depot_network_profile_id"`
-	Labels                []Label   `json:"labels,omitempty"`
+	ID            int64           `json:"id"`
+	UUID          uuid.UUID       `json:"uuid"`
+	Name          string          `json:"name,omitempty"`
+	Status        string          `json:"status"`
+	MachinePoolID *int64          `json:"machine_pool_id"`
+	Revision      MachineRevision `json:"machine_revision"`
+	Applying      MachineRevision `json:"desired_machine_revision"`
+	Labels        []Label         `json:"labels,omitempty"`
+}
+
+// What a machine carries lives on its revision. The one being applied is what
+// the machine was last asked for, and it is absent unless a rollout is pending.
+type MachineRevision struct {
+	ID                    int64 `json:"id"`
+	NetworkProfileID      int64 `json:"network_profile_id"`
+	DepotNetworkProfileID int64 `json:"depot_network_profile_id"`
+}
+
+// The revision a read should answer with.
+func (m *Machine) DesiredRevision() MachineRevision {
+	if m.Applying.ID != 0 {
+		return m.Applying
+	}
+	return m.Revision
 }
 
 type MachineCreateInput struct {
