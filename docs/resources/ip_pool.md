@@ -3,12 +3,12 @@
 page_title: "meltcloud_ip_pool Resource - meltcloud"
 subcategory: ""
 description: |-
-  An IP Pool https://docs.meltcloud.io/concepts/networking hands out addresses from a CIDR. A Subnet with addressing ipam draws from one.
+  An IP Pool https://docs.meltcloud.io/concepts/networking/dhcp-and-ipam holds a CIDR and the ranges inside it that addresses may come from. A Subnet with addressing ipam takes its addresses from one.
 ---
 
 # meltcloud_ip_pool (Resource)
 
-An [IP Pool](https://docs.meltcloud.io/concepts/networking) hands out addresses from a CIDR. A Subnet with addressing `ipam` draws from one.
+An [IP Pool](https://docs.meltcloud.io/concepts/networking/dhcp-and-ipam) holds a CIDR and the ranges inside it that addresses may come from. A Subnet with addressing `ipam` takes its addresses from one.
 
 ## Example Usage
 
@@ -41,17 +41,17 @@ resource "meltcloud_ip_pool" "example" {
 
 ### Required
 
-- `cidr` (String) The network addresses are handed out from. Every address carries its prefix, so it cannot be changed: it has to be the network of the segment the pool serves
-- `name` (String) Name of the IP pool, unique within the organization
+- `cidr` (String) The CIDR addresses come from. It has to be the prefix of the segment the IP Pool serves, and cannot be changed
+- `name` (String) Name of the IP Pool, unique within the organization
 
 ### Optional
 
-- `description` (String) What this IP pool is for
+- `description` (String) What this IP Pool is for
 - `range` (Block List) (see [below for nested schema](#nestedblock--range))
 
 ### Read-Only
 
-- `id` (Number) Internal ID of the IP pool on meltcloud
+- `id` (Number) Internal ID of the IP Pool on meltcloud
 
 <a id="nestedblock--range"></a>
 ### Nested Schema for `range`
@@ -59,7 +59,7 @@ resource "meltcloud_ip_pool" "example" {
 Required:
 
 - `end_address` (String) The last address the range covers
-- `kind` (String) `allocatable`, where addresses are handed out from, or `excluded`, a hole inside one
+- `kind` (String) `allocatable`, which addresses are taken from, or `excluded`, which keeps the addresses inside one of them free
 - `start_address` (String) The first address the range covers
 
 Optional:

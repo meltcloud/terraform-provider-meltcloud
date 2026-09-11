@@ -3,12 +3,12 @@
 page_title: "meltcloud_subnet Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Subnet https://docs.meltcloud.io/concepts/networking is one segment of a Network: which VLAN it is, how a Machine gets an address on it, and what it delivers besides the address.
+  A Subnet https://docs.meltcloud.io/concepts/networking/networks-and-subnets is one segment of your fabric: a VLAN, and how a Machine gets an address on it.
 ---
 
 # meltcloud_subnet (Resource)
 
-A [Subnet](https://docs.meltcloud.io/concepts/networking) is one segment of a Network: which VLAN it is, how a Machine gets an address on it, and what it delivers besides the address.
+A [Subnet](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one segment of your fabric: a VLAN, and how a Machine gets an address on it.
 
 ## Example Usage
 
@@ -54,23 +54,23 @@ resource "meltcloud_subnet" "wl" {
 ### Required
 
 - `addressing` (String) How a Machine gets an address: `dhcp`, where an existing DHCP server provides them, or `ipam`, where meltcloud does
-- `name` (String) Name of the subnet, unique within its Network
-- `network_id` (Number) ID of the Network this subnet belongs to
+- `name` (String) Name of the Subnet, unique within its Network
+- `network_id` (Number) ID of the Network this Subnet belongs to
 
 ### Optional
 
 - `dns` (List of String) The resolvers to configure. With `dhcp`, setting these replaces what the server sends in option 6
 - `domains` (List of String) The search domains to configure. With `dhcp`, setting these replaces what the server sends in options 15 and 119
 - `gateway` (String) The default route, configured only where the Host Network is primary. Only with addressing `ipam`: a DHCP server delivers its own
-- `ip_pool_id` (Number) ID of the IP Pool the addresses come from. Required with addressing `ipam`
+- `ip_pool_id` (Number) ID of the IP Pool addresses come from. Required with addressing `ipam`
 - `mtu` (Number) The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26
 - `ntp` (List of String) The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42
 - `route` (Block List) (see [below for nested schema](#nestedblock--route))
-- `vlan` (Number) VLAN ID of the segment. Leave empty when the segment carries no VLAN
+- `vlan` (Number) VLAN ID of the segment. Leave empty when the segment has no VLAN
 
 ### Read-Only
 
-- `id` (Number) Internal ID of the subnet on meltcloud
+- `id` (Number) Internal ID of the Subnet on meltcloud
 
 <a id="nestedblock--route"></a>
 ### Nested Schema for `route`

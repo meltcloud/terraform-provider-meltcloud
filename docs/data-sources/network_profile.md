@@ -3,12 +3,12 @@
 page_title: "meltcloud_network_profile Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Network Profile https://docs.meltcloud.io/concepts/networking/network-profiles specifies the network configuration for Machines https://docs.meltcloud.io/concepts/machines in a Machine Pool https://docs.meltcloud.io/tasks/machine-pools/create.
+  A Network Profile https://docs.meltcloud.io/concepts/networking/network-profiles says how a Machine https://docs.meltcloud.io/concepts/machines attaches to your fabric: which physical interfaces it uses, and which Subnets it gets an address on.
 ---
 
 # meltcloud_network_profile (Data Source)
 
-A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) specifies the network configuration for [Machines](https://docs.meltcloud.io/concepts/machines) in a [Machine Pool](https://docs.meltcloud.io/tasks/machine-pools/create).
+A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) says how a [Machine](https://docs.meltcloud.io/concepts/machines) attaches to your fabric: which physical interfaces it uses, and which Subnets it gets an address on.
 
 
 
@@ -17,8 +17,8 @@ A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profil
 
 ### Optional
 
-- `id` (Number) Internal ID of the network profile on meltcloud
-- `name` (String) Name of the network profile
+- `id` (Number) Internal ID of the Network Profile on meltcloud
+- `name` (String) Name of the Network Profile, unique within the organization
 
 ### Read-Only
 
@@ -33,15 +33,15 @@ Read-Only:
 - `host_networks` (Attributes List) (see [below for nested schema](#nestedatt--uplinks--host_networks))
 - `identifier` (String) What the interfaces are matched against: `kernel_name` (the default) or `mac_address`
 - `interfaces` (List of String) The interfaces to match. Empty with mode `auto`, one with `single`, at least two with `bond`
-- `lacp` (Boolean) Whether the bond runs LACP. Only available with mode `bond`
-- `mode` (String) How many interfaces the uplink expects: `auto` for the machine's only interface, `single` for one named interface, `bond` for several bonded together
-- `name` (String) Name of the uplink, at most 10 lowercase alphanumeric characters
+- `lacp` (Boolean) Whether the bond runs LACP. Only with mode `bond`
+- `mode` (String) How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one named interface, `bond` for several bonded together
+- `name` (String) Name of the Uplink, at most 10 lowercase alphanumeric characters
 
 <a id="nestedatt--uplinks--host_networks"></a>
 ### Nested Schema for `uplinks.host_networks`
 
 Read-Only:
 
-- `primary` (Boolean) Whether this host network supplies the default route, DNS and NTP. Exactly one across the profile
-- `subnet_id` (Number) ID of the Subnet the machine is addressed on
-- `vlan_tagged` (Boolean) Whether the subnet's VLAN arrives tagged, which configures a VLAN subinterface. At most one untagged host network per uplink
+- `primary` (Boolean) Whether this Host Network supplies the default route, DNS and NTP. Exactly one across the Network Profile
+- `subnet_id` (Number) ID of the Subnet the Machine gets an address on
+- `vlan_tagged` (Boolean) Whether the Subnet's VLAN arrives tagged, which configures a VLAN subinterface. At most one untagged Host Network per Uplink
