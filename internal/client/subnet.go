@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type SubnetRequest struct {
@@ -61,10 +62,21 @@ func subnetPath(networkID int64, parts ...any) string {
 }
 
 func (sr *SubnetRequest) Get(ctx context.Context, networkID int64, id int64) (*SubnetResult, *Error) {
-	clientRequest := &ClientRequest{
+	return sr.get(ctx, &ClientRequest{
 		Path:   subnetPath(networkID, id),
 		Result: &SubnetResult{},
-	}
+	})
+}
+
+func (sr *SubnetRequest) GetByName(ctx context.Context, networkID int64, name string) (*SubnetResult, *Error) {
+	return sr.get(ctx, &ClientRequest{
+		Path:        subnetPath(networkID, url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &SubnetResult{},
+	})
+}
+
+func (sr *SubnetRequest) get(ctx context.Context, clientRequest *ClientRequest) (*SubnetResult, *Error) {
 
 	result, err := sr.client.Get(ctx, clientRequest)
 	if err != nil {

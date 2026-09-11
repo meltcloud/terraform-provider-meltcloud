@@ -44,15 +44,7 @@ func (d *IPPoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 	rangeAttributes := ipPoolRangeResourceAttributes()
 	resp.Schema = schema.Schema{
 		MarkdownDescription: ipPoolDesc,
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: attributes["id"].GetMarkdownDescription(),
-				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: attributes["name"].GetMarkdownDescription(),
-				Computed:            true,
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"cidr": schema.StringAttribute{
 				MarkdownDescription: attributes["cidr"].GetMarkdownDescription(),
 				Computed:            true,
@@ -84,7 +76,7 @@ func (d *IPPoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 					},
 				},
 			},
-		},
+		}, attributes["id"].GetMarkdownDescription(), attributes["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -105,6 +97,13 @@ func (d *IPPoolDataSource) Configure(ctx context.Context, req datasource.Configu
 	d.client = client
 }
 
+func (d *IPPoolDataSource) readIPPool(ctx context.Context, data IPPoolDataSourceModel) (*client.IPPoolResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.IPPool().GetByName(ctx, data.Name.ValueString())
+	}
+	return d.client.IPPool().Get(ctx, data.ID.ValueInt64())
+}
+
 func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data IPPoolDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -112,12 +111,13 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	result, err := d.client.IPPool().Get(ctx, data.ID.ValueInt64())
+	result, err := d.readIPPool(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read IP pool with ID %d, got error: %s", data.ID.ValueInt64(), err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read IP pool, got error: %s", err))
 		return
 	}
 
+	data.ID = types.Int64Value(result.IPPool.ID)
 	data.Name = types.StringValue(result.IPPool.Name)
 	data.CIDR = types.StringValue(result.IPPool.CIDR)
 	data.Description = types.StringPointerValue(result.IPPool.Description)

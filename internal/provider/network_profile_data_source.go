@@ -53,15 +53,7 @@ func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.Sc
 	resp.Schema = schema.Schema{
 		MarkdownDescription: networkProfileDesc,
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: networkProfileResourceAttributes()["id"].GetMarkdownDescription(),
-				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: networkProfileResourceAttributes()["name"].GetMarkdownDescription(),
-				Computed:            true,
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"status": schema.StringAttribute{
 				MarkdownDescription: "Status of the Network Profile",
 				Computed:            true,
@@ -113,7 +105,7 @@ func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.Sc
 					},
 				},
 			},
-		},
+		}, networkProfileResourceAttributes()["id"].GetMarkdownDescription(), networkProfileResourceAttributes()["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -137,6 +129,13 @@ func (d *NetworkProfileDataSource) Configure(ctx context.Context, req datasource
 	d.client = client
 }
 
+func (d *NetworkProfileDataSource) readNetworkProfile(ctx context.Context, data NetworkProfileDataSourceModel) (*client.NetworkProfileResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.NetworkProfile().GetByName(ctx, data.Name.ValueString())
+	}
+	return d.client.NetworkProfile().Get(ctx, data.ID.ValueInt64())
+}
+
 func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data NetworkProfileDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -144,9 +143,9 @@ func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	result, err := d.client.NetworkProfile().Get(ctx, data.ID.ValueInt64())
+	result, err := d.readNetworkProfile(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read network profile with ID %d , got error: %s", data.ID.ValueInt64(), err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read network profile, got error: %s", err))
 		return
 	}
 

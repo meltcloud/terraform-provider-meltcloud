@@ -32,16 +32,10 @@ func (d *NetworkDataSource) Metadata(ctx context.Context, req datasource.Metadat
 func (d *NetworkDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: networkDesc,
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: networkResourceAttributes()["id"].GetMarkdownDescription(),
-				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: networkResourceAttributes()["name"].GetMarkdownDescription(),
-				Computed:            true,
-			},
-		},
+		Attributes: lookupAttributes(
+			networkResourceAttributes()["id"].GetMarkdownDescription(),
+			networkResourceAttributes()["name"].GetMarkdownDescription(),
+		),
 	}
 }
 
@@ -62,6 +56,13 @@ func (d *NetworkDataSource) Configure(ctx context.Context, req datasource.Config
 	d.client = client
 }
 
+func (d *NetworkDataSource) readNetwork(ctx context.Context, data NetworkDataSourceModel) (*client.NetworkResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.Network().GetByName(ctx, data.Name.ValueString())
+	}
+	return d.client.Network().Get(ctx, data.ID.ValueInt64())
+}
+
 func (d *NetworkDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data NetworkDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -69,9 +70,9 @@ func (d *NetworkDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	result, err := d.client.Network().Get(ctx, data.ID.ValueInt64())
+	result, err := d.readNetwork(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read network with ID %d, got error: %s", data.ID.ValueInt64(), err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read network, got error: %s", err))
 		return
 	}
 

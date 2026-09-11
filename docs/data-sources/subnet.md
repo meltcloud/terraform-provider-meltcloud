@@ -17,8 +17,12 @@ A [Subnet](https://docs.meltcloud.io/concepts/networking) is one segment of a Ne
 
 ### Required
 
-- `id` (Number) Internal ID of the subnet on meltcloud
 - `network_id` (Number) ID of the Network this subnet belongs to
+
+### Optional
+
+- `id` (Number) Internal ID of the subnet on meltcloud
+- `name` (String) Name of the subnet, unique within its Network
 
 ### Read-Only
 
@@ -28,7 +32,6 @@ A [Subnet](https://docs.meltcloud.io/concepts/networking) is one segment of a Ne
 - `gateway` (String) The default route, configured only where the Host Network is primary. Only with addressing `ipam`: a DHCP server delivers its own
 - `ip_pool_id` (Number) ID of the IP Pool the addresses come from. Required with addressing `ipam`
 - `mtu` (Number) The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26
-- `name` (String) Name of the subnet, unique within its Network
 - `ntp` (List of String) The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42
 - `routes` (Attributes List) (see [below for nested schema](#nestedatt--routes))
 - `vlan` (Number) VLAN ID of the segment. Leave empty when the segment carries no VLAN

@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type IPPoolRequest struct {
@@ -47,10 +48,21 @@ func (c *Client) IPPool() *IPPoolRequest {
 }
 
 func (pr *IPPoolRequest) Get(ctx context.Context, id int64) (*IPPoolResult, *Error) {
-	clientRequest := &ClientRequest{
+	return pr.get(ctx, &ClientRequest{
 		Path:   fmt.Sprintf("%s/%d", "ip_pools", id),
 		Result: &IPPoolResult{},
-	}
+	})
+}
+
+func (pr *IPPoolRequest) GetByName(ctx context.Context, name string) (*IPPoolResult, *Error) {
+	return pr.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%s", "ip_pools", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &IPPoolResult{},
+	})
+}
+
+func (pr *IPPoolRequest) get(ctx context.Context, clientRequest *ClientRequest) (*IPPoolResult, *Error) {
 
 	result, err := pr.client.Get(ctx, clientRequest)
 	if err != nil {

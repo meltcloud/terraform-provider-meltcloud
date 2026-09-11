@@ -50,18 +50,10 @@ func (d *SubnetDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 	routeAttributes := routeResourceAttributes()
 	resp.Schema = schema.Schema{
 		MarkdownDescription: subnetDesc,
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: attributes["id"].GetMarkdownDescription(),
-				Required:            true,
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"network_id": schema.Int64Attribute{
 				MarkdownDescription: attributes["network_id"].GetMarkdownDescription(),
 				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: attributes["name"].GetMarkdownDescription(),
-				Computed:            true,
 			},
 			"vlan": schema.Int64Attribute{
 				MarkdownDescription: attributes["vlan"].GetMarkdownDescription(),
@@ -117,7 +109,7 @@ func (d *SubnetDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 					},
 				},
 			},
-		},
+		}, attributes["id"].GetMarkdownDescription(), attributes["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -138,6 +130,13 @@ func (d *SubnetDataSource) Configure(ctx context.Context, req datasource.Configu
 	d.client = client
 }
 
+func (d *SubnetDataSource) readSubnet(ctx context.Context, data SubnetDataSourceModel) (*client.SubnetResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.Subnet().GetByName(ctx, data.NetworkID.ValueInt64(), data.Name.ValueString())
+	}
+	return d.client.Subnet().Get(ctx, data.NetworkID.ValueInt64(), data.ID.ValueInt64())
+}
+
 func (d *SubnetDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data SubnetDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -145,13 +144,14 @@ func (d *SubnetDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	result, err := d.client.Subnet().Get(ctx, data.NetworkID.ValueInt64(), data.ID.ValueInt64())
+	result, err := d.readSubnet(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read subnet with ID %d, got error: %s", data.ID.ValueInt64(), err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read subnet, got error: %s", err))
 		return
 	}
 
 	subnet := result.Subnet
+	data.ID = types.Int64Value(subnet.ID)
 	data.Name = types.StringValue(subnet.Name)
 	data.VLAN = types.Int64PointerValue(subnet.VLAN)
 	data.Addressing = types.StringValue(subnet.Addressing)
