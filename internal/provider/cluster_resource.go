@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -116,11 +117,13 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Enable kube-proxy Addon",
 			Optional:            true,
 			Computed:            true,
+			Default:             booldefault.StaticBool(true),
 		},
 		"addon_core_dns": schema.BoolAttribute{
 			MarkdownDescription: "Enable CoreDNS Addon",
 			Optional:            true,
 			Computed:            true,
+			Default:             booldefault.StaticBool(true),
 		},
 		"kubeconfig": schema.SingleNestedAttribute{
 			Description: "Kubeconfig values for the admin user",
