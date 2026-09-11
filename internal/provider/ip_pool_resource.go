@@ -3,6 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"net/netip"
 	"regexp"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
@@ -20,6 +23,7 @@ import (
 
 var _ resource.Resource = &IPPoolResource{}
 var _ resource.ResourceWithImportState = &IPPoolResource{}
+var _ resource.ResourceWithValidateConfig = &IPPoolResource{}
 
 func NewIPPoolResource() resource.Resource {
 	return &IPPoolResource{}
@@ -80,7 +84,10 @@ func ipPoolResourceAttributes() map[string]schema.Attribute {
 func ipPoolRangeResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"kind": schema.StringAttribute{
-			Required:            true,
+			Required: true,
+			Validators: []validator.String{
+				stringvalidator.OneOf("allocatable", "excluded"),
+			},
 			MarkdownDescription: "`allocatable`, which addresses are taken from, or `excluded`, which keeps the addresses inside one of them free",
 		},
 		"start_address": schema.StringAttribute{
@@ -110,6 +117,53 @@ func (r *IPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 		},
 	}
+}
+
+// ValidateConfig reads the addresses a range spans, which the schema cannot compare.
+func (r *IPPoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data IPPoolResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() || data.Ranges.IsNull() || data.Ranges.IsUnknown() {
+		return
+	}
+
+	var ranges []IPPoolRangeResourceModel
+	resp.Diagnostics.Append(data.Ranges.ElementsAs(ctx, &ranges, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	for i, poolRange := range ranges {
+		validateRange(resp, path.Root("range").AtListIndex(i), poolRange)
+	}
+}
+
+func validateRange(resp *resource.ValidateConfigResponse, rangePath path.Path, poolRange IPPoolRangeResourceModel) {
+	start, startOK := parseAddress(resp, rangePath.AtName("start_address"), poolRange.StartAddress)
+	end, endOK := parseAddress(resp, rangePath.AtName("end_address"), poolRange.EndAddress)
+
+	if startOK && endOK && end.Less(start) {
+		resp.Diagnostics.AddAttributeError(
+			rangePath.AtName("end_address"),
+			"Invalid Attribute Value",
+			"end_address must not be before start_address.",
+		)
+	}
+}
+
+func parseAddress(resp *resource.ValidateConfigResponse, addressPath path.Path, value types.String) (netip.Addr, bool) {
+	if value.IsNull() || value.IsUnknown() {
+		return netip.Addr{}, false
+	}
+
+	address, err := netip.ParseAddr(value.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddAttributeError(addressPath, "Invalid Attribute Value", "Must be an IP address.")
+		return netip.Addr{}, false
+	}
+
+	return address, true
 }
 
 func (r *IPPoolResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

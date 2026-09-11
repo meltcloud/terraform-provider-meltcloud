@@ -2,6 +2,8 @@ package provider
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -89,14 +91,24 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 		"name": schema.StringAttribute{
 			Required:            true,
 			MarkdownDescription: "Name of the Uplink, at most 10 lowercase alphanumeric characters",
+			Validators: []validator.String{
+				stringvalidator.LengthAtMost(10),
+				stringvalidator.RegexMatches(regexp.MustCompile(`^[a-z0-9]+$`), "must be lowercase alphanumeric"),
+			},
 		},
 		"mode": schema.StringAttribute{
-			Required:            true,
+			Required: true,
+			Validators: []validator.String{
+				stringvalidator.OneOf("auto", "single", "bond"),
+			},
 			MarkdownDescription: "How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one named interface, `bond` for several bonded together",
 		},
 		"identifier": schema.StringAttribute{
-			Optional:            true,
-			Computed:            true,
+			Optional: true,
+			Computed: true,
+			Validators: []validator.String{
+				stringvalidator.OneOf("kernel_name", "mac_address"),
+			},
 			Default:             stringdefault.StaticString("kernel_name"),
 			MarkdownDescription: "What the interfaces are matched against: `kernel_name` (the default) or `mac_address`",
 		},
