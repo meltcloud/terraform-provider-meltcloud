@@ -23,12 +23,26 @@ type Operation struct {
 type OperationStatus string
 
 const (
-	OperationStatusPending   OperationStatus = "pending"
-	OperationStatusRunning   OperationStatus = "running"
-	OperationStatusSucceeded OperationStatus = "succeeded"
-	OperationStatusFailed    OperationStatus = "failed"
-	OperationStatusCancelled OperationStatus = "cancelled"
+	OperationStatusPending                 OperationStatus = "pending"
+	OperationStatusRunning                 OperationStatus = "running"
+	OperationStatusCancelling              OperationStatus = "cancelling"
+	OperationStatusSucceeded               OperationStatus = "succeeded"
+	OperationStatusFailed                  OperationStatus = "failed"
+	OperationStatusCancelled               OperationStatus = "cancelled"
+	OperationStatusInternalError           OperationStatus = "internal_error"
+	OperationStatusCancellingInternalError OperationStatus = "cancelling_internal_error"
+	OperationStatusRetryableInternalError  OperationStatus = "retryable_internal_error"
 )
+
+// The statuses foundry does not move an operation out of.
+func (s OperationStatus) Finished() bool {
+	switch s {
+	case OperationStatusSucceeded, OperationStatusFailed, OperationStatusCancelled,
+		OperationStatusInternalError, OperationStatusRetryableInternalError:
+		return true
+	}
+	return false
+}
 
 func (c *Client) Operation() *OperationRequest {
 	return &OperationRequest{
@@ -70,7 +84,7 @@ func (or *OperationRequest) PollUntilDone(ctx context.Context, id int64) (*Opera
 			if result.Operation.Status == OperationStatusSucceeded {
 				return result, nil
 			}
-			if result.Operation.Status == OperationStatusFailed || result.Operation.Status == OperationStatusCancelled {
+			if result.Operation.Status.Finished() {
 				consoleURL := fmt.Sprintf("%s/ui/orgs/%s/operations/%d", or.client.Endpoint, or.client.Organization, id)
 				return result, &Error{Err: fmt.Errorf("operation %d %s. check the console for more information: %s", result.Operation.ID, result.Operation.Status, consoleURL)}
 			}
