@@ -1,5 +1,5 @@
 resource "meltcloud_ip_pool" "example" {
-  name        = "wl-prd"
+  name        = "workload"
   cidr        = "10.20.0.0/24"
   description = "workload addresses"
 
@@ -16,5 +16,16 @@ resource "meltcloud_ip_pool" "example" {
     start_address = "10.20.0.1"
     end_address   = "10.20.0.3"
     description   = "routers"
+  }
+}
+
+resource "meltcloud_ip_pool" "storage" {
+  name = "storage"
+  cidr = "10.30.0.0/24"
+
+  range {
+    kind          = "allocatable"
+    start_address = "10.30.0.10"
+    end_address   = "10.30.0.200"
   }
 }

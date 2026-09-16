@@ -52,7 +52,7 @@ func (r *MachineResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_machine"
 }
 
-const machineDesc string = "[Machines](https://docs.meltcloud.io/concepts/machines) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes Clusters provided by the meltcloud platform."
+const machineDesc string = "[Machines](https://docs.meltcloud.io/concepts/machines) are bare-metal or virtualized computers designated as worker nodes for the Kubernetes control planes provided by the [Nest](https://docs.meltcloud.io/concepts/nest) appliance."
 
 func machineResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

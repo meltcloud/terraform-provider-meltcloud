@@ -68,7 +68,7 @@ func (r *NetworkProfileResource) Metadata(ctx context.Context, req resource.Meta
 	resp.TypeName = req.ProviderTypeName + "_network_profile"
 }
 
-const networkProfileDesc = "A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) says how a [Machine](https://docs.meltcloud.io/concepts/machines) attaches to your fabric: which physical interfaces it uses, and which Subnets it gets an address on."
+const networkProfileDesc = "A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) specifies how a [Machine](https://docs.meltcloud.io/concepts/machines) attaches to your fabric: which physical interfaces form logical Uplinks, and which [Subnets](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) are connected to those Uplinks (\"Host Networks\")."
 
 func networkProfileResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

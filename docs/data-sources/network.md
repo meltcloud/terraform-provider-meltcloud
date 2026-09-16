@@ -3,12 +3,12 @@
 page_title: "meltcloud_network Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Network https://docs.meltcloud.io/concepts/networking/networks-and-subnets groups the Subnets that serve the same purpose.
+  A Network https://docs.meltcloud.io/concepts/networking/networks-and-subnets is one logical network, such as a VPC or a VRF.
 ---
 
 # meltcloud_network (Data Source)
 
-A [Network](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) groups the Subnets that serve the same purpose.
+A [Network](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one logical network, such as a VPC or a VRF.
 
 
 

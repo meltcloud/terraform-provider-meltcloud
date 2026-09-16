@@ -55,7 +55,7 @@ func (r *IPPoolResource) Metadata(ctx context.Context, req resource.MetadataRequ
 	resp.TypeName = req.ProviderTypeName + "_ip_pool"
 }
 
-const ipPoolDesc = "An [IP Pool](https://docs.meltcloud.io/concepts/networking/dhcp-and-ipam) holds a CIDR and the ranges inside it that addresses may come from. A Subnet with addressing `ipam` takes its addresses from one."
+const ipPoolDesc = "An [IP Pool](https://docs.meltcloud.io/concepts/networking/subnet-addressing#ipam) hands out addresses from a CIDR. It is used by [Subnets](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) with addressing `ipam`."
 
 func ipPoolResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
