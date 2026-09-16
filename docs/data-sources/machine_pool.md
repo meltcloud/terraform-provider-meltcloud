@@ -3,12 +3,12 @@
 page_title: "meltcloud_machine_pool Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Machine Pool https://docs.meltcloud.io/tasks/machine-pools/create is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
+  A Machine Pool https://docs.meltcloud.io/concepts/machine-pools is an update domain: a group of Machines https://docs.meltcloud.io/concepts/machines that run the same Kubernetes version and are updated together, one after another, so the workloads on them stay up.
 ---
 
 # meltcloud_machine_pool (Data Source)
 
-A [Machine Pool](https://docs.meltcloud.io/tasks/machine-pools/create) is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
+A [Machine Pool](https://docs.meltcloud.io/concepts/machine-pools) is an **update domain**: a group of [Machines](https://docs.meltcloud.io/concepts/machines) that run the same Kubernetes version and are updated together, one after another, so the workloads on them stay up.
 
 ## Example Usage
 

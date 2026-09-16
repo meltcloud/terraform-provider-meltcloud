@@ -63,7 +63,7 @@ func (r *SubnetResource) Metadata(ctx context.Context, req resource.MetadataRequ
 	resp.TypeName = req.ProviderTypeName + "_subnet"
 }
 
-const subnetDesc = "A [Subnet](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one segment of your fabric: a VLAN, and how a Machine gets an address on it."
+const subnetDesc = "A [Subnet](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one segment of a Network. It defines how Machines get an address on it (DHCP or IPAM) and further network configuration (DNS servers, NTP servers, MTU, routes, ...)."
 
 func subnetResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

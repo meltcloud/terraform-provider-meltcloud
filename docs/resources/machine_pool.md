@@ -3,13 +3,13 @@
 page_title: "meltcloud_machine_pool Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Machine Pool https://docs.meltcloud.io/tasks/machine-pools/create is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
+  A Machine Pool https://docs.meltcloud.io/concepts/machine-pools is an update domain: a group of Machines https://docs.meltcloud.io/concepts/machines that run the same Kubernetes version and are updated together, one after another, so the workloads on them stay up.
   ~> Be aware that changing the version will cause a new Revision that will be rolled out immediately, causing a reboot of all Machines https://docs.meltcloud.io/tasks/machine-pools/upgrade.
 ---
 
 # meltcloud_machine_pool (Resource)
 
-A [Machine Pool](https://docs.meltcloud.io/tasks/machine-pools/create) is a grouping entity for Machines (Kubernetes workers) which share a set of common configuration such as Kubelet version, disk or network configuration.
+A [Machine Pool](https://docs.meltcloud.io/concepts/machine-pools) is an **update domain**: a group of [Machines](https://docs.meltcloud.io/concepts/machines) that run the same Kubernetes version and are updated together, one after another, so the workloads on them stay up.
 
 ~> Be aware that changing the version will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).
 
@@ -19,7 +19,7 @@ A [Machine Pool](https://docs.meltcloud.io/tasks/machine-pools/create) is a grou
 # create cluster
 resource "meltcloud_cluster" "example" {
   name           = "melt02"
-  version        = "1.30"
+  version        = "1.33"
   pod_cidr       = "10.36.0.0/16"
   service_cidr   = "10.96.0.0/16"
   dns_service_ip = "10.96.0.10"
@@ -30,7 +30,7 @@ resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
   name    = "pool1"
-  version = "1.29"
+  version = "1.32"
 }
 ```
 

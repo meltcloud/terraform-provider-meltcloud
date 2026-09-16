@@ -16,13 +16,14 @@ A [Cluster](https://docs.meltcloud.io/tasks/clusters/create) in meltcloud consis
 # create cluster with auto-assigned network defaults
 resource "meltcloud_cluster" "example" {
   name    = "melt02"
-  version = "1.30"
+  version = "1.33"
 }
 
 # create cluster with explicit network configuration
 resource "meltcloud_cluster" "example_custom_network" {
-  name           = "melt03"
-  version        = "1.30"
+  name    = "melt03"
+  version = "1.33"
+
   pod_cidr       = "10.36.0.0/16"
   service_cidr   = "10.96.0.0/16"
   dns_service_ip = "10.96.0.10"
