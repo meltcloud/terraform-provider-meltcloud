@@ -38,7 +38,7 @@ func (r *NetworkResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_network"
 }
 
-const networkDesc = "A [Network](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) groups the Subnets that serve the same purpose."
+const networkDesc = "A [Network](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one logical network, such as a VPC or a VRF."
 
 func networkResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

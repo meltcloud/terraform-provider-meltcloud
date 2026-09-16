@@ -3,12 +3,12 @@
 page_title: "meltcloud_subnet Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Subnet https://docs.meltcloud.io/concepts/networking/networks-and-subnets is one segment of your fabric: a VLAN, and how a Machine gets an address on it.
+  A Subnet https://docs.meltcloud.io/concepts/networking/networks-and-subnets is one segment of a Network. It defines how Machines get an address on it (DHCP or IPAM) and further network configuration (DNS servers, NTP servers, MTU, routes, ...).
 ---
 
 # meltcloud_subnet (Data Source)
 
-A [Subnet](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one segment of your fabric: a VLAN, and how a Machine gets an address on it.
+A [Subnet](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) is one segment of a Network. It defines how Machines get an address on it (DHCP or IPAM) and further network configuration (DNS servers, NTP servers, MTU, routes, ...).
 
 
 
