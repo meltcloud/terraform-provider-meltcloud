@@ -45,18 +45,10 @@ func (d *ElasticNodePoolDataSource) Metadata(ctx context.Context, req datasource
 func (d *ElasticNodePoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: elasticNodePoolDesc,
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: elasticNodePoolResourceAttributes()["id"].GetMarkdownDescription(),
-				Required:            true,
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"cluster_id": schema.Int64Attribute{
 				MarkdownDescription: elasticNodePoolResourceAttributes()["cluster_id"].GetMarkdownDescription(),
 				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: elasticNodePoolResourceAttributes()["name"].GetMarkdownDescription(),
-				Computed:            true,
 			},
 			"elastic_quota_id": schema.Int64Attribute{
 				MarkdownDescription: elasticNodePoolResourceAttributes()["elastic_quota_id"].GetMarkdownDescription(),
@@ -96,7 +88,7 @@ func (d *ElasticNodePoolDataSource) Schema(ctx context.Context, req datasource.S
 					},
 				},
 			},
-		},
+		}, elasticNodePoolResourceAttributes()["id"].GetMarkdownDescription(), elasticNodePoolResourceAttributes()["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -117,6 +109,13 @@ func (d *ElasticNodePoolDataSource) Configure(ctx context.Context, req datasourc
 	d.client = c
 }
 
+func (d *ElasticNodePoolDataSource) readNodePool(ctx context.Context, data ElasticNodePoolDataSourceModel) (*client.ElasticNodePoolResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.ElasticNodePool().GetByName(ctx, data.ClusterID.ValueInt64(), data.Name.ValueString())
+	}
+	return d.client.ElasticNodePool().Get(ctx, data.ClusterID.ValueInt64(), data.ID.ValueInt64())
+}
+
 func (d *ElasticNodePoolDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data ElasticNodePoolDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -124,9 +123,9 @@ func (d *ElasticNodePoolDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	result, err := d.client.ElasticNodePool().Get(ctx, data.ClusterID.ValueInt64(), data.ID.ValueInt64())
+	result, err := d.readNodePool(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read elastic node pool with ID %d on cluster ID %d, got error: %s", data.ID.ValueInt64(), data.ClusterID.ValueInt64(), err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read elastic node pool on cluster ID %d, got error: %s", data.ClusterID.ValueInt64(), err))
 		return
 	}
 

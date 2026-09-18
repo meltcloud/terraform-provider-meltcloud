@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"terraform-provider-meltcloud/internal/client"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -37,15 +40,7 @@ func (d *ElasticQuotaDataSource) Metadata(ctx context.Context, req datasource.Me
 func (d *ElasticQuotaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: elasticQuotaDesc,
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: elasticQuotaResourceAttributes()["id"].GetMarkdownDescription(),
-				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: elasticQuotaResourceAttributes()["name"].GetMarkdownDescription(),
-				Computed:            true,
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"vcpus": schema.Int64Attribute{
 				MarkdownDescription: elasticQuotaResourceAttributes()["vcpus"].GetMarkdownDescription(),
 				Computed:            true,
@@ -59,14 +54,18 @@ func (d *ElasticQuotaDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 			},
 			"elastic_fleet_id": schema.Int64Attribute{
-				MarkdownDescription: elasticQuotaResourceAttributes()["elastic_fleet_id"].GetMarkdownDescription(),
+				MarkdownDescription: elasticQuotaResourceAttributes()["elastic_fleet_id"].GetMarkdownDescription() + ", required with `name`",
+				Optional:            true,
 				Computed:            true,
+				Validators: []validator.Int64{
+					int64validator.ConflictsWith(path.MatchRelative().AtParent().AtName("id")),
+				},
 			},
 			"consuming_organization_uuid": schema.StringAttribute{
 				MarkdownDescription: elasticQuotaResourceAttributes()["consuming_organization_uuid"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-		},
+		}, elasticQuotaResourceAttributes()["id"].GetMarkdownDescription(), elasticQuotaResourceAttributes()["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -87,6 +86,13 @@ func (d *ElasticQuotaDataSource) Configure(ctx context.Context, req datasource.C
 	d.client = c
 }
 
+func (d *ElasticQuotaDataSource) readQuota(ctx context.Context, data ElasticQuotaDataSourceModel) (*client.ElasticQuotaResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.ElasticQuota().GetByName(ctx, data.ElasticFleetID.ValueInt64(), data.Name.ValueString())
+	}
+	return d.client.ElasticQuota().Get(ctx, data.ID.ValueInt64())
+}
+
 func (d *ElasticQuotaDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data ElasticQuotaDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -94,9 +100,14 @@ func (d *ElasticQuotaDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	result, err := d.client.ElasticQuota().Get(ctx, data.ID.ValueInt64())
+	if data.ID.IsNull() && data.ElasticFleetID.IsNull() {
+		resp.Diagnostics.AddAttributeError(path.Root("elastic_fleet_id"), "Missing Attribute", "A quota's name is unique within its fleet, so a lookup by name needs elastic_fleet_id.")
+		return
+	}
+
+	result, err := d.readQuota(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read elastic quota by ID %d, got error: %s", data.ID.ValueInt64(), err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read elastic quota, got error: %s", err))
 		return
 	}
 	quota := result.ElasticQuota

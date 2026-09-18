@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strconv"
 )
 
 type ElasticQuotaRequest struct {
@@ -46,11 +48,22 @@ func (c *Client) ElasticQuota() *ElasticQuotaRequest {
 }
 
 func (er *ElasticQuotaRequest) Get(ctx context.Context, id int64) (*ElasticQuotaResult, *Error) {
-	clientRequest := &ClientRequest{
+	return er.get(ctx, &ClientRequest{
 		Path:   fmt.Sprintf("%s/%d", "elastic_quotas", id),
 		Result: &ElasticQuotaResult{},
-	}
+	})
+}
 
+// A quota's name is unique within its fleet.
+func (er *ElasticQuotaRequest) GetByName(ctx context.Context, fleetId int64, name string) (*ElasticQuotaResult, *Error) {
+	return er.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%s", "elastic_quotas", url.PathEscape(name)),
+		QueryParams: map[string]string{"by_name": "true", "elastic_fleet_id": strconv.FormatInt(fleetId, 10)},
+		Result:      &ElasticQuotaResult{},
+	})
+}
+
+func (er *ElasticQuotaRequest) get(ctx context.Context, clientRequest *ClientRequest) (*ElasticQuotaResult, *Error) {
 	result, err := er.client.Get(ctx, clientRequest)
 	if err != nil {
 		return nil, err

@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"time"
 )
 
@@ -74,23 +75,32 @@ func (mr *EnrollmentImageRequest) List(ctx context.Context) (*EnrollmentImagesRe
 }
 
 func (mr *EnrollmentImageRequest) Get(ctx context.Context, id int64) (*EnrollmentImageResult, *Error) {
-	subPath := fmt.Sprintf("%s/%d", "enrollment_images", id)
-	clientRequest := &ClientRequest{
-		Path:   subPath,
+	return mr.get(ctx, &ClientRequest{
+		Path:   fmt.Sprintf("%s/%d", "enrollment_images", id),
 		Result: &EnrollmentImageResult{},
-	}
+	})
+}
 
+func (mr *EnrollmentImageRequest) GetByName(ctx context.Context, name string) (*EnrollmentImageResult, *Error) {
+	return mr.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%s", "enrollment_images", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &EnrollmentImageResult{},
+	})
+}
+
+func (mr *EnrollmentImageRequest) get(ctx context.Context, clientRequest *ClientRequest) (*EnrollmentImageResult, *Error) {
 	result, err := mr.client.Get(ctx, clientRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	clusterResult, ok := result.(*EnrollmentImageResult)
+	enrollmentImageResult, ok := result.(*EnrollmentImageResult)
 	if !ok {
 		return nil, &ErrorTypeAssert
 	}
 
-	return clusterResult, nil
+	return enrollmentImageResult, nil
 }
 
 func (mr *EnrollmentImageRequest) Create(ctx context.Context, input *EnrollmentImageCreateInput) (*EnrollmentImageResult, *Error) {
