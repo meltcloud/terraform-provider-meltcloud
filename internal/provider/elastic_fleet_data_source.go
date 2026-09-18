@@ -34,15 +34,7 @@ func (d *ElasticFleetDataSource) Metadata(ctx context.Context, req datasource.Me
 func (d *ElasticFleetDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: elasticFleetDesc,
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: elasticFleetResourceAttributes()["id"].GetMarkdownDescription(),
-				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: elasticFleetResourceAttributes()["name"].GetMarkdownDescription(),
-				Computed:            true,
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"cluster_id": schema.Int64Attribute{
 				MarkdownDescription: elasticFleetResourceAttributes()["cluster_id"].GetMarkdownDescription(),
 				Computed:            true,
@@ -51,7 +43,7 @@ func (d *ElasticFleetDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: elasticFleetResourceAttributes()["status"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-		},
+		}, elasticFleetResourceAttributes()["id"].GetMarkdownDescription(), elasticFleetResourceAttributes()["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -72,6 +64,13 @@ func (d *ElasticFleetDataSource) Configure(ctx context.Context, req datasource.C
 	d.client = c
 }
 
+func (d *ElasticFleetDataSource) readFleet(ctx context.Context, data ElasticFleetDataSourceModel) (*client.ElasticFleetResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.ElasticFleet().GetByName(ctx, data.Name.ValueString())
+	}
+	return d.client.ElasticFleet().Get(ctx, data.ID.ValueInt64())
+}
+
 func (d *ElasticFleetDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data ElasticFleetDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -79,9 +78,9 @@ func (d *ElasticFleetDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	result, err := d.client.ElasticFleet().Get(ctx, data.ID.ValueInt64())
+	result, err := d.readFleet(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read elastic fleet with ID %d, got error: %s", data.ID.ValueInt64(), err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read elastic fleet, got error: %s", err))
 		return
 	}
 

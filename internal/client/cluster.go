@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type ClusterRequest struct {
@@ -73,12 +74,21 @@ func (mr *ClusterRequest) List(ctx context.Context) (*ClustersResult, *Error) {
 }
 
 func (mr *ClusterRequest) Get(ctx context.Context, id int64) (*ClusterResult, *Error) {
-	subPath := fmt.Sprintf("%s/%d", "clusters", id)
-	clientRequest := &ClientRequest{
-		Path:   subPath,
+	return mr.get(ctx, &ClientRequest{
+		Path:   fmt.Sprintf("%s/%d", "clusters", id),
 		Result: &ClusterResult{},
-	}
+	})
+}
 
+func (mr *ClusterRequest) GetByName(ctx context.Context, name string) (*ClusterResult, *Error) {
+	return mr.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%s", "clusters", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &ClusterResult{},
+	})
+}
+
+func (mr *ClusterRequest) get(ctx context.Context, clientRequest *ClientRequest) (*ClusterResult, *Error) {
 	result, err := mr.client.Get(ctx, clientRequest)
 	if err != nil {
 		return nil, err

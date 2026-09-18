@@ -13,10 +13,16 @@ A [Machine Pool](https://docs.meltcloud.io/concepts/machine-pools) is an **updat
 ## Example Usage
 
 ```terraform
-# get machine by ID
+# get machine pool by ID
 data "meltcloud_machine_pool" "example_id" {
   cluster_id = 1
   id         = 42
+}
+
+# get machine pool by name
+data "meltcloud_machine_pool" "example_name" {
+  cluster_id = 1
+  name       = "workers"
 }
 ```
 
@@ -26,11 +32,14 @@ data "meltcloud_machine_pool" "example_id" {
 ### Required
 
 - `cluster_id` (Number) ID of the associated cluster
+
+### Optional
+
 - `id` (Number) Internal ID of the Machine Pool on meltcloud
+- `name` (String) Name of the machine pool
 
 ### Read-Only
 
-- `name` (String) Name of the machine pool
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
 - `status` (String) Status of the Machine Pool
 - `version` (String) Kubernetes minor version of the machine pool (Kubelet)

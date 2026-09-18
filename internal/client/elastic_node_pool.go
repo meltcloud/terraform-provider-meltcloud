@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type ElasticNodePoolRequest struct {
@@ -53,22 +54,32 @@ func (c *Client) ElasticNodePool() *ElasticNodePoolRequest {
 }
 
 func (er *ElasticNodePoolRequest) Get(ctx context.Context, clusterId int64, id int64) (*ElasticNodePoolResult, *Error) {
-	clientRequest := &ClientRequest{
+	return er.get(ctx, &ClientRequest{
 		Path:   fmt.Sprintf("%s/%d/%s/%d", "clusters", clusterId, "elastic_node_pools", id),
 		Result: &ElasticNodePoolResult{},
-	}
+	})
+}
 
+func (er *ElasticNodePoolRequest) GetByName(ctx context.Context, clusterId int64, name string) (*ElasticNodePoolResult, *Error) {
+	return er.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%d/%s/%s", "clusters", clusterId, "elastic_node_pools", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &ElasticNodePoolResult{},
+	})
+}
+
+func (er *ElasticNodePoolRequest) get(ctx context.Context, clientRequest *ClientRequest) (*ElasticNodePoolResult, *Error) {
 	result, err := er.client.Get(ctx, clientRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	nodePoolResult, ok := result.(*ElasticNodePoolResult)
+	poolResult, ok := result.(*ElasticNodePoolResult)
 	if !ok {
 		return nil, &ErrorTypeAssert
 	}
 
-	return nodePoolResult, nil
+	return poolResult, nil
 }
 
 func (er *ElasticNodePoolRequest) Create(ctx context.Context, clusterId int64, input *ElasticNodePoolCreateInput) (*ElasticNodePoolResult, *Error) {

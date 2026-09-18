@@ -3,14 +3,8 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 	"terraform-provider-meltcloud/internal/client"
 	"terraform-provider-meltcloud/internal/kubernetes"
-
-	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -62,23 +56,7 @@ func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 	resp.Schema = schema.Schema{
 		MarkdownDescription: clusterDesc,
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: clusterResourceAttributes()["id"].GetMarkdownDescription(),
-				Optional:            true,
-				Computed:            true,
-				Validators: []validator.Int64{
-					int64validator.ConflictsWith(path.MatchRelative().AtParent().AtName("name")),
-				},
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: clusterResourceAttributes()["name"].GetMarkdownDescription(),
-				Optional:            true,
-				Computed:            true,
-				Validators: []validator.String{
-					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("id")),
-				},
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"control_plane_status": schema.StringAttribute{
 				MarkdownDescription: "Control Plane Status of the Cluster",
 				Computed:            true,
@@ -152,7 +130,7 @@ func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				Computed:            true,
 				Sensitive:           true,
 			},
-		},
+		}, clusterResourceAttributes()["id"].GetMarkdownDescription(), clusterResourceAttributes()["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -176,6 +154,13 @@ func (d *ClusterDataSource) Configure(ctx context.Context, req datasource.Config
 	d.client = client
 }
 
+func (d *ClusterDataSource) readCluster(ctx context.Context, data ClusterDataSourceModel) (*client.ClusterResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.Cluster().GetByName(ctx, data.Name.ValueString())
+	}
+	return d.client.Cluster().Get(ctx, data.ID.ValueInt64())
+}
+
 func (d *ClusterDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data ClusterDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -183,41 +168,12 @@ func (d *ClusterDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	var cluster *client.Cluster
-	if data.ID.ValueInt64() != 0 {
-		result, err := d.client.Cluster().Get(ctx, data.ID.ValueInt64())
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster by ID %d, got error: %s", data.ID.ValueInt64(), err))
-			return
-		}
-		cluster = result.Cluster
-	} else {
-		result, err := d.client.Cluster().List(ctx)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read clusters, got error: %s", err))
-			return
-		}
-
-		for _, c := range result.Clusters {
-			if strings.EqualFold(data.Name.ValueString(), c.Name) {
-				cluster = c
-				break
-			}
-		}
-
-		if cluster == nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Could not find cluster by name %s", data.Name.ValueString()))
-			return
-		}
-
-		// need to lookup by ID since the List does not include the kubeconfig
-		clusterResult, err2 := d.client.Cluster().Get(ctx, cluster.ID)
-		if err2 != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster by ID %d, got error: %s", data.ID.ValueInt64(), err2))
-			return
-		}
-		cluster = clusterResult.Cluster
+	result, err := d.readCluster(ctx, data)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
+		return
 	}
+	cluster := result.Cluster
 
 	data.ID = types.Int64Value(cluster.ID)
 	data.Name = types.StringValue(cluster.Name)

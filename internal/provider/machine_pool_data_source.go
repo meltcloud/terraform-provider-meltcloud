@@ -40,18 +40,10 @@ func (d *MachinePoolDataSource) Schema(ctx context.Context, req datasource.Schem
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machinePoolDesc,
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: machinePoolResourceAttributes()["id"].GetMarkdownDescription(),
-				Required:            true,
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"cluster_id": schema.Int64Attribute{
 				MarkdownDescription: machinePoolResourceAttributes()["cluster_id"].GetMarkdownDescription(),
 				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: machinePoolResourceAttributes()["name"].GetMarkdownDescription(),
-				Computed:            true,
 			},
 			"version": schema.StringAttribute{
 				MarkdownDescription: machinePoolResourceAttributes()["version"].GetMarkdownDescription(),
@@ -65,7 +57,7 @@ func (d *MachinePoolDataSource) Schema(ctx context.Context, req datasource.Schem
 				MarkdownDescription: "Status of the Machine Pool",
 				Computed:            true,
 			},
-		},
+		}, machinePoolResourceAttributes()["id"].GetMarkdownDescription(), machinePoolResourceAttributes()["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -89,6 +81,13 @@ func (d *MachinePoolDataSource) Configure(ctx context.Context, req datasource.Co
 	d.client = client
 }
 
+func (d *MachinePoolDataSource) readMachinePool(ctx context.Context, data MachinePoolDataSourceModel) (*client.MachinePoolResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.MachinePool().GetByName(ctx, data.ClusterID.ValueInt64(), data.Name.ValueString())
+	}
+	return d.client.MachinePool().Get(ctx, data.ClusterID.ValueInt64(), data.ID.ValueInt64())
+}
+
 func (d *MachinePoolDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data MachinePoolDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -96,9 +95,9 @@ func (d *MachinePoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
-	result, err := d.client.MachinePool().Get(ctx, data.ClusterID.ValueInt64(), data.ID.ValueInt64())
+	result, err := d.readMachinePool(ctx, data)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read machine pool with ID %d on cluster ID %d, got error: %s", data.ID.ValueInt64(), data.ClusterID.ValueInt64(), err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read machine pool on cluster ID %d, got error: %s", data.ClusterID.ValueInt64(), err))
 		return
 	}
 

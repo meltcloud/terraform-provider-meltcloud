@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type MachinePoolRequest struct {
@@ -39,23 +40,32 @@ func (c *Client) MachinePool() *MachinePoolRequest {
 }
 
 func (mr *MachinePoolRequest) Get(ctx context.Context, clusterId int64, id int64) (*MachinePoolResult, *Error) {
-	subPath := fmt.Sprintf("%s/%d/%s/%d", "clusters", clusterId, "machine_pools", id)
-	clientRequest := &ClientRequest{
-		Path:   subPath,
+	return mr.get(ctx, &ClientRequest{
+		Path:   fmt.Sprintf("%s/%d/%s/%d", "clusters", clusterId, "machine_pools", id),
 		Result: &MachinePoolResult{},
-	}
+	})
+}
 
+func (mr *MachinePoolRequest) GetByName(ctx context.Context, clusterId int64, name string) (*MachinePoolResult, *Error) {
+	return mr.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%d/%s/%s", "clusters", clusterId, "machine_pools", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &MachinePoolResult{},
+	})
+}
+
+func (mr *MachinePoolRequest) get(ctx context.Context, clientRequest *ClientRequest) (*MachinePoolResult, *Error) {
 	result, err := mr.client.Get(ctx, clientRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	machineResult, ok := result.(*MachinePoolResult)
+	machinePoolResult, ok := result.(*MachinePoolResult)
 	if !ok {
 		return nil, &ErrorTypeAssert
 	}
 
-	return machineResult, nil
+	return machinePoolResult, nil
 }
 
 func (mr *MachinePoolRequest) Create(ctx context.Context, clusterId int64, input *MachinePoolCreateInput) (*MachinePoolResult, *Error) {
