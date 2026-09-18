@@ -14,9 +14,15 @@ An [Elastic Node Pool](https://docs.meltcloud.io/tasks/elastic-node-pools/create
 
 ```terraform
 # get elastic node pool by ID
-data "meltcloud_elastic_node_pool" "example" {
+data "meltcloud_elastic_node_pool" "example_id" {
   cluster_id = 1
   id         = 42
+}
+
+# get elastic node pool by name
+data "meltcloud_elastic_node_pool" "example_name" {
+  cluster_id = 1
+  name       = "workers"
 }
 ```
 
@@ -26,12 +32,15 @@ data "meltcloud_elastic_node_pool" "example" {
 ### Required
 
 - `cluster_id` (Number) ID of the cluster the node pool runs on
+
+### Optional
+
 - `id` (Number) Internal ID of the Elastic Node Pool on meltcloud
+- `name` (String) Name of the Elastic Node Pool
 
 ### Read-Only
 
 - `elastic_quota_id` (Number) ID of the Elastic Quota backing the node pool
-- `name` (String) Name of the Elastic Node Pool
 - `node_config` (Attributes) Per-node resource configuration (see [below for nested schema](#nestedatt--node_config))
 - `node_count` (Number) Number of nodes in the node pool
 - `patch_version` (String) Kubernetes patch version of the Elastic Node Pool nodes (Kubelet)

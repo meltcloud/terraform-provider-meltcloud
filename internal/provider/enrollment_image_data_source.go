@@ -3,16 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
-	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -54,23 +49,7 @@ func (d *EnrollmentImageDataSource) Schema(ctx context.Context, req datasource.S
 	resp.Schema = schema.Schema{
 		MarkdownDescription: enrollmentImageDesc,
 
-		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: enrollmentImageResourceAttributes()["id"].GetMarkdownDescription(),
-				Optional:            true,
-				Computed:            true,
-				Validators: []validator.Int64{
-					int64validator.ConflictsWith(path.MatchRelative().AtParent().AtName("name")),
-				},
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: enrollmentImageResourceAttributes()["name"].GetMarkdownDescription(),
-				Optional:            true,
-				Computed:            true,
-				Validators: []validator.String{
-					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("id")),
-				},
-			},
+		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"status": schema.StringAttribute{
 				MarkdownDescription: "Status of the Enrollment Image",
 				Computed:            true,
@@ -129,7 +108,7 @@ func (d *EnrollmentImageDataSource) Schema(ctx context.Context, req datasource.S
 				MarkdownDescription: enrollmentImageResourceAttributes()["last_used_at"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-		},
+		}, enrollmentImageResourceAttributes()["id"].GetMarkdownDescription(), enrollmentImageResourceAttributes()["name"].GetMarkdownDescription()),
 	}
 }
 
@@ -153,6 +132,13 @@ func (d *EnrollmentImageDataSource) Configure(ctx context.Context, req datasourc
 	d.client = client
 }
 
+func (d *EnrollmentImageDataSource) readEnrollmentImage(ctx context.Context, data EnrollmentImageDataSourceModel) (*client.EnrollmentImageResult, *client.Error) {
+	if data.ID.IsNull() {
+		return d.client.EnrollmentImage().GetByName(ctx, data.Name.ValueString())
+	}
+	return d.client.EnrollmentImage().Get(ctx, data.ID.ValueInt64())
+}
+
 func (d *EnrollmentImageDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data EnrollmentImageDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -160,33 +146,12 @@ func (d *EnrollmentImageDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	var enrollmentImage *client.EnrollmentImage
-	if data.ID.ValueInt64() != 0 {
-		result, err := d.client.EnrollmentImage().Get(ctx, data.ID.ValueInt64())
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read enrollment image by ID %d, got error: %s", data.ID.ValueInt64(), err))
-			return
-		}
-		enrollmentImage = result.EnrollmentImage
-	} else {
-		result, err := d.client.EnrollmentImage().List(ctx)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read enrollment images, got error: %s", err))
-			return
-		}
-
-		for _, a := range result.EnrollmentImages {
-			if strings.EqualFold(data.Name.ValueString(), a.Name) {
-				enrollmentImage = a
-				break
-			}
-		}
-
-		if enrollmentImage == nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Could not find enrollment image by name %s", data.Name.ValueString()))
-			return
-		}
+	result, err := d.readEnrollmentImage(ctx, data)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read enrollment image, got error: %s", err))
+		return
 	}
+	enrollmentImage := result.EnrollmentImage
 
 	data.ID = types.Int64Value(enrollmentImage.ID)
 	data.Name = types.StringValue(enrollmentImage.Name)

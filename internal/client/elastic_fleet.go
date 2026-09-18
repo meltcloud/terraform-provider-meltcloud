@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type ElasticFleetRequest struct {
@@ -33,11 +34,21 @@ func (c *Client) ElasticFleet() *ElasticFleetRequest {
 }
 
 func (er *ElasticFleetRequest) Get(ctx context.Context, id int64) (*ElasticFleetResult, *Error) {
-	clientRequest := &ClientRequest{
+	return er.get(ctx, &ClientRequest{
 		Path:   fmt.Sprintf("%s/%d", "elastic_fleets", id),
 		Result: &ElasticFleetResult{},
-	}
+	})
+}
 
+func (er *ElasticFleetRequest) GetByName(ctx context.Context, name string) (*ElasticFleetResult, *Error) {
+	return er.get(ctx, &ClientRequest{
+		Path:        fmt.Sprintf("%s/%s", "elastic_fleets", url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &ElasticFleetResult{},
+	})
+}
+
+func (er *ElasticFleetRequest) get(ctx context.Context, clientRequest *ClientRequest) (*ElasticFleetResult, *Error) {
 	result, err := er.client.Get(ctx, clientRequest)
 	if err != nil {
 		return nil, err
