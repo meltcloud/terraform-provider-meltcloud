@@ -38,7 +38,7 @@ terraform apply
 
 or Run/Debug within Goland:
 
-- Run/Debug `main.go` with program arguments `-debug` and environment variables `MELTCLOUD_API_TOKEN=...`
+- Run/Debug `main.go` with program arguments `-debug` and environment variables `MELTCLOUD_API_KEY=...`
 - Export the variables printed on stdout before running `terraform apply`
 
 ## Releasing
