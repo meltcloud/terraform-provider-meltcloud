@@ -41,10 +41,13 @@ data "meltcloud_cluster" "example_name" {
 - `kubeconfig` (Attributes, Sensitive) (see [below for nested schema](#nestedatt--kubeconfig))
 - `kubeconfig_raw` (String, Sensitive)
 - `kubeconfig_user_raw` (String, Sensitive)
+- `kubernetes_bundle` (String) Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`
+- `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `patch_version` (String) Kubernetes patch version of the cluster control plane
 - `pod_cidr` (String) CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. Switching to `manual` is only possible together with a minor version upgrade. Switching to another channel without changing `version` takes effect with the next minor version upgrade.
 - `service_cidr` (String) CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.
-- `version` (String) Kubernetes minor version of the cluster control plane
+- `version` (String) Kubernetes minor version of the cluster control plane. Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.
 
 <a id="nestedatt--kubeconfig"></a>
 ### Nested Schema for `kubeconfig`

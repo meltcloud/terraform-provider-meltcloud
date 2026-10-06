@@ -20,8 +20,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ resource.Resource                = &ClusterResource{}
-	_ resource.ResourceWithImportState = &ClusterResource{}
+	_ resource.Resource                     = &ClusterResource{}
+	_ resource.ResourceWithImportState      = &ClusterResource{}
+	_ resource.ResourceWithConfigValidators = &ClusterResource{}
 )
 
 func NewClusterResource() resource.Resource {
@@ -39,6 +40,9 @@ type ClusterResourceModel struct {
 	Name              types.String `tfsdk:"name"`
 	Version           types.String `tfsdk:"version"`
 	PatchVersion      types.String `tfsdk:"patch_version"`
+	ReleaseChannel    types.String `tfsdk:"release_channel"`
+	ManualVersion     types.String `tfsdk:"manual_version"`
+	KubernetesBundle  types.String `tfsdk:"kubernetes_bundle"`
 	PodCIDR           types.String `tfsdk:"pod_cidr"`
 	ServiceCIDR       types.String `tfsdk:"service_cidr"`
 	DNSServiceIP      types.String `tfsdk:"dns_service_ip"`
@@ -80,14 +84,15 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 				stringplanmodifier.RequiresReplace(),
 			},
 		},
-		"version": schema.StringAttribute{
-			MarkdownDescription: "Kubernetes minor version of the cluster control plane",
-			Required:            true,
-		},
+		"version": versionAttribute("Kubernetes minor version of the cluster control plane"),
 		"patch_version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes patch version of the cluster control plane",
 			Computed:            true,
 		},
+		"release_channel": releaseChannelAttribute("Switching to `manual` is only possible together with a minor version upgrade. " +
+			"Switching to another channel without changing `version` takes effect with the next minor version upgrade."),
+		"manual_version":    manualVersionAttribute(),
+		"kubernetes_bundle": kubernetesBundleAttribute(),
 		"pod_cidr": schema.StringAttribute{
 			MarkdownDescription: "CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.",
 			Optional:            true,
@@ -179,6 +184,10 @@ func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest
 	}
 }
 
+func (r *ClusterResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{releaseChannelValidator{}}
+}
+
 func (r *ClusterResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
@@ -216,27 +225,15 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	if !data.AddonCoreDNS.IsNull() && !data.AddonCoreDNS.IsUnknown() {
 		addonCoreDNS = data.AddonCoreDNS.ValueBoolPointer()
 	}
-	var podCIDR *string
-	if !data.PodCIDR.IsNull() && !data.PodCIDR.IsUnknown() {
-		podCIDR = data.PodCIDR.ValueStringPointer()
-	}
-
-	var serviceCIDR *string
-	if !data.ServiceCIDR.IsNull() && !data.ServiceCIDR.IsUnknown() {
-		serviceCIDR = data.ServiceCIDR.ValueStringPointer()
-	}
-
-	var dnsServiceIP *string
-	if !data.DNSServiceIP.IsNull() && !data.DNSServiceIP.IsUnknown() {
-		dnsServiceIP = data.DNSServiceIP.ValueStringPointer()
-	}
 
 	clusterCreateInput := &client.ClusterCreateInput{
 		Name:           data.Name.ValueString(),
 		UserVersion:    data.Version.ValueString(),
-		PodCIDR:        podCIDR,
-		ServiceCIDR:    serviceCIDR,
-		DNSServiceIP:   dnsServiceIP,
+		ReleaseChannel: data.ReleaseChannel.ValueString(),
+		ManualVersion:  optionalString(data.ManualVersion),
+		PodCIDR:        optionalString(data.PodCIDR),
+		ServiceCIDR:    optionalString(data.ServiceCIDR),
+		DNSServiceIP:   optionalString(data.DNSServiceIP),
 		AddonKubeProxy: addonKubeProxy,
 		AddonCoreDNS:   addonCoreDNS,
 	}
@@ -264,8 +261,6 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	data.ID = types.Int64Value(clusterGetResult.Cluster.ID)
-	data.Version = types.StringValue(clusterGetResult.Cluster.UserVersion)
-	data.PatchVersion = types.StringValue(clusterGetResult.Cluster.PatchVersion)
 	r.setValues(clusterGetResult.Cluster, &data)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -298,8 +293,6 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 		return
 	}
-	data.Version = types.StringValue(result.Cluster.UserVersion)
-	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
 	r.setValues(result.Cluster, &data)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
@@ -315,6 +308,11 @@ func (r *ClusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 func (r *ClusterResource) setValues(result *client.Cluster, data *ClusterResourceModel) {
 	data.Name = types.StringValue(result.Name)
+	data.Version = types.StringValue(result.UserVersion)
+	data.PatchVersion = types.StringValue(result.PatchVersion)
+	data.ReleaseChannel = types.StringValue(result.ReleaseChannel)
+	data.ManualVersion = types.StringPointerValue(result.ManualVersion)
+	data.KubernetesBundle = types.StringValue(result.KubernetesBundle)
 	data.PodCIDR = types.StringValue(result.PodCIDR)
 	data.ServiceCIDR = types.StringValue(result.ServiceCIDR)
 	data.DNSServiceIP = types.StringValue(result.DNSServiceIP)
@@ -349,7 +347,9 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	clusterUpdateInput := &client.ClusterUpdateInput{
-		UserVersion: data.Version.ValueString(),
+		UserVersion:    data.Version.ValueString(),
+		ReleaseChannel: data.ReleaseChannel.ValueString(),
+		ManualVersion:  optionalString(data.ManualVersion),
 	}
 
 	result, err := r.client.Cluster().Update(ctx, data.ID.ValueInt64(), clusterUpdateInput)
@@ -365,14 +365,13 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 			return
 		}
 
-		_, err := r.client.Cluster().Get(ctx, data.ID.ValueInt64())
+		result, err = r.client.Cluster().Get(ctx, data.ID.ValueInt64())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 			return
 		}
 	}
 	r.setValues(result.Cluster, &data)
-	data.PatchVersion = types.StringValue(result.Cluster.PatchVersion)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	kubeConfigResourceModel, kErr := r.getKubeConfigResourceModel(result.Cluster.KubeConfig)

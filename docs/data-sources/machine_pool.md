@@ -40,6 +40,9 @@ data "meltcloud_machine_pool" "example_name" {
 
 ### Read-Only
 
+- `kubernetes_bundle` (String) Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`
+- `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`.
 - `status` (String) Status of the Machine Pool
-- `version` (String) Kubernetes minor version of the machine pool (Kubelet)
+- `version` (String) Kubernetes minor version of the machine pool (Kubelet). Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.

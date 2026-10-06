@@ -41,11 +41,14 @@ data "meltcloud_elastic_node_pool" "example_name" {
 ### Read-Only
 
 - `elastic_quota_id` (Number) ID of the Elastic Quota backing the node pool
+- `kubernetes_bundle` (String) Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`
+- `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `node_config` (Attributes) Per-node resource configuration (see [below for nested schema](#nestedatt--node_config))
 - `node_count` (Number) Number of nodes in the node pool
 - `patch_version` (String) Kubernetes patch version of the Elastic Node Pool nodes (Kubelet)
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`.
 - `status` (String) Status of the Elastic Node Pool
-- `version` (String) Kubernetes minor version of the Elastic Node Pool nodes (Kubelet)
+- `version` (String) Kubernetes minor version of the Elastic Node Pool nodes (Kubelet). Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.
 
 <a id="nestedatt--node_config"></a>
 ### Nested Schema for `node_config`

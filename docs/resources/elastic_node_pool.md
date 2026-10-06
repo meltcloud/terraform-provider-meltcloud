@@ -4,11 +4,14 @@ page_title: "meltcloud_elastic_node_pool Resource - meltcloud"
 subcategory: ""
 description: |-
   An Elastic Node Pool https://docs.meltcloud.io/tasks/elastic-node-pools/create provisions Elastic Nodes (virtual Kubernetes worker nodes) from an Elastic Quota https://docs.meltcloud.io/tasks/elastic-fleets/create-quota and joins them to a Cluster.
+  ~> Be aware that changing the version, release_channel or manual_version will be rolled out to all nodes of the Elastic Node Pool immediately.
 ---
 
 # meltcloud_elastic_node_pool (Resource)
 
 An [Elastic Node Pool](https://docs.meltcloud.io/tasks/elastic-node-pools/create) provisions Elastic Nodes (virtual Kubernetes worker nodes) from an [Elastic Quota](https://docs.meltcloud.io/tasks/elastic-fleets/create-quota) and joins them to a Cluster.
+
+~> Be aware that changing the `version`, `release_channel` or `manual_version` will be rolled out to all nodes of the Elastic Node Pool immediately.
 
 ## Example Usage
 
@@ -20,11 +23,12 @@ data "meltcloud_elastic_quota" "existing" {
 
 # create cluster
 resource "meltcloud_cluster" "example" {
-  name           = "melt02"
-  version        = "1.35"
-  pod_cidr       = "10.36.0.0/16"
-  service_cidr   = "10.96.0.0/16"
-  dns_service_ip = "10.96.0.10"
+  name            = "melt02"
+  version         = "1.35"
+  release_channel = "stable"
+  pod_cidr        = "10.36.0.0/16"
+  service_cidr    = "10.96.0.0/16"
+  dns_service_ip  = "10.96.0.10"
 }
 
 # create an elastic node pool consuming the quota
@@ -32,9 +36,10 @@ resource "meltcloud_elastic_node_pool" "example" {
   cluster_id       = meltcloud_cluster.example.id
   elastic_quota_id = data.meltcloud_elastic_quota.existing.id
 
-  name       = "nodepool1"
-  version    = "1.35"
-  node_count = 1
+  name            = "nodepool1"
+  version         = "1.35"
+  release_channel = "stable"
+  node_count      = 1
 
   node_config {
     vcpus      = 4
@@ -53,15 +58,18 @@ resource "meltcloud_elastic_node_pool" "example" {
 - `elastic_quota_id` (Number) ID of the Elastic Quota backing the node pool
 - `name` (String) Name of the Elastic Node Pool
 - `node_count` (Number) Number of nodes in the node pool
-- `version` (String) Kubernetes minor version of the Elastic Node Pool nodes (Kubelet)
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`.
 
 ### Optional
 
+- `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `node_config` (Block, Optional) Per-node resource configuration (see [below for nested schema](#nestedblock--node_config))
+- `version` (String) Kubernetes minor version of the Elastic Node Pool nodes (Kubelet). Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the Elastic Node Pool on meltcloud
+- `kubernetes_bundle` (String) Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`
 - `patch_version` (String) Kubernetes patch version of the Elastic Node Pool nodes (Kubelet)
 - `status` (String) Status of the Elastic Node Pool
 

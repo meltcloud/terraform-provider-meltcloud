@@ -20,23 +20,28 @@ type ClustersResult struct {
 }
 
 type Cluster struct {
-	ID                 int64  `json:"id"`
-	Name               string `json:"name"`
-	ControlPlaneStatus string `json:"control_plane_status"`
-	UserVersion        string `json:"user_version"`
-	PatchVersion       string `json:"patch_version"`
-	KubeConfig         string `json:"kubeconfig"`
-	KubeConfigUser     string `json:"kubeconfig_user"`
-	PodCIDR            string `json:"pod_cidr"`
-	ServiceCIDR        string `json:"service_cidr"`
-	DNSServiceIP       string `json:"dns_service_ip"`
-	AddonKubeProxy     bool   `json:"addon_kube_proxy"`
-	AddonCoreDNS       bool   `json:"addon_core_dns"`
+	ID                 int64   `json:"id"`
+	Name               string  `json:"name"`
+	ControlPlaneStatus string  `json:"control_plane_status"`
+	UserVersion        string  `json:"user_version"`
+	PatchVersion       string  `json:"patch_version"`
+	ReleaseChannel     string  `json:"release_channel"`
+	ManualVersion      *string `json:"manual_version"`
+	KubernetesBundle   string  `json:"kubernetes_bundle"`
+	KubeConfig         string  `json:"kubeconfig"`
+	KubeConfigUser     string  `json:"kubeconfig_user"`
+	PodCIDR            string  `json:"pod_cidr"`
+	ServiceCIDR        string  `json:"service_cidr"`
+	DNSServiceIP       string  `json:"dns_service_ip"`
+	AddonKubeProxy     bool    `json:"addon_kube_proxy"`
+	AddonCoreDNS       bool    `json:"addon_core_dns"`
 }
 
 type ClusterCreateInput struct {
 	Name           string  `json:"name"`
-	UserVersion    string  `json:"user_version"`
+	UserVersion    string  `json:"user_version,omitempty"`
+	ReleaseChannel string  `json:"release_channel"`
+	ManualVersion  *string `json:"manual_version,omitempty"`
 	PodCIDR        *string `json:"pod_cidr,omitempty"`
 	ServiceCIDR    *string `json:"service_cidr,omitempty"`
 	DNSServiceIP   *string `json:"dns_service_ip,omitempty"`
@@ -45,7 +50,9 @@ type ClusterCreateInput struct {
 }
 
 type ClusterUpdateInput struct {
-	UserVersion string `json:"user_version,omitempty"`
+	UserVersion    string  `json:"user_version,omitempty"`
+	ReleaseChannel string  `json:"release_channel"`
+	ManualVersion  *string `json:"manual_version,omitempty"`
 }
 
 func (c *Client) Cluster() *ClusterRequest {
