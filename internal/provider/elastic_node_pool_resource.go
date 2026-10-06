@@ -92,7 +92,7 @@ func elasticNodePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Kubernetes patch version of the Elastic Node Pool nodes (Kubelet)",
 			Computed:            true,
 		},
-		"release_channel":   releaseChannelAttribute(poolReleaseChannelDefaultDesc),
+		"release_channel":   releaseChannelAttribute(""),
 		"manual_version":    manualVersionAttribute(),
 		"kubernetes_bundle": kubernetesBundleAttribute(),
 		"node_count": schema.Int64Attribute{
@@ -181,7 +181,7 @@ func (r *ElasticNodePoolResource) Create(ctx context.Context, req resource.Creat
 		NodeMemoryMiB:  data.NodeConfig.MemoryMiB.ValueInt64(),
 		NodeDiskGiB:    data.NodeConfig.DiskGiB.ValueInt64(),
 		Version:        data.Version.ValueString(),
-		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ReleaseChannel: data.ReleaseChannel.ValueString(),
 		ManualVersion:  optionalString(data.ManualVersion),
 	}
 
@@ -261,7 +261,7 @@ func (r *ElasticNodePoolResource) Update(ctx context.Context, req resource.Updat
 		NodeMemoryMiB:  data.NodeConfig.MemoryMiB.ValueInt64(),
 		NodeDiskGiB:    data.NodeConfig.DiskGiB.ValueInt64(),
 		Version:        data.Version.ValueString(),
-		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ReleaseChannel: data.ReleaseChannel.ValueString(),
 		ManualVersion:  optionalString(data.ManualVersion),
 	}
 

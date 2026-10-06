@@ -10,13 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 const releaseChannelManual = "manual"
-
-const poolReleaseChannelDefaultDesc = "If not specified, the cluster's channel is used, or the installation's first channel if the cluster is on `manual`."
 
 var bundleMinorPattern = regexp.MustCompile(`^(\d+\.\d+)\.\d+`)
 
@@ -40,15 +37,15 @@ func versionAttribute(desc string) schema.StringAttribute {
 	}
 }
 
-func releaseChannelAttribute(defaultDesc string) schema.StringAttribute {
+func releaseChannelAttribute(extraDesc string) schema.StringAttribute {
+	desc := "Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. " +
+		"Set to `manual` to pin the Kubernetes Bundle given in `manual_version`."
+	if extraDesc != "" {
+		desc += " " + extraDesc
+	}
 	return schema.StringAttribute{
-		MarkdownDescription: "Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. " +
-			"Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. " + defaultDesc,
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		MarkdownDescription: desc,
+		Required:            true,
 	}
 }
 

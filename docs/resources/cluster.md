@@ -15,14 +15,16 @@ A [Cluster](https://docs.meltcloud.io/tasks/clusters/create) in meltcloud consis
 ```terraform
 # create cluster with auto-assigned network defaults
 resource "meltcloud_cluster" "example" {
-  name    = "melt02"
-  version = "1.33"
+  name            = "melt02"
+  version         = "1.33"
+  release_channel = "stable"
 }
 
 # create cluster with explicit network configuration
 resource "meltcloud_cluster" "example_custom_network" {
-  name    = "melt03"
-  version = "1.33"
+  name            = "melt03"
+  version         = "1.33"
+  release_channel = "stable"
 
   pod_cidr       = "10.36.0.0/16"
   service_cidr   = "10.96.0.0/16"
@@ -75,6 +77,7 @@ resource "helm_release" "cilium" {
 ### Required
 
 - `name` (String) Name of the cluster, not case-sensitive. Must be unique within the organization and consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. Switching to `manual` is only possible together with a minor version upgrade. Switching to another channel without changing `version` takes effect with the next minor version upgrade.
 
 ### Optional
 
@@ -83,7 +86,6 @@ resource "helm_release" "cilium" {
 - `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
 - `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `pod_cidr` (String) CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.
-- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. If not specified, the installation's first channel is used. Switching to `manual` is only possible together with a minor version upgrade.
 - `service_cidr` (String) CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.
 - `version` (String) Kubernetes minor version of the cluster control plane. Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.
 

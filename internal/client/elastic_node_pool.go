@@ -40,7 +40,7 @@ type ElasticNodePoolCreateInput struct {
 	NodeMemoryMiB  int64   `json:"node_memory_mib"`
 	NodeDiskGiB    int64   `json:"node_disk_gib"`
 	Version        string  `json:"version,omitempty"`
-	ReleaseChannel *string `json:"release_channel,omitempty"`
+	ReleaseChannel string  `json:"release_channel"`
 	ManualVersion  *string `json:"manual_version,omitempty"`
 }
 
@@ -50,7 +50,7 @@ type ElasticNodePoolUpdateInput struct {
 	NodeMemoryMiB  int64   `json:"node_memory_mib"`
 	NodeDiskGiB    int64   `json:"node_disk_gib"`
 	Version        string  `json:"version,omitempty"`
-	ReleaseChannel *string `json:"release_channel,omitempty"`
+	ReleaseChannel string  `json:"release_channel"`
 	ManualVersion  *string `json:"manual_version,omitempty"`
 }
 

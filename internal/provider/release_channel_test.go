@@ -40,10 +40,8 @@ func TestValidateReleaseChannel(t *testing.T) {
 		errorPaths     []path.Path
 	}{
 		{"channel with version", str("stable"), null, str("1.35"), nil},
-		{"default channel with version", null, null, str("1.35"), nil},
 		{"channel without version", str("stable"), null, null, []path.Path{path.Root("version")}},
 		{"channel with pin", str("stable"), str("1.35.5-melt.30"), str("1.35"), []path.Path{path.Root("manual_version")}},
-		{"default channel with pin", null, str("1.35.5-melt.30"), str("1.35"), []path.Path{path.Root("manual_version")}},
 		{"manual with pin", str("manual"), str("1.35.5-melt.30"), null, nil},
 		{"manual with pin and matching version", str("manual"), str("1.35.5-melt.30"), str("1.35"), nil},
 		{"manual with pin and other version", str("manual"), str("1.35.5-melt.30"), str("1.34"), []path.Path{path.Root("version")}},

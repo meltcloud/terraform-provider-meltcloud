@@ -76,7 +76,7 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
 			Computed:            true,
 		},
-		"release_channel":   releaseChannelAttribute(poolReleaseChannelDefaultDesc),
+		"release_channel":   releaseChannelAttribute(""),
 		"manual_version":    manualVersionAttribute(),
 		"kubernetes_bundle": kubernetesBundleAttribute(),
 	}
@@ -126,7 +126,7 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
 		Name:           data.Name.ValueString(),
 		UserVersion:    data.Version.ValueString(),
-		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ReleaseChannel: data.ReleaseChannel.ValueString(),
 		ManualVersion:  optionalString(data.ManualVersion),
 	}
 
@@ -178,7 +178,7 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
 		Name:           data.Name.ValueString(),
 		UserVersion:    data.Version.ValueString(),
-		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ReleaseChannel: data.ReleaseChannel.ValueString(),
 		ManualVersion:  optionalString(data.ManualVersion),
 	}
 

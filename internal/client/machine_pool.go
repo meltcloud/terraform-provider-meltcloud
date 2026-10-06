@@ -29,14 +29,14 @@ type MachinePool struct {
 type MachinePoolCreateInput struct {
 	Name           string  `json:"name"`
 	UserVersion    string  `json:"user_version,omitempty"`
-	ReleaseChannel *string `json:"release_channel,omitempty"`
+	ReleaseChannel string  `json:"release_channel"`
 	ManualVersion  *string `json:"manual_version,omitempty"`
 }
 
 type MachinePoolUpdateInput struct {
 	Name           string  `json:"name"`
 	UserVersion    string  `json:"user_version,omitempty"`
-	ReleaseChannel *string `json:"release_channel,omitempty"`
+	ReleaseChannel string  `json:"release_channel"`
 	ManualVersion  *string `json:"manual_version,omitempty"`
 }
 

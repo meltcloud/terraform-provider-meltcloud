@@ -46,7 +46,7 @@ data "meltcloud_elastic_node_pool" "example_name" {
 - `node_config` (Attributes) Per-node resource configuration (see [below for nested schema](#nestedatt--node_config))
 - `node_count` (Number) Number of nodes in the node pool
 - `patch_version` (String) Kubernetes patch version of the Elastic Node Pool nodes (Kubelet)
-- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. If not specified, the cluster's channel is used, or the installation's first channel if the cluster is on `manual`.
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`.
 - `status` (String) Status of the Elastic Node Pool
 - `version` (String) Kubernetes minor version of the Elastic Node Pool nodes (Kubelet). Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.
 

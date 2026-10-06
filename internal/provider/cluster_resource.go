@@ -89,8 +89,8 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Kubernetes patch version of the cluster control plane",
 			Computed:            true,
 		},
-		"release_channel": releaseChannelAttribute("If not specified, the installation's first channel is used. " +
-			"Switching to `manual` is only possible together with a minor version upgrade."),
+		"release_channel": releaseChannelAttribute("Switching to `manual` is only possible together with a minor version upgrade. " +
+			"Switching to another channel without changing `version` takes effect with the next minor version upgrade."),
 		"manual_version":    manualVersionAttribute(),
 		"kubernetes_bundle": kubernetesBundleAttribute(),
 		"pod_cidr": schema.StringAttribute{
@@ -229,7 +229,7 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	clusterCreateInput := &client.ClusterCreateInput{
 		Name:           data.Name.ValueString(),
 		UserVersion:    data.Version.ValueString(),
-		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ReleaseChannel: data.ReleaseChannel.ValueString(),
 		ManualVersion:  optionalString(data.ManualVersion),
 		PodCIDR:        optionalString(data.PodCIDR),
 		ServiceCIDR:    optionalString(data.ServiceCIDR),
@@ -348,7 +348,7 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	clusterUpdateInput := &client.ClusterUpdateInput{
 		UserVersion:    data.Version.ValueString(),
-		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ReleaseChannel: data.ReleaseChannel.ValueString(),
 		ManualVersion:  optionalString(data.ManualVersion),
 	}
 
