@@ -4,14 +4,14 @@ page_title: "meltcloud_machine_pool Resource - meltcloud"
 subcategory: ""
 description: |-
   A Machine Pool https://docs.meltcloud.io/concepts/machine-pools is an update domain: a group of Machines https://docs.meltcloud.io/concepts/machines that run the same Kubernetes version and are updated together, one after another, so the workloads on them stay up.
-  ~> Be aware that changing the version will cause a new Revision that will be rolled out immediately, causing a reboot of all Machines https://docs.meltcloud.io/tasks/machine-pools/upgrade.
+  ~> Be aware that changing the version, release_channel or manual_version will cause a new Revision that will be rolled out immediately, causing a reboot of all Machines https://docs.meltcloud.io/tasks/machine-pools/upgrade.
 ---
 
 # meltcloud_machine_pool (Resource)
 
 A [Machine Pool](https://docs.meltcloud.io/concepts/machine-pools) is an **update domain**: a group of [Machines](https://docs.meltcloud.io/concepts/machines) that run the same Kubernetes version and are updated together, one after another, so the workloads on them stay up.
 
-~> Be aware that changing the version will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).
+~> Be aware that changing the `version`, `release_channel` or `manual_version` will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).
 
 ## Example Usage
 
@@ -41,11 +41,17 @@ resource "meltcloud_machine_pool" "example" {
 
 - `cluster_id` (Number) ID of the associated cluster
 - `name` (String) Name of the machine pool
-- `version` (String) Kubernetes minor version of the machine pool (Kubelet)
+
+### Optional
+
+- `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. If not specified, the cluster's channel is used, or the installation's first channel if the cluster is on `manual`.
+- `version` (String) Kubernetes minor version of the machine pool (Kubelet). Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the Machine Pool on meltcloud
+- `kubernetes_bundle` (String) Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
 
 ## Import

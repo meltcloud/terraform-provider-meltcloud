@@ -16,35 +16,42 @@ type ElasticNodePoolResult struct {
 }
 
 type ElasticNodePool struct {
-	ID             int64  `json:"id"`
-	Name           string `json:"name"`
-	Status         string `json:"status"`
-	ClusterID      int64  `json:"cluster_id"`
-	ElasticQuotaID int64  `json:"elastic_quota_id"`
-	NodeCount      int64  `json:"node_count"`
-	NodeVCPUs      int64  `json:"node_vcpus"`
-	NodeMemoryMiB  int64  `json:"node_memory_mib"`
-	NodeDiskGiB    int64  `json:"node_disk_gib"`
-	Version        string `json:"version"`
-	PatchVersion   string `json:"patch_version"`
+	ID               int64   `json:"id"`
+	Name             string  `json:"name"`
+	Status           string  `json:"status"`
+	ClusterID        int64   `json:"cluster_id"`
+	ElasticQuotaID   int64   `json:"elastic_quota_id"`
+	NodeCount        int64   `json:"node_count"`
+	NodeVCPUs        int64   `json:"node_vcpus"`
+	NodeMemoryMiB    int64   `json:"node_memory_mib"`
+	NodeDiskGiB      int64   `json:"node_disk_gib"`
+	Version          string  `json:"version"`
+	PatchVersion     string  `json:"patch_version"`
+	ReleaseChannel   string  `json:"release_channel"`
+	ManualVersion    *string `json:"manual_version"`
+	KubernetesBundle string  `json:"kubernetes_bundle"`
 }
 
 type ElasticNodePoolCreateInput struct {
-	Name           string `json:"name"`
-	ElasticQuotaID int64  `json:"elastic_quota_id"`
-	NodeCount      int64  `json:"node_count"`
-	NodeVCPUs      int64  `json:"node_vcpus"`
-	NodeMemoryMiB  int64  `json:"node_memory_mib"`
-	NodeDiskGiB    int64  `json:"node_disk_gib"`
-	Version        string `json:"version"`
+	Name           string  `json:"name"`
+	ElasticQuotaID int64   `json:"elastic_quota_id"`
+	NodeCount      int64   `json:"node_count"`
+	NodeVCPUs      int64   `json:"node_vcpus"`
+	NodeMemoryMiB  int64   `json:"node_memory_mib"`
+	NodeDiskGiB    int64   `json:"node_disk_gib"`
+	Version        string  `json:"version,omitempty"`
+	ReleaseChannel *string `json:"release_channel,omitempty"`
+	ManualVersion  *string `json:"manual_version,omitempty"`
 }
 
 type ElasticNodePoolUpdateInput struct {
-	NodeCount     int64  `json:"node_count"`
-	NodeVCPUs     int64  `json:"node_vcpus"`
-	NodeMemoryMiB int64  `json:"node_memory_mib"`
-	NodeDiskGiB   int64  `json:"node_disk_gib"`
-	Version       string `json:"version"`
+	NodeCount      int64   `json:"node_count"`
+	NodeVCPUs      int64   `json:"node_vcpus"`
+	NodeMemoryMiB  int64   `json:"node_memory_mib"`
+	NodeDiskGiB    int64   `json:"node_disk_gib"`
+	Version        string  `json:"version,omitempty"`
+	ReleaseChannel *string `json:"release_channel,omitempty"`
+	ManualVersion  *string `json:"manual_version,omitempty"`
 }
 
 func (c *Client) ElasticNodePool() *ElasticNodePoolRequest {

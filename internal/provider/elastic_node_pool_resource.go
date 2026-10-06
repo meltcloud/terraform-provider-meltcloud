@@ -17,8 +17,9 @@ import (
 )
 
 var (
-	_ resource.Resource                = &ElasticNodePoolResource{}
-	_ resource.ResourceWithImportState = &ElasticNodePoolResource{}
+	_ resource.Resource                   = &ElasticNodePoolResource{}
+	_ resource.ResourceWithImportState    = &ElasticNodePoolResource{}
+	_ resource.ResourceWithValidateConfig = &ElasticNodePoolResource{}
 )
 
 func NewElasticNodePoolResource() resource.Resource {
@@ -30,15 +31,18 @@ type ElasticNodePoolResource struct {
 }
 
 type ElasticNodePoolResourceModel struct {
-	ID             types.Int64      `tfsdk:"id"`
-	ClusterID      types.Int64      `tfsdk:"cluster_id"`
-	Name           types.String     `tfsdk:"name"`
-	ElasticQuotaID types.Int64      `tfsdk:"elastic_quota_id"`
-	Version        types.String     `tfsdk:"version"`
-	PatchVersion   types.String     `tfsdk:"patch_version"`
-	NodeCount      types.Int64      `tfsdk:"node_count"`
-	Status         types.String     `tfsdk:"status"`
-	NodeConfig     *NodeConfigModel `tfsdk:"node_config"`
+	ID               types.Int64      `tfsdk:"id"`
+	ClusterID        types.Int64      `tfsdk:"cluster_id"`
+	Name             types.String     `tfsdk:"name"`
+	ElasticQuotaID   types.Int64      `tfsdk:"elastic_quota_id"`
+	Version          types.String     `tfsdk:"version"`
+	PatchVersion     types.String     `tfsdk:"patch_version"`
+	ReleaseChannel   types.String     `tfsdk:"release_channel"`
+	ManualVersion    types.String     `tfsdk:"manual_version"`
+	KubernetesBundle types.String     `tfsdk:"kubernetes_bundle"`
+	NodeCount        types.Int64      `tfsdk:"node_count"`
+	Status           types.String     `tfsdk:"status"`
+	NodeConfig       *NodeConfigModel `tfsdk:"node_config"`
 }
 
 type NodeConfigModel struct {
@@ -83,14 +87,14 @@ func elasticNodePoolResourceAttributes() map[string]schema.Attribute {
 				int64planmodifier.RequiresReplace(),
 			},
 		},
-		"version": schema.StringAttribute{
-			MarkdownDescription: "Kubernetes minor version of the Elastic Node Pool nodes (Kubelet)",
-			Required:            true,
-		},
+		"version": versionAttribute("Kubernetes minor version of the Elastic Node Pool nodes (Kubelet)"),
 		"patch_version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes patch version of the Elastic Node Pool nodes (Kubelet)",
 			Computed:            true,
 		},
+		"release_channel":   releaseChannelAttribute(poolReleaseChannelDefaultDesc),
+		"manual_version":    manualVersionAttribute(),
+		"kubernetes_bundle": kubernetesBundleAttribute(),
 		"node_count": schema.Int64Attribute{
 			MarkdownDescription: "Number of nodes in the node pool",
 			Required:            true,
@@ -124,8 +128,9 @@ func nodeConfigBlockAttributes() map[string]schema.Attribute {
 
 func (r *ElasticNodePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: elasticNodePoolDesc,
-		Attributes:          elasticNodePoolResourceAttributes(),
+		MarkdownDescription: elasticNodePoolDesc + "\n\n" +
+			"~> Be aware that changing the `version`, `release_channel` or `manual_version` will be rolled out to all nodes of the Elastic Node Pool immediately.",
+		Attributes: elasticNodePoolResourceAttributes(),
 		Blocks: map[string]schema.Block{
 			"node_config": schema.SingleNestedBlock{
 				MarkdownDescription: "Per-node resource configuration",
@@ -133,6 +138,16 @@ func (r *ElasticNodePoolResource) Schema(ctx context.Context, req resource.Schem
 			},
 		},
 	}
+}
+
+func (r *ElasticNodePoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data ElasticNodePoolResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(validateReleaseChannel(data.ReleaseChannel, data.ManualVersion, data.Version)...)
 }
 
 func (r *ElasticNodePoolResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -172,6 +187,8 @@ func (r *ElasticNodePoolResource) Create(ctx context.Context, req resource.Creat
 		NodeMemoryMiB:  data.NodeConfig.MemoryMiB.ValueInt64(),
 		NodeDiskGiB:    data.NodeConfig.DiskGiB.ValueInt64(),
 		Version:        data.Version.ValueString(),
+		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ManualVersion:  optionalString(data.ManualVersion),
 	}
 
 	result, err := r.client.ElasticNodePool().Create(ctx, data.ClusterID.ValueInt64(), input)
@@ -189,17 +206,14 @@ func (r *ElasticNodePoolResource) Create(ctx context.Context, req resource.Creat
 			return
 		}
 
-		getResult, err := r.client.ElasticNodePool().Get(ctx, data.ClusterID.ValueInt64(), result.ElasticNodePool.ID)
+		result, err = r.client.ElasticNodePool().Get(ctx, data.ClusterID.ValueInt64(), result.ElasticNodePool.ID)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read elastic node pool, got error: %s", err))
 			return
 		}
-		data.PatchVersion = types.StringValue(getResult.ElasticNodePool.PatchVersion)
-		data.Status = types.StringValue(getResult.ElasticNodePool.Status)
-	} else {
-		data.PatchVersion = types.StringValue(result.ElasticNodePool.PatchVersion)
-		data.Status = types.StringValue(result.ElasticNodePool.Status)
 	}
+	setElasticNodePoolVersions(result.ElasticNodePool, &data)
+	data.Status = types.StringValue(result.ElasticNodePool.Status)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -224,8 +238,7 @@ func (r *ElasticNodePoolResource) Read(ctx context.Context, req resource.ReadReq
 	data.Name = types.StringValue(result.ElasticNodePool.Name)
 	data.ElasticQuotaID = types.Int64Value(result.ElasticNodePool.ElasticQuotaID)
 	data.NodeCount = types.Int64Value(result.ElasticNodePool.NodeCount)
-	data.Version = types.StringValue(result.ElasticNodePool.Version)
-	data.PatchVersion = types.StringValue(result.ElasticNodePool.PatchVersion)
+	setElasticNodePoolVersions(result.ElasticNodePool, &data)
 	data.Status = types.StringValue(result.ElasticNodePool.Status)
 	data.NodeConfig = &NodeConfigModel{
 		VCPUs:     types.Int64Value(result.ElasticNodePool.NodeVCPUs),
@@ -249,11 +262,13 @@ func (r *ElasticNodePoolResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	input := &client.ElasticNodePoolUpdateInput{
-		NodeCount:     data.NodeCount.ValueInt64(),
-		NodeVCPUs:     data.NodeConfig.VCPUs.ValueInt64(),
-		NodeMemoryMiB: data.NodeConfig.MemoryMiB.ValueInt64(),
-		NodeDiskGiB:   data.NodeConfig.DiskGiB.ValueInt64(),
-		Version:       data.Version.ValueString(),
+		NodeCount:      data.NodeCount.ValueInt64(),
+		NodeVCPUs:      data.NodeConfig.VCPUs.ValueInt64(),
+		NodeMemoryMiB:  data.NodeConfig.MemoryMiB.ValueInt64(),
+		NodeDiskGiB:    data.NodeConfig.DiskGiB.ValueInt64(),
+		Version:        data.Version.ValueString(),
+		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ManualVersion:  optionalString(data.ManualVersion),
 	}
 
 	result, err := r.client.ElasticNodePool().Update(ctx, data.ClusterID.ValueInt64(), data.ID.ValueInt64(), input)
@@ -269,19 +284,24 @@ func (r *ElasticNodePoolResource) Update(ctx context.Context, req resource.Updat
 			return
 		}
 
-		getResult, err := r.client.ElasticNodePool().Get(ctx, data.ClusterID.ValueInt64(), data.ID.ValueInt64())
+		result, err = r.client.ElasticNodePool().Get(ctx, data.ClusterID.ValueInt64(), data.ID.ValueInt64())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read elastic node pool, got error: %s", err))
 			return
 		}
-		data.PatchVersion = types.StringValue(getResult.ElasticNodePool.PatchVersion)
-		data.Status = types.StringValue(getResult.ElasticNodePool.Status)
-	} else {
-		data.PatchVersion = types.StringValue(result.ElasticNodePool.PatchVersion)
-		data.Status = types.StringValue(result.ElasticNodePool.Status)
 	}
+	setElasticNodePoolVersions(result.ElasticNodePool, &data)
+	data.Status = types.StringValue(result.ElasticNodePool.Status)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func setElasticNodePoolVersions(result *client.ElasticNodePool, data *ElasticNodePoolResourceModel) {
+	data.Version = types.StringValue(result.Version)
+	data.PatchVersion = types.StringValue(result.PatchVersion)
+	data.ReleaseChannel = types.StringValue(result.ReleaseChannel)
+	data.ManualVersion = types.StringPointerValue(result.ManualVersion)
+	data.KubernetesBundle = types.StringValue(result.KubernetesBundle)
 }
 
 func (r *ElasticNodePoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

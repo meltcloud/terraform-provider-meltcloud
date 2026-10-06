@@ -14,6 +14,20 @@ resource "meltcloud_cluster" "example_custom_network" {
   dns_service_ip = "10.96.0.10"
 }
 
+# create cluster following the dev release channel
+resource "meltcloud_cluster" "example_dev" {
+  name            = "melt04"
+  version         = "1.35"
+  release_channel = "dev"
+}
+
+# create cluster pinned to a Kubernetes Bundle, version is derived from it
+resource "meltcloud_cluster" "example_pinned" {
+  name            = "melt05"
+  release_channel = "manual"
+  manual_version  = "1.35.5-melt.30"
+}
+
 # use kubeconfig to install a helm chart, for example a CNI
 provider "helm" {
   kubernetes {

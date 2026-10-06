@@ -21,15 +21,18 @@ type ElasticNodePoolDataSource struct {
 }
 
 type ElasticNodePoolDataSourceModel struct {
-	ID             types.Int64                `tfsdk:"id"`
-	ClusterID      types.Int64                `tfsdk:"cluster_id"`
-	Name           types.String               `tfsdk:"name"`
-	ElasticQuotaID types.Int64                `tfsdk:"elastic_quota_id"`
-	Version        types.String               `tfsdk:"version"`
-	PatchVersion   types.String               `tfsdk:"patch_version"`
-	NodeCount      types.Int64                `tfsdk:"node_count"`
-	Status         types.String               `tfsdk:"status"`
-	NodeConfig     *NodeConfigDataSourceModel `tfsdk:"node_config"`
+	ID               types.Int64                `tfsdk:"id"`
+	ClusterID        types.Int64                `tfsdk:"cluster_id"`
+	Name             types.String               `tfsdk:"name"`
+	ElasticQuotaID   types.Int64                `tfsdk:"elastic_quota_id"`
+	Version          types.String               `tfsdk:"version"`
+	PatchVersion     types.String               `tfsdk:"patch_version"`
+	ReleaseChannel   types.String               `tfsdk:"release_channel"`
+	ManualVersion    types.String               `tfsdk:"manual_version"`
+	KubernetesBundle types.String               `tfsdk:"kubernetes_bundle"`
+	NodeCount        types.Int64                `tfsdk:"node_count"`
+	Status           types.String               `tfsdk:"status"`
+	NodeConfig       *NodeConfigDataSourceModel `tfsdk:"node_config"`
 }
 
 type NodeConfigDataSourceModel struct {
@@ -60,6 +63,18 @@ func (d *ElasticNodePoolDataSource) Schema(ctx context.Context, req datasource.S
 			},
 			"patch_version": schema.StringAttribute{
 				MarkdownDescription: elasticNodePoolResourceAttributes()["patch_version"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"release_channel": schema.StringAttribute{
+				MarkdownDescription: elasticNodePoolResourceAttributes()["release_channel"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"manual_version": schema.StringAttribute{
+				MarkdownDescription: elasticNodePoolResourceAttributes()["manual_version"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"kubernetes_bundle": schema.StringAttribute{
+				MarkdownDescription: elasticNodePoolResourceAttributes()["kubernetes_bundle"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"node_count": schema.Int64Attribute{
@@ -135,6 +150,9 @@ func (d *ElasticNodePoolDataSource) Read(ctx context.Context, req datasource.Rea
 	data.ElasticQuotaID = types.Int64Value(result.ElasticNodePool.ElasticQuotaID)
 	data.Version = types.StringValue(result.ElasticNodePool.Version)
 	data.PatchVersion = types.StringValue(result.ElasticNodePool.PatchVersion)
+	data.ReleaseChannel = types.StringValue(result.ElasticNodePool.ReleaseChannel)
+	data.ManualVersion = types.StringPointerValue(result.ElasticNodePool.ManualVersion)
+	data.KubernetesBundle = types.StringValue(result.ElasticNodePool.KubernetesBundle)
 	data.NodeCount = types.Int64Value(result.ElasticNodePool.NodeCount)
 	data.Status = types.StringValue(result.ElasticNodePool.Status)
 	data.NodeConfig = &NodeConfigDataSourceModel{

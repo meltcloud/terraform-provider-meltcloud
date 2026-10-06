@@ -17,8 +17,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ resource.Resource                = &MachinePoolResource{}
-	_ resource.ResourceWithImportState = &MachinePoolResource{}
+	_ resource.Resource                   = &MachinePoolResource{}
+	_ resource.ResourceWithImportState    = &MachinePoolResource{}
+	_ resource.ResourceWithValidateConfig = &MachinePoolResource{}
 )
 
 func NewMachinePoolResource() resource.Resource {
@@ -32,11 +33,14 @@ type MachinePoolResource struct {
 
 // MachinePoolResourceModel describes the resource data model.
 type MachinePoolResourceModel struct {
-	ID           types.Int64  `tfsdk:"id"`
-	ClusterId    types.Int64  `tfsdk:"cluster_id"`
-	Name         types.String `tfsdk:"name"`
-	Version      types.String `tfsdk:"version"`
-	PatchVersion types.String `tfsdk:"patch_version"`
+	ID               types.Int64  `tfsdk:"id"`
+	ClusterId        types.Int64  `tfsdk:"cluster_id"`
+	Name             types.String `tfsdk:"name"`
+	Version          types.String `tfsdk:"version"`
+	PatchVersion     types.String `tfsdk:"patch_version"`
+	ReleaseChannel   types.String `tfsdk:"release_channel"`
+	ManualVersion    types.String `tfsdk:"manual_version"`
+	KubernetesBundle types.String `tfsdk:"kubernetes_bundle"`
 }
 
 func (r *MachinePoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -67,24 +71,35 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Name of the machine pool",
 			Required:            true,
 		},
-		"version": schema.StringAttribute{
-			MarkdownDescription: "Kubernetes minor version of the machine pool (Kubelet)",
-			Required:            true,
-		},
+		"version": versionAttribute("Kubernetes minor version of the machine pool (Kubelet)"),
 		"patch_version": schema.StringAttribute{
 			MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
 			Computed:            true,
 		},
+		"release_channel":   releaseChannelAttribute(poolReleaseChannelDefaultDesc),
+		"manual_version":    manualVersionAttribute(),
+		"kubernetes_bundle": kubernetesBundleAttribute(),
 	}
 }
 
 func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machinePoolDesc + "\n\n" +
-			"~> Be aware that changing the version will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).",
+			"~> Be aware that changing the `version`, `release_channel` or `manual_version` will cause a new [Revision that will be rolled out immediately, causing a reboot of all Machines](https://docs.meltcloud.io/tasks/machine-pools/upgrade).",
 
 		Attributes: machinePoolResourceAttributes(),
 	}
+}
+
+func (r *MachinePoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data MachinePoolResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(validateReleaseChannel(data.ReleaseChannel, data.ManualVersion, data.Version)...)
 }
 
 func (r *MachinePoolResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -116,8 +131,10 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	machinePoolCreateInput := &client.MachinePoolCreateInput{
-		Name:        data.Name.ValueString(),
-		UserVersion: data.Version.ValueString(),
+		Name:           data.Name.ValueString(),
+		UserVersion:    data.Version.ValueString(),
+		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ManualVersion:  optionalString(data.ManualVersion),
 	}
 
 	result, err := r.client.MachinePool().Create(ctx, data.ClusterId.ValueInt64(), machinePoolCreateInput)
@@ -127,7 +144,7 @@ func (r *MachinePoolResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	data.ID = types.Int64Value(result.MachinePool.ID)
-	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
+	setMachinePoolVersions(result.MachinePool, &data)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -152,8 +169,7 @@ func (r *MachinePoolResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	data.Name = types.StringValue(result.MachinePool.Name)
-	data.Version = types.StringValue(result.MachinePool.UserVersion)
-	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
+	setMachinePoolVersions(result.MachinePool, &data)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -167,8 +183,10 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	machinePoolUpdateInput := &client.MachinePoolUpdateInput{
-		Name:        data.Name.ValueString(),
-		UserVersion: data.Version.ValueString(),
+		Name:           data.Name.ValueString(),
+		UserVersion:    data.Version.ValueString(),
+		ReleaseChannel: optionalString(data.ReleaseChannel),
+		ManualVersion:  optionalString(data.ManualVersion),
 	}
 
 	result, err := r.client.MachinePool().Update(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64(), machinePoolUpdateInput)
@@ -184,17 +202,23 @@ func (r *MachinePoolResource) Update(ctx context.Context, req resource.UpdateReq
 			return
 		}
 
-		_, err := r.client.MachinePool().Get(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64())
+		result, err = r.client.MachinePool().Get(ctx, data.ClusterId.ValueInt64(), data.ID.ValueInt64())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read machine pool, got error: %s", err))
 			return
 		}
-		data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
-	} else {
-		data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
 	}
+	setMachinePoolVersions(result.MachinePool, &data)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func setMachinePoolVersions(result *client.MachinePool, data *MachinePoolResourceModel) {
+	data.Version = types.StringValue(result.UserVersion)
+	data.PatchVersion = types.StringValue(result.PatchVersion)
+	data.ReleaseChannel = types.StringValue(result.ReleaseChannel)
+	data.ManualVersion = types.StringPointerValue(result.ManualVersion)
+	data.KubernetesBundle = types.StringValue(result.KubernetesBundle)
 }
 
 func (r *MachinePoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

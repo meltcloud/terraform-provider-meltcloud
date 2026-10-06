@@ -29,6 +29,9 @@ type ClusterDataSourceModel struct {
 	Version            types.String               `tfsdk:"version"`
 	ControlPlaneStatus types.String               `tfsdk:"control_plane_status"`
 	PatchVersion       types.String               `tfsdk:"patch_version"`
+	ReleaseChannel     types.String               `tfsdk:"release_channel"`
+	ManualVersion      types.String               `tfsdk:"manual_version"`
+	KubernetesBundle   types.String               `tfsdk:"kubernetes_bundle"`
 	PodCIDR            types.String               `tfsdk:"pod_cidr"`
 	ServiceCIDR        types.String               `tfsdk:"service_cidr"`
 	DNSServiceIP       types.String               `tfsdk:"dns_service_ip"`
@@ -67,6 +70,18 @@ func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 			"patch_version": schema.StringAttribute{
 				MarkdownDescription: clusterResourceAttributes()["patch_version"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"release_channel": schema.StringAttribute{
+				MarkdownDescription: clusterResourceAttributes()["release_channel"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"manual_version": schema.StringAttribute{
+				MarkdownDescription: clusterResourceAttributes()["manual_version"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"kubernetes_bundle": schema.StringAttribute{
+				MarkdownDescription: clusterResourceAttributes()["kubernetes_bundle"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"pod_cidr": schema.StringAttribute{
@@ -180,6 +195,9 @@ func (d *ClusterDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	data.Version = types.StringValue(cluster.UserVersion)
 	data.ControlPlaneStatus = types.StringValue(cluster.ControlPlaneStatus)
 	data.PatchVersion = types.StringValue(cluster.PatchVersion)
+	data.ReleaseChannel = types.StringValue(cluster.ReleaseChannel)
+	data.ManualVersion = types.StringPointerValue(cluster.ManualVersion)
+	data.KubernetesBundle = types.StringValue(cluster.KubernetesBundle)
 	data.PodCIDR = types.StringValue(cluster.PodCIDR)
 	data.ServiceCIDR = types.StringValue(cluster.ServiceCIDR)
 	data.DNSServiceIP = types.StringValue(cluster.DNSServiceIP)

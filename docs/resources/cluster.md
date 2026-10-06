@@ -29,6 +29,20 @@ resource "meltcloud_cluster" "example_custom_network" {
   dns_service_ip = "10.96.0.10"
 }
 
+# create cluster following the dev release channel
+resource "meltcloud_cluster" "example_dev" {
+  name            = "melt04"
+  version         = "1.35"
+  release_channel = "dev"
+}
+
+# create cluster pinned to a Kubernetes Bundle, version is derived from it
+resource "meltcloud_cluster" "example_pinned" {
+  name            = "melt05"
+  release_channel = "manual"
+  manual_version  = "1.35.5-melt.30"
+}
+
 # use kubeconfig to install a helm chart, for example a CNI
 provider "helm" {
   kubernetes {
@@ -61,15 +75,17 @@ resource "helm_release" "cilium" {
 ### Required
 
 - `name` (String) Name of the cluster, not case-sensitive. Must be unique within the organization and consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')
-- `version` (String) Kubernetes minor version of the cluster control plane
 
 ### Optional
 
 - `addon_core_dns` (Boolean) Enable CoreDNS Addon
 - `addon_kube_proxy` (Boolean) Enable kube-proxy Addon
 - `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
+- `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `pod_cidr` (String) CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. The available channels vary per installation. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. If not specified, the installation's first channel is used. Switching to `manual` is only possible together with a minor version upgrade.
 - `service_cidr` (String) CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.
+- `version` (String) Kubernetes minor version of the cluster control plane. Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.
 
 ### Read-Only
 
@@ -77,6 +93,7 @@ resource "helm_release" "cilium" {
 - `kubeconfig` (Attributes, Sensitive) Kubeconfig values for the admin user (see [below for nested schema](#nestedatt--kubeconfig))
 - `kubeconfig_raw` (String, Sensitive) Kubeconfig file for the admin user
 - `kubeconfig_user_raw` (String, Sensitive) Kubeconfig file for the regular (OIDC) users
+- `kubernetes_bundle` (String) Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`
 - `patch_version` (String) Kubernetes patch version of the cluster control plane
 
 <a id="nestedatt--kubeconfig"></a>
