@@ -17,9 +17,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ resource.Resource                   = &MachinePoolResource{}
-	_ resource.ResourceWithImportState    = &MachinePoolResource{}
-	_ resource.ResourceWithValidateConfig = &MachinePoolResource{}
+	_ resource.Resource                     = &MachinePoolResource{}
+	_ resource.ResourceWithImportState      = &MachinePoolResource{}
+	_ resource.ResourceWithConfigValidators = &MachinePoolResource{}
 )
 
 func NewMachinePoolResource() resource.Resource {
@@ -91,15 +91,8 @@ func (r *MachinePoolResource) Schema(ctx context.Context, req resource.SchemaReq
 	}
 }
 
-func (r *MachinePoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data MachinePoolResourceModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(validateReleaseChannel(data.ReleaseChannel, data.ManualVersion, data.Version)...)
+func (r *MachinePoolResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{releaseChannelValidator{}}
 }
 
 func (r *MachinePoolResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

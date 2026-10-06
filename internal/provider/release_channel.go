@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -63,6 +64,32 @@ func kubernetesBundleAttribute() schema.StringAttribute {
 		MarkdownDescription: "Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`",
 		Computed:            true,
 	}
+}
+
+// releaseChannelValidator runs validateReleaseChannel on a resource's release_channel, manual_version and
+// version attributes.
+type releaseChannelValidator struct{}
+
+var _ resource.ConfigValidator = releaseChannelValidator{}
+
+func (v releaseChannelValidator) Description(ctx context.Context) string {
+	return "manual_version is set exactly when release_channel is manual, and version matches its minor."
+}
+
+func (v releaseChannelValidator) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+func (v releaseChannelValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var releaseChannel, manualVersion, version types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("release_channel"), &releaseChannel)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("manual_version"), &manualVersion)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("version"), &version)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(validateReleaseChannel(releaseChannel, manualVersion, version)...)
 }
 
 // validateReleaseChannel checks that manual_version is set exactly when release_channel is manual, and that

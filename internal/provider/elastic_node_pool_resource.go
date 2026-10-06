@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	_ resource.Resource                   = &ElasticNodePoolResource{}
-	_ resource.ResourceWithImportState    = &ElasticNodePoolResource{}
-	_ resource.ResourceWithValidateConfig = &ElasticNodePoolResource{}
+	_ resource.Resource                     = &ElasticNodePoolResource{}
+	_ resource.ResourceWithImportState      = &ElasticNodePoolResource{}
+	_ resource.ResourceWithConfigValidators = &ElasticNodePoolResource{}
 )
 
 func NewElasticNodePoolResource() resource.Resource {
@@ -140,14 +140,8 @@ func (r *ElasticNodePoolResource) Schema(ctx context.Context, req resource.Schem
 	}
 }
 
-func (r *ElasticNodePoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data ElasticNodePoolResourceModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(validateReleaseChannel(data.ReleaseChannel, data.ManualVersion, data.Version)...)
+func (r *ElasticNodePoolResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{releaseChannelValidator{}}
 }
 
 func (r *ElasticNodePoolResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

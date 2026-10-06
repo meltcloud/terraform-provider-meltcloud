@@ -20,9 +20,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ resource.Resource                   = &ClusterResource{}
-	_ resource.ResourceWithImportState    = &ClusterResource{}
-	_ resource.ResourceWithValidateConfig = &ClusterResource{}
+	_ resource.Resource                     = &ClusterResource{}
+	_ resource.ResourceWithImportState      = &ClusterResource{}
+	_ resource.ResourceWithConfigValidators = &ClusterResource{}
 )
 
 func NewClusterResource() resource.Resource {
@@ -184,15 +184,8 @@ func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest
 	}
 }
 
-func (r *ClusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data ClusterResourceModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(validateReleaseChannel(data.ReleaseChannel, data.ManualVersion, data.Version)...)
+func (r *ClusterResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{releaseChannelValidator{}}
 }
 
 func (r *ClusterResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -232,29 +225,15 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	if !data.AddonCoreDNS.IsNull() && !data.AddonCoreDNS.IsUnknown() {
 		addonCoreDNS = data.AddonCoreDNS.ValueBoolPointer()
 	}
-	var podCIDR *string
-	if !data.PodCIDR.IsNull() && !data.PodCIDR.IsUnknown() {
-		podCIDR = data.PodCIDR.ValueStringPointer()
-	}
-
-	var serviceCIDR *string
-	if !data.ServiceCIDR.IsNull() && !data.ServiceCIDR.IsUnknown() {
-		serviceCIDR = data.ServiceCIDR.ValueStringPointer()
-	}
-
-	var dnsServiceIP *string
-	if !data.DNSServiceIP.IsNull() && !data.DNSServiceIP.IsUnknown() {
-		dnsServiceIP = data.DNSServiceIP.ValueStringPointer()
-	}
 
 	clusterCreateInput := &client.ClusterCreateInput{
 		Name:           data.Name.ValueString(),
 		UserVersion:    data.Version.ValueString(),
 		ReleaseChannel: optionalString(data.ReleaseChannel),
 		ManualVersion:  optionalString(data.ManualVersion),
-		PodCIDR:        podCIDR,
-		ServiceCIDR:    serviceCIDR,
-		DNSServiceIP:   dnsServiceIP,
+		PodCIDR:        optionalString(data.PodCIDR),
+		ServiceCIDR:    optionalString(data.ServiceCIDR),
+		DNSServiceIP:   optionalString(data.DNSServiceIP),
 		AddonKubeProxy: addonKubeProxy,
 		AddonCoreDNS:   addonCoreDNS,
 	}
