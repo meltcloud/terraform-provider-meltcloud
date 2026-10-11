@@ -3,19 +3,19 @@
 page_title: "meltcloud_region Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Region https://docs.meltcloud.io/concepts/regions-and-zones groups Zones. Machines and Nest Instances in its Zones get its name as the topology.kubernetes.io/region label.
+  A Region https://docs.meltcloud.io/concepts/regions-and-zones is a group of Zones close to each other, such as the data centers of one city. It sets the Kubernetes label topology.kubernetes.io/region on the Machines and Nest Instances in its Zones.
 ---
 
 # meltcloud_region (Data Source)
 
-A [Region](https://docs.meltcloud.io/concepts/regions-and-zones) groups Zones. Machines and Nest Instances in its Zones get its name as the `topology.kubernetes.io/region` label.
+A [Region](https://docs.meltcloud.io/concepts/regions-and-zones) is a group of Zones close to each other, such as the data centers of one city. It sets the Kubernetes label `topology.kubernetes.io/region` on the Machines and Nest Instances in its Zones.
 
 ## Example Usage
 
 ```terraform
 # get region by name
-data "meltcloud_region" "example" {
-  name = "ch-west"
+data "meltcloud_region" "zurich" {
+  name = "zurich"
 }
 ```
 
@@ -25,4 +25,4 @@ data "meltcloud_region" "example" {
 ### Optional
 
 - `id` (Number) Internal ID of the Region on meltcloud
-- `name` (String) Name of the Region, unique within the organization. It is the value of the `topology.kubernetes.io/region` label on the nodes in its Zones
+- `name` (String) Name of the Region. Unique within the Organization. Changing it replaces the Region

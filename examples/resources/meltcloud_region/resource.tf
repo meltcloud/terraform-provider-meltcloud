@@ -1,3 +1,3 @@
-resource "meltcloud_region" "example" {
-  name = "ch-west"
+resource "meltcloud_region" "zurich" {
+  name = "zurich"
 }

@@ -38,7 +38,7 @@ func (r *RegionResource) Metadata(ctx context.Context, req resource.MetadataRequ
 	resp.TypeName = req.ProviderTypeName + "_region"
 }
 
-const regionDesc = "A [Region](https://docs.meltcloud.io/concepts/regions-and-zones) groups Zones. Machines and Nest Instances in its Zones get its name as the `topology.kubernetes.io/region` label."
+const regionDesc = "A [Region](https://docs.meltcloud.io/concepts/regions-and-zones) is a group of Zones close to each other, such as the data centers of one city. It sets the Kubernetes label `topology.kubernetes.io/region` on the Machines and Nest Instances in its Zones."
 
 func regionResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
@@ -51,7 +51,7 @@ func regionResourceAttributes() map[string]schema.Attribute {
 		},
 		"name": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "Name of the Region, unique within the organization. It is the value of the `topology.kubernetes.io/region` label on the nodes in its Zones",
+			MarkdownDescription: "Name of the Region. Unique within the Organization. Changing it replaces the Region",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
 			},

@@ -1,1 +1,1 @@
-terraform import meltcloud_region.example regions/1
+terraform import meltcloud_region.zurich regions/1

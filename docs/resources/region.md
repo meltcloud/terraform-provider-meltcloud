@@ -3,18 +3,18 @@
 page_title: "meltcloud_region Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Region https://docs.meltcloud.io/concepts/regions-and-zones groups Zones. Machines and Nest Instances in its Zones get its name as the topology.kubernetes.io/region label.
+  A Region https://docs.meltcloud.io/concepts/regions-and-zones is a group of Zones close to each other, such as the data centers of one city. It sets the Kubernetes label topology.kubernetes.io/region on the Machines and Nest Instances in its Zones.
 ---
 
 # meltcloud_region (Resource)
 
-A [Region](https://docs.meltcloud.io/concepts/regions-and-zones) groups Zones. Machines and Nest Instances in its Zones get its name as the `topology.kubernetes.io/region` label.
+A [Region](https://docs.meltcloud.io/concepts/regions-and-zones) is a group of Zones close to each other, such as the data centers of one city. It sets the Kubernetes label `topology.kubernetes.io/region` on the Machines and Nest Instances in its Zones.
 
 ## Example Usage
 
 ```terraform
-resource "meltcloud_region" "example" {
-  name = "ch-west"
+resource "meltcloud_region" "zurich" {
+  name = "zurich"
 }
 ```
 
@@ -23,7 +23,7 @@ resource "meltcloud_region" "example" {
 
 ### Required
 
-- `name` (String) Name of the Region, unique within the organization. It is the value of the `topology.kubernetes.io/region` label on the nodes in its Zones
+- `name` (String) Name of the Region. Unique within the Organization. Changing it replaces the Region
 
 ### Read-Only
 
@@ -36,5 +36,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import meltcloud_region.example regions/1
+terraform import meltcloud_region.zurich regions/1
 ```

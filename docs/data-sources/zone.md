@@ -3,20 +3,20 @@
 page_title: "meltcloud_zone Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Zone https://docs.meltcloud.io/concepts/regions-and-zones is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the topology.kubernetes.io/zone label. A Zone cannot be deleted while Machines or Nest Instances are in it.
+  A Zone https://docs.meltcloud.io/concepts/regions-and-zones is a failure domain, such as a data center, a room or a rack row, within a Region. It sets the Kubernetes label topology.kubernetes.io/zone on the Machines and Nest Instances in it. A Zone cannot be deleted while Machines or Nest Instances are in it.
 ---
 
 # meltcloud_zone (Data Source)
 
-A [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the `topology.kubernetes.io/zone` label. A Zone cannot be deleted while Machines or Nest Instances are in it.
+A [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) is a failure domain, such as a data center, a room or a rack row, within a Region. It sets the Kubernetes label `topology.kubernetes.io/zone` on the Machines and Nest Instances in it. A Zone cannot be deleted while Machines or Nest Instances are in it.
 
 ## Example Usage
 
 ```terraform
 # get zone by name within its region
 data "meltcloud_zone" "example" {
-  region_id = data.meltcloud_region.example.id
-  name      = "ch-west-1"
+  region_id = data.meltcloud_region.zurich.id
+  name      = "zrh-dc1"
 }
 ```
 
@@ -30,4 +30,4 @@ data "meltcloud_zone" "example" {
 ### Optional
 
 - `id` (Number) Internal ID of the Zone on meltcloud
-- `name` (String) Name of the Zone, unique within the organization across all Regions. It is the value of the `topology.kubernetes.io/zone` label
+- `name` (String) Name of the Zone. Unique within the Organization. Changing it replaces the Zone

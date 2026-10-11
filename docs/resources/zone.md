@@ -3,25 +3,25 @@
 page_title: "meltcloud_zone Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Zone https://docs.meltcloud.io/concepts/regions-and-zones is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the topology.kubernetes.io/zone label. A Zone cannot be deleted while Machines or Nest Instances are in it.
+  A Zone https://docs.meltcloud.io/concepts/regions-and-zones is a failure domain, such as a data center, a room or a rack row, within a Region. It sets the Kubernetes label topology.kubernetes.io/zone on the Machines and Nest Instances in it. A Zone cannot be deleted while Machines or Nest Instances are in it.
 ---
 
 # meltcloud_zone (Resource)
 
-A [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the `topology.kubernetes.io/zone` label. A Zone cannot be deleted while Machines or Nest Instances are in it.
+A [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) is a failure domain, such as a data center, a room or a rack row, within a Region. It sets the Kubernetes label `topology.kubernetes.io/zone` on the Machines and Nest Instances in it. A Zone cannot be deleted while Machines or Nest Instances are in it.
 
 ## Example Usage
 
 ```terraform
 # one zone per data center in the region
-resource "meltcloud_zone" "dc1" {
-  region_id = meltcloud_region.example.id
-  name      = "ch-west-1"
+resource "meltcloud_zone" "zrh_dc1" {
+  region_id = meltcloud_region.zurich.id
+  name      = "zrh-dc1"
 }
 
-resource "meltcloud_zone" "dc2" {
-  region_id = meltcloud_region.example.id
-  name      = "ch-west-2"
+resource "meltcloud_zone" "zrh_dc2" {
+  region_id = meltcloud_region.zurich.id
+  name      = "zrh-dc2"
 }
 ```
 
@@ -30,7 +30,7 @@ resource "meltcloud_zone" "dc2" {
 
 ### Required
 
-- `name` (String) Name of the Zone, unique within the organization across all Regions. It is the value of the `topology.kubernetes.io/zone` label
+- `name` (String) Name of the Zone. Unique within the Organization. Changing it replaces the Zone
 - `region_id` (Number) ID of the Region this Zone belongs to
 
 ### Read-Only
@@ -44,5 +44,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import meltcloud_zone.dc1 regions/1/zones/2
+terraform import meltcloud_zone.zrh_dc1 regions/1/zones/2
 ```
