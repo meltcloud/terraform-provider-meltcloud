@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 )
 
@@ -71,6 +72,24 @@ func (or *OperationRequest) Get(ctx context.Context, id int64) (*OperationResult
 }
 
 func (or *OperationRequest) PollUntilDone(ctx context.Context, id int64) (*OperationResult, *Error) {
+	return or.poll(ctx, id, func(*Error) bool { return false })
+}
+
+// Like PollUntilDone, but waits out the API not answering, as it does while the foundry or the
+// nest it runs on restarts during their own update.
+func (or *OperationRequest) PollUntilDoneThroughRestarts(ctx context.Context, id int64) (*OperationResult, *Error) {
+	return or.poll(ctx, id, unavailable)
+}
+
+func unavailable(err *Error) bool {
+	switch err.HTTPStatusCode {
+	case 0, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return true
+	}
+	return false
+}
+
+func (or *OperationRequest) poll(ctx context.Context, id int64, retry func(*Error) bool) (*OperationResult, *Error) {
 	ticker := time.NewTicker(time.Second * 5)
 	defer ticker.Stop()
 
@@ -79,6 +98,9 @@ func (or *OperationRequest) PollUntilDone(ctx context.Context, id int64) (*Opera
 		case <-ticker.C:
 			result, err := or.Get(ctx, id)
 			if err != nil {
+				if retry(err) {
+					continue
+				}
 				return nil, err
 			}
 			if result.Operation.Status == OperationStatusSucceeded {
