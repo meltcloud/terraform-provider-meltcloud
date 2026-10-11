@@ -56,7 +56,8 @@ func (r *FoundryResource) Metadata(ctx context.Context, req resource.MetadataReq
 }
 
 const foundryDesc = "The [Foundry](https://docs.meltcloud.io/concepts/foundry) is the meltcloud control plane that runs on the Nest. " +
-	"The Nest installer creates it, so this resource manages the one that exists: creating it takes the Foundry over, and destroying it only removes it from the Terraform state.\n\n" +
+	"The Nest installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: " +
+	"to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
 	"Needs the API Key of the admin Organization.\n\n" +
 	"~> Changing `version` updates the Foundry. Its API can be briefly unavailable during the update, and the apply waits until the update has finished.\n\n" +
 	"~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them."
@@ -167,19 +168,11 @@ func (r *FoundryResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	}
 }
 
+// The Foundry exists from the install on, so it is imported, never created.
 func (r *FoundryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data FoundryResourceModel
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	r.apply(ctx, &data, resp.Diagnostics.AddError)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.AddError("Foundry Must Be Imported",
+		"The Nest installer creates the Foundry, so Terraform cannot create one. Import it instead:\n\n"+
+			"import {\n  to = meltcloud_foundry.<name>\n  id = \"foundry\"\n}")
 }
 
 func (r *FoundryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -220,8 +213,9 @@ func (r *FoundryResource) Update(ctx context.Context, req resource.UpdateRequest
 }
 
 func (r *FoundryResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	resp.Diagnostics.AddWarning("Foundry kept",
-		"The Foundry keeps running with its current settings; it is only removed from the Terraform state.")
+	resp.Diagnostics.AddError("Foundry Cannot Be Deleted",
+		"The Foundry runs the Nest. To stop managing it with Terraform, replace the resource with:\n\n"+
+			"removed {\n  from = meltcloud_foundry.<name>\n  lifecycle {\n    destroy = false\n  }\n}")
 }
 
 func (r *FoundryResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

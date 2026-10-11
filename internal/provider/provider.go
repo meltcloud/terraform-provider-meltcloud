@@ -172,8 +172,6 @@ func (p *MeltcloudProvider) DataSources(ctx context.Context) []func() datasource
 		NewEnrollmentImageDataSource,
 		NewNetworkProfileDataSource,
 		NewNetworkDataSource,
-		NewFoundryVersionsDataSource,
-		NewNestVersionsDataSource,
 		NewSubnetDataSource,
 		NewIPPoolDataSource,
 		NewElasticFleetDataSource,

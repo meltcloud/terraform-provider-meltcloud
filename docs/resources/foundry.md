@@ -3,7 +3,7 @@
 page_title: "meltcloud_foundry Resource - meltcloud"
 subcategory: ""
 description: |-
-  The Foundry https://docs.meltcloud.io/concepts/foundry is the meltcloud control plane that runs on the Nest. The Nest installer creates it, so this resource manages the one that exists: creating it takes the Foundry over, and destroying it only removes it from the Terraform state.
+  The Foundry https://docs.meltcloud.io/concepts/foundry is the meltcloud control plane that runs on the Nest. The Nest installer creates it, so it is imported https://developer.hashicorp.com/terraform/language/import rather than created, and it cannot be destroyed: to stop managing it, use a removed https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources block with destroy = false.
   Needs the API Key of the admin Organization.
   ~> Changing version updates the Foundry. Its API can be briefly unavailable during the update, and the apply waits until the update has finished.
   ~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them.
@@ -12,7 +12,7 @@ description: |-
 
 # meltcloud_foundry (Resource)
 
-The [Foundry](https://docs.meltcloud.io/concepts/foundry) is the meltcloud control plane that runs on the Nest. The Nest installer creates it, so this resource manages the one that exists: creating it takes the Foundry over, and destroying it only removes it from the Terraform state.
+The [Foundry](https://docs.meltcloud.io/concepts/foundry) is the meltcloud control plane that runs on the Nest. The Nest installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.
 
 Needs the API Key of the admin Organization.
 
@@ -25,7 +25,12 @@ A setting left out keeps its value, and an empty string clears it.
 ## Example Usage
 
 ```terraform
-# take over the foundry the nest installer created
+# the nest installer creates the foundry, so it is imported
+import {
+  to = meltcloud_foundry.this
+  id = "foundry"
+}
+
 resource "meltcloud_foundry" "this" {
   version = "1.5.0"
 

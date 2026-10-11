@@ -1,4 +1,9 @@
-# take over the foundry the nest installer created
+# the nest installer creates the foundry, so it is imported
+import {
+  to = meltcloud_foundry.this
+  id = "foundry"
+}
+
 resource "meltcloud_foundry" "this" {
   version = "1.5.0"
 
