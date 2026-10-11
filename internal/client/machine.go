@@ -37,7 +37,7 @@ type MachineRevision struct {
 	IPAddresses []IPAddress `json:"ip_addresses"`
 }
 
-// An address the Machine holds in an IP Pool. Source is "operator" for a pinned one and
+// An address the Machine holds in an IP Pool. Source is "operator" for a static IP and
 // "ipam" for one the pool allocated.
 type IPAddress struct {
 	IPPoolID int64  `json:"ip_pool_id"`

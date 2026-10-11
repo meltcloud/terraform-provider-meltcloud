@@ -382,7 +382,7 @@ func (r *MachineResource) labelInput(labels []LabelResourceModel) []client.Label
 	return labelInput
 }
 
-// Only pinned addresses: the pools hand out the others.
+// Only static IPs: the pools hand out the others.
 func ipAddressInput(addresses []IPAddressResourceModel) []client.IPAddress {
 	input := []client.IPAddress{}
 	for _, address := range addresses {
