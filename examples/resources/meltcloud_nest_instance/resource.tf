@@ -2,7 +2,7 @@
 resource "meltcloud_nest_instance" "nest_1" {
   name    = "nest-1"
   ip      = "10.0.10.11"
-  zone_id = meltcloud_zone.dc2.id
+  zone_id = meltcloud_zone.zrh_dc2.id
 
   install_disk_device = "/dev/disk/by-id/nvme-SAMSUNG_MZQL2960HCJR-00A07_S64FNE0R123456"
 }
@@ -10,7 +10,7 @@ resource "meltcloud_nest_instance" "nest_1" {
 resource "meltcloud_nest_instance" "nest_2" {
   name    = "nest-2"
   ip      = "10.0.10.12"
-  zone_id = meltcloud_zone.dc3.id
+  zone_id = meltcloud_zone.zrh_dc3.id
 
   # a nest adds one instance at a time
   depends_on = [meltcloud_nest_instance.nest_1]

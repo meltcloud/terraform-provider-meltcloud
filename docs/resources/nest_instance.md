@@ -23,7 +23,7 @@ Needs the API Key of the admin Organization. A Nest has at most seven instances,
 resource "meltcloud_nest_instance" "nest_1" {
   name    = "nest-1"
   ip      = "10.0.10.11"
-  zone_id = meltcloud_zone.dc2.id
+  zone_id = meltcloud_zone.zrh_dc2.id
 
   install_disk_device = "/dev/disk/by-id/nvme-SAMSUNG_MZQL2960HCJR-00A07_S64FNE0R123456"
 }
@@ -31,7 +31,7 @@ resource "meltcloud_nest_instance" "nest_1" {
 resource "meltcloud_nest_instance" "nest_2" {
   name    = "nest-2"
   ip      = "10.0.10.12"
-  zone_id = meltcloud_zone.dc3.id
+  zone_id = meltcloud_zone.zrh_dc3.id
 
   # a nest adds one instance at a time
   depends_on = [meltcloud_nest_instance.nest_1]
@@ -51,7 +51,7 @@ output "nest_1_iso" {
 
 - `ip` (String) The address the instance gets on the Nest's primary host network, from that network's IP Pool
 - `name` (String) Name of the Nest Instance, unique within the Nest
-- `zone_id` (Number) ID of the Zone the instance is in
+- `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on its node
 
 ### Optional
 

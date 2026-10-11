@@ -49,4 +49,4 @@ data "meltcloud_nest_instance" "first" {
 - `url_iso_amd64` (String, Sensitive) URL of the install ISO for amd64 machines. It carries a download token
 - `url_iso_arm64` (String, Sensitive) URL of the install ISO for arm64 machines. It carries a download token
 - `version` (String) Nest version the instance runs
-- `zone_id` (Number) ID of the Zone the instance is in
+- `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on its node

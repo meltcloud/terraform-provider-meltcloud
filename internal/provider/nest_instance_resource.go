@@ -100,7 +100,7 @@ func nestInstanceResourceAttributes() map[string]schema.Attribute {
 		"ip":   immutableString("The address the instance gets on the Nest's primary host network, from that network's IP Pool", true),
 		"zone_id": schema.Int64Attribute{
 			Required:            true,
-			MarkdownDescription: "ID of the Zone the instance is in",
+			MarkdownDescription: "ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on its node",
 			PlanModifiers:       []planmodifier.Int64{int64planmodifier.RequiresReplace()},
 		},
 		"install_disk_device":        immutableString("Device the instance installs to, for example `/dev/sda`. Leave it out to let the installer pick", false),
