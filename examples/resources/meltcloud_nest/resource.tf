@@ -1,6 +1,9 @@
-# take over the nest the installer created, and keep it on the newest nest version
-data "meltcloud_nest_versions" "all" {}
+# the nest installer creates the nest, so it is imported
+import {
+  to = meltcloud_nest.this
+  id = "nest"
+}
 
 resource "meltcloud_nest" "this" {
-  version = [for version in data.meltcloud_nest_versions.all.versions : version.name if !version.revoked][0]
+  version = "1.35.3-nest.67"
 }

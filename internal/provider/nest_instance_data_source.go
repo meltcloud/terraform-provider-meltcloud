@@ -76,3 +76,18 @@ func (d *NestInstanceDataSource) Read(ctx context.Context, req datasource.ReadRe
 	setNestInstanceValues(result.NestInstance, &data)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
+
+func configureClient(req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) *client.Client {
+	if req.ProviderData == nil {
+		return nil
+	}
+
+	client, ok := req.ProviderData.(*client.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected client.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+	}
+	return client
+}

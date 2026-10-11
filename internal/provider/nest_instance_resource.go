@@ -230,8 +230,8 @@ func (r *NestInstanceResource) Update(ctx context.Context, req resource.UpdateRe
 }
 
 func (r *NestInstanceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	resp.Diagnostics.AddError("Not Supported",
-		"A Nest Instance cannot be removed yet. To stop managing it, remove it from the state with `terraform state rm`.")
+	resp.Diagnostics.AddError("Nest Instance Cannot Be Deleted",
+		"A Nest Instance cannot be removed yet. To stop managing it, replace the resource with a `removed` block with `destroy = false`.")
 }
 
 var nestInstanceImportIDPattern = regexp.MustCompile(`nest_instances/(\d+)`)

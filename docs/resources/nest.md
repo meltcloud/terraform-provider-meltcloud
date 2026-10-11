@@ -3,7 +3,7 @@
 page_title: "meltcloud_nest Resource - meltcloud"
 subcategory: ""
 description: |-
-  The Nest https://docs.meltcloud.io/concepts/nest is the appliance the Foundry and the Kubernetes control planes run on. Its installer creates it, so this resource manages the one that exists: creating it takes the Nest over, and destroying it only removes it from the Terraform state.
+  The Nest https://docs.meltcloud.io/concepts/nest is the appliance the Foundry and the Kubernetes control planes run on. Its installer creates it, so it is imported https://developer.hashicorp.com/terraform/language/import rather than created, and it cannot be destroyed: to stop managing it, use a removed https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources block with destroy = false.
   Needs the API Key of the admin Organization.
   ~> Changing version rolls the Nest out to it, updating and rebooting one Nest Instance after the other. The Foundry's API can be unavailable meanwhile, and the apply waits until the roll-out has finished.
   ~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them.
@@ -11,7 +11,7 @@ description: |-
 
 # meltcloud_nest (Resource)
 
-The [Nest](https://docs.meltcloud.io/concepts/nest) is the appliance the Foundry and the Kubernetes control planes run on. Its installer creates it, so this resource manages the one that exists: creating it takes the Nest over, and destroying it only removes it from the Terraform state.
+The [Nest](https://docs.meltcloud.io/concepts/nest) is the appliance the Foundry and the Kubernetes control planes run on. Its installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.
 
 Needs the API Key of the admin Organization.
 
@@ -22,11 +22,14 @@ Needs the API Key of the admin Organization.
 ## Example Usage
 
 ```terraform
-# take over the nest the installer created, and keep it on the newest nest version
-data "meltcloud_nest_versions" "all" {}
+# the nest installer creates the nest, so it is imported
+import {
+  to = meltcloud_nest.this
+  id = "nest"
+}
 
 resource "meltcloud_nest" "this" {
-  version = [for version in data.meltcloud_nest_versions.all.versions : version.name if !version.revoked][0]
+  version = "1.35.3-nest.67"
 }
 ```
 

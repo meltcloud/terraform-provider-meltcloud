@@ -39,7 +39,8 @@ func (r *NestResource) Metadata(ctx context.Context, req resource.MetadataReques
 }
 
 const nestDesc = "The [Nest](https://docs.meltcloud.io/concepts/nest) is the appliance the Foundry and the Kubernetes control planes run on. " +
-	"Its installer creates it, so this resource manages the one that exists: creating it takes the Nest over, and destroying it only removes it from the Terraform state.\n\n" +
+	"Its installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: " +
+	"to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
 	"Needs the API Key of the admin Organization.\n\n" +
 	"~> Changing `version` rolls the Nest out to it, updating and rebooting one Nest Instance after the other. The Foundry's API can be unavailable meanwhile, and the apply waits until the roll-out has finished.\n\n" +
 	"~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them."
@@ -84,19 +85,11 @@ func (r *NestResource) Configure(ctx context.Context, req resource.ConfigureRequ
 	r.client = client
 }
 
+// The Nest exists from the install on, so it is imported, never created.
 func (r *NestResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data NestResourceModel
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	r.apply(ctx, &data, resp.Diagnostics.AddError)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.AddError("Nest Must Be Imported",
+		"The Nest installer creates the Nest, so Terraform cannot create one. Import it instead:\n\n"+
+			"import {\n  to = meltcloud_nest.<name>\n  id = \"nest\"\n}")
 }
 
 func (r *NestResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -137,7 +130,9 @@ func (r *NestResource) Update(ctx context.Context, req resource.UpdateRequest, r
 }
 
 func (r *NestResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	resp.Diagnostics.AddWarning("Nest kept", "The Nest keeps running; it is only removed from the Terraform state.")
+	resp.Diagnostics.AddError("Nest Cannot Be Deleted",
+		"To stop managing the Nest with Terraform, replace the resource with:\n\n"+
+			"removed {\n  from = meltcloud_nest.<name>\n  lifecycle {\n    destroy = false\n  }\n}")
 }
 
 func (r *NestResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
