@@ -36,6 +36,7 @@ type MachineDataSourceModel struct {
 	Name          types.String           `tfsdk:"name"`
 	MachinePoolID types.Int64            `tfsdk:"machine_pool_id"`
 	Status        types.String           `tfsdk:"status"`
+	ZoneID        types.Int64            `tfsdk:"zone_id"`
 	Labels        []LabelDataSourceModel `tfsdk:"labels"`
 }
 
@@ -79,6 +80,10 @@ func (d *MachineDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 			"status": schema.StringAttribute{
 				MarkdownDescription: "Status of the Machine",
+				Computed:            true,
+			},
+			"zone_id": schema.Int64Attribute{
+				MarkdownDescription: machineResourceAttributes()["zone_id"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"labels": schema.ListNestedAttribute{
@@ -167,6 +172,7 @@ func (d *MachineDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	data.Name = types.StringValue(machine.Name)
 	data.MachinePoolID = types.Int64PointerValue(machine.MachinePoolID)
 	data.Status = types.StringValue(machine.Status)
+	data.ZoneID = types.Int64PointerValue(machine.ZoneID)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

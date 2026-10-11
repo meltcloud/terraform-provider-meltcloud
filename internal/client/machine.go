@@ -21,23 +21,39 @@ type MachinesResult struct {
 }
 
 type Machine struct {
-	ID                    int64     `json:"id"`
-	UUID                  uuid.UUID `json:"uuid"`
-	Name                  string    `json:"name,omitempty"`
-	Status                string    `json:"status"`
-	MachinePoolID         *int64    `json:"machine_pool_id"`
-	NetworkProfileID      int64     `json:"network_profile_id"`
-	DepotNetworkProfileID int64     `json:"depot_network_profile_id"`
-	Labels                []Label   `json:"labels,omitempty"`
+	ID                    int64            `json:"id"`
+	UUID                  uuid.UUID        `json:"uuid"`
+	Name                  string           `json:"name,omitempty"`
+	Status                string           `json:"status"`
+	MachinePoolID         *int64           `json:"machine_pool_id"`
+	NetworkProfileID      int64            `json:"network_profile_id"`
+	DepotNetworkProfileID int64            `json:"depot_network_profile_id"`
+	ZoneID                *int64           `json:"zone_id"`
+	Labels                []Label          `json:"labels,omitempty"`
+	Revision              *MachineRevision `json:"machine_revision,omitempty"`
+}
+
+type MachineRevision struct {
+	IPAddresses []IPAddress `json:"ip_addresses"`
+}
+
+// An address the Machine holds in an IP Pool. Source is "operator" for a static IP and
+// "ipam" for one the pool allocated.
+type IPAddress struct {
+	IPPoolID int64  `json:"ip_pool_id"`
+	Address  string `json:"address"`
+	Source   string `json:"source,omitempty"`
 }
 
 type MachineCreateInput struct {
-	UUID                  uuid.UUID `json:"uuid"`
-	Name                  string    `json:"name,omitempty"`
-	MachinePoolID         int64     `json:"machine_pool_id,omitempty"`
-	NetworkProfileID      int64     `json:"network_profile_id"`
-	DepotNetworkProfileID int64     `json:"depot_network_profile_id"`
-	Labels                []Label   `json:"labels,omitempty"`
+	UUID                  uuid.UUID   `json:"uuid"`
+	Name                  string      `json:"name,omitempty"`
+	MachinePoolID         int64       `json:"machine_pool_id,omitempty"`
+	NetworkProfileID      int64       `json:"network_profile_id"`
+	DepotNetworkProfileID int64       `json:"depot_network_profile_id"`
+	ZoneID                *int64      `json:"zone_id,omitempty"`
+	Labels                []Label     `json:"labels,omitempty"`
+	IPAddresses           []IPAddress `json:"ip_addresses,omitempty"`
 }
 
 type Label struct {
@@ -45,12 +61,15 @@ type Label struct {
 	Value string `json:"value"`
 }
 
+// Sends every field, so an empty list or a null zone_id clears what the Machine has.
 type MachineUpdateInput struct {
-	Name                  string  `json:"name,omitempty"`
-	MachinePoolID         int64   `json:"machine_pool_id,omitempty"`
-	NetworkProfileID      int64   `json:"network_profile_id"`
-	DepotNetworkProfileID int64   `json:"depot_network_profile_id"`
-	Labels                []Label `json:"labels,omitempty"`
+	Name                  string      `json:"name,omitempty"`
+	MachinePoolID         int64       `json:"machine_pool_id,omitempty"`
+	NetworkProfileID      int64       `json:"network_profile_id"`
+	DepotNetworkProfileID int64       `json:"depot_network_profile_id"`
+	ZoneID                *int64      `json:"zone_id"`
+	Labels                []Label     `json:"labels"`
+	IPAddresses           []IPAddress `json:"ip_addresses"`
 }
 
 func (c *Client) Machine() *MachineRequest {

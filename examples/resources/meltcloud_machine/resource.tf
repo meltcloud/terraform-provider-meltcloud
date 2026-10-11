@@ -34,14 +34,26 @@ resource "meltcloud_machine" "node2" {
   network_profile_id       = meltcloud_network_profile.single_untagged.id
   depot_network_profile_id = meltcloud_network_profile.auto.id
 
-  label {
-    key   = "topology.kubernetes.io/region"
-    value = "ch"
-  }
+  # sets the Kubernetes labels topology.kubernetes.io/region and topology.kubernetes.io/zone
+  zone_id = meltcloud_zone.zrh_dc1.id
 
   label {
-    key   = "topology.kubernetes.io/zone"
-    value = "az1"
+    key   = "node-role.example.com/storage"
+    value = "true"
+  }
+}
+
+# register a machine that always gets the same address on an IPAM subnet
+resource "meltcloud_machine" "node3" {
+  uuid = "5b0e3c55-9f1e-4f43-9d0a-6f2a5b3c7e21"
+  name = "meltcloud-node03"
+
+  network_profile_id       = meltcloud_network_profile.ipam.id
+  depot_network_profile_id = meltcloud_network_profile.ipam.id
+
+  ip_address {
+    ip_pool_id = meltcloud_ip_pool.example.id
+    address    = "10.20.0.50"
   }
 }
 
