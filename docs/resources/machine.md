@@ -111,11 +111,11 @@ data "meltcloud_network_profile" "default" {
 
 ### Optional
 
-- `ip_address` (Block List) An address pinned in one of the IP Pools the Machine's Network Profiles use. In a pool without one, the Machine gets an address the pool allocates (see [below for nested schema](#nestedblock--ip_address))
+- `ip_address` (Block List) A [static IP](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in one of the IP Pools the Machine's Network Profiles use. In a pool without one, the Machine gets an address the pool allocates (see [below for nested schema](#nestedblock--ip_address))
 - `label` (Block List) (see [below for nested schema](#nestedblock--label))
 - `machine_pool_id` (Number) ID of the associated machine pool
 - `name` (String) Name of the Machine
-- `zone_id` (Number) ID of the Zone the Machine is in. Its node gets the `topology.kubernetes.io/zone` and `topology.kubernetes.io/region` labels from it
+- `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the Machine is in. Its node gets the `topology.kubernetes.io/zone` and `topology.kubernetes.io/region` labels from it
 
 ### Read-Only
 
