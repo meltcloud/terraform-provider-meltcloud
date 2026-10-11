@@ -203,6 +203,10 @@ func (d *ClusterDataSource) getKubeConfigResourceModel(kubeconfig string) (*Kube
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse kubeconfig: %w", err)
 	}
+	// Empty until the control plane is up.
+	if len(kubeConfig.Clusters) == 0 || len(kubeConfig.Users) == 0 {
+		return nil, nil
+	}
 
 	return &KubeConfigDataSourceModel{
 		Host:                 types.StringValue(kubeConfig.Clusters[0].Cluster.Server),
