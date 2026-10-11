@@ -94,7 +94,7 @@ func machineResourceAttributes() map[string]schema.Attribute {
 			Required:            true,
 		},
 		"zone_id": schema.Int64Attribute{
-			MarkdownDescription: "ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the Machine is in. Its node gets the `topology.kubernetes.io/zone` and `topology.kubernetes.io/region` labels from it",
+			MarkdownDescription: "ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the Machine is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on the Machine",
 			Optional:            true,
 		},
 	}

@@ -38,7 +38,7 @@ data "meltcloud_machine" "example_uuid" {
 - `machine_pool_id` (Number) ID of the associated machine pool
 - `name` (String) Name of the Machine
 - `status` (String) Status of the Machine
-- `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the Machine is in. Its node gets the `topology.kubernetes.io/zone` and `topology.kubernetes.io/region` labels from it
+- `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the Machine is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on the Machine
 
 <a id="nestedatt--labels"></a>
 ### Nested Schema for `labels`

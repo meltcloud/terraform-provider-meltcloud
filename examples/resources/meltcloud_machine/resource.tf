@@ -34,8 +34,8 @@ resource "meltcloud_machine" "node2" {
   network_profile_id       = meltcloud_network_profile.single_untagged.id
   depot_network_profile_id = meltcloud_network_profile.auto.id
 
-  # the node gets the topology.kubernetes.io/zone and /region labels from the zone
-  zone_id = meltcloud_zone.dc1.id
+  # sets the Kubernetes labels topology.kubernetes.io/region and topology.kubernetes.io/zone
+  zone_id = meltcloud_zone.zrh_dc1.id
 
   label {
     key   = "node-role.example.com/storage"
