@@ -29,6 +29,14 @@ resource "meltcloud_cluster" "example_custom_network" {
   dns_service_ip = "10.96.0.10"
 }
 
+# create cluster whose control plane survives losing a Nest Instance
+# (needs a Nest with at least three instances)
+resource "meltcloud_cluster" "example_ha" {
+  name              = "melt04"
+  version           = "1.33"
+  high_availability = true
+}
+
 # use kubeconfig to install a helm chart, for example a CNI
 provider "helm" {
   kubernetes {
@@ -68,6 +76,7 @@ resource "helm_release" "cilium" {
 - `addon_core_dns` (Boolean) Enable CoreDNS Addon
 - `addon_kube_proxy` (Boolean) Enable kube-proxy Addon
 - `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
+- `high_availability` (Boolean) Run the control plane with three API servers and three etcd members, each on another Nest Instance. Needs a Nest with at least three instances. Changing it grows or shrinks the control plane in place, without replacing the Cluster
 - `pod_cidr` (String) CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.
 - `service_cidr` (String) CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.
 

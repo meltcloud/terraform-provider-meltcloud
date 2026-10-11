@@ -44,6 +44,7 @@ type ClusterResourceModel struct {
 	DNSServiceIP      types.String `tfsdk:"dns_service_ip"`
 	AddonKubeProxy    types.Bool   `tfsdk:"addon_kube_proxy"`
 	AddonCoreDNS      types.Bool   `tfsdk:"addon_core_dns"`
+	HighAvailability  types.Bool   `tfsdk:"high_availability"`
 	KubeConfigRaw     types.String `tfsdk:"kubeconfig_raw"`
 	KubeConfig        types.Object `tfsdk:"kubeconfig"`
 	KubeConfigUserRaw types.String `tfsdk:"kubeconfig_user_raw"`
@@ -126,6 +127,12 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(true),
+		},
+		"high_availability": schema.BoolAttribute{
+			MarkdownDescription: "Run the control plane with three API servers and three etcd members, each on another Nest Instance. Needs a Nest with at least three instances. Changing it grows or shrinks the control plane in place, without replacing the Cluster",
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 		},
 		"kubeconfig": schema.SingleNestedAttribute{
 			Description: "Kubeconfig values for the admin user",
@@ -232,13 +239,14 @@ func (r *ClusterResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	clusterCreateInput := &client.ClusterCreateInput{
-		Name:           data.Name.ValueString(),
-		UserVersion:    data.Version.ValueString(),
-		PodCIDR:        podCIDR,
-		ServiceCIDR:    serviceCIDR,
-		DNSServiceIP:   dnsServiceIP,
-		AddonKubeProxy: addonKubeProxy,
-		AddonCoreDNS:   addonCoreDNS,
+		Name:             data.Name.ValueString(),
+		UserVersion:      data.Version.ValueString(),
+		PodCIDR:          podCIDR,
+		ServiceCIDR:      serviceCIDR,
+		DNSServiceIP:     dnsServiceIP,
+		AddonKubeProxy:   addonKubeProxy,
+		AddonCoreDNS:     addonCoreDNS,
+		HighAvailability: data.HighAvailability.ValueBoolPointer(),
 	}
 
 	clusterCreateResult, err := r.client.Cluster().Create(ctx, clusterCreateInput)
@@ -320,6 +328,7 @@ func (r *ClusterResource) setValues(result *client.Cluster, data *ClusterResourc
 	data.DNSServiceIP = types.StringValue(result.DNSServiceIP)
 	data.AddonKubeProxy = types.BoolValue(result.AddonKubeProxy)
 	data.AddonCoreDNS = types.BoolValue(result.AddonCoreDNS)
+	data.HighAvailability = types.BoolValue(result.HighAvailability)
 	data.KubeConfigRaw = types.StringValue(result.KubeConfig)
 	data.KubeConfigUserRaw = types.StringValue(result.KubeConfigUser)
 }
@@ -349,7 +358,8 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	clusterUpdateInput := &client.ClusterUpdateInput{
-		UserVersion: data.Version.ValueString(),
+		UserVersion:      data.Version.ValueString(),
+		HighAvailability: data.HighAvailability.ValueBoolPointer(),
 	}
 
 	result, err := r.client.Cluster().Update(ctx, data.ID.ValueInt64(), clusterUpdateInput)
@@ -365,7 +375,7 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 			return
 		}
 
-		_, err := r.client.Cluster().Get(ctx, data.ID.ValueInt64())
+		result, err = r.client.Cluster().Get(ctx, data.ID.ValueInt64())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read cluster, got error: %s", err))
 			return
