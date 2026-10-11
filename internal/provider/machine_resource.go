@@ -40,7 +40,14 @@ type MachineResourceModel struct {
 	MachinePoolID         types.Int64  `tfsdk:"machine_pool_id"`
 	NetworkProfileID      types.Int64  `tfsdk:"network_profile_id"`
 	DepotNetworkProfileID types.Int64  `tfsdk:"depot_network_profile_id"`
+	ZoneID                types.Int64  `tfsdk:"zone_id"`
 	Labels                types.List   `tfsdk:"label"`
+	IPAddresses           types.List   `tfsdk:"ip_address"`
+}
+
+type IPAddressResourceModel struct {
+	IPPoolID types.Int64  `tfsdk:"ip_pool_id"`
+	Address  types.String `tfsdk:"address"`
 }
 
 type LabelResourceModel struct {
@@ -86,6 +93,23 @@ func machineResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "ID of the Network Profile the Machine uses while it has no pool, and in recovery",
 			Required:            true,
 		},
+		"zone_id": schema.Int64Attribute{
+			MarkdownDescription: "ID of the Zone the Machine is in. Its node gets the `topology.kubernetes.io/zone` and `topology.kubernetes.io/region` labels from it",
+			Optional:            true,
+		},
+	}
+}
+
+func ipAddressResourceAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"ip_pool_id": schema.Int64Attribute{
+			Required:            true,
+			MarkdownDescription: "ID of the IP Pool the address is in. The Machine has one address per IP Pool",
+		},
+		"address": schema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: "The address the Machine always gets in that IP Pool",
+		},
 	}
 }
 
@@ -93,12 +117,12 @@ func labelResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"key": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "The key of the label, for example 'topology.kubernetes.io/zone'",
+			MarkdownDescription: "The key of the label, for example 'node-role.example.com/storage'",
 		},
 
 		"value": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "The value of the label, for example 'my-zone-1'",
+			MarkdownDescription: "The value of the label, for example 'true'",
 		},
 	}
 }
@@ -115,6 +139,12 @@ func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest
 			"label": schema.ListNestedBlock{
 				NestedObject: schema.NestedBlockObject{
 					Attributes: labelResourceAttributes(),
+				},
+			},
+			"ip_address": schema.ListNestedBlock{
+				MarkdownDescription: "An address pinned in one of the IP Pools the Machine's Network Profiles use. In a pool without one, the Machine gets an address the pool allocates",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: ipAddressResourceAttributes(),
 				},
 			},
 		},
@@ -162,13 +192,21 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	var ipAddresses []IPAddressResourceModel
+	resp.Diagnostics.Append(data.IPAddresses.ElementsAs(ctx, &ipAddresses, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	machineCreateInput := &client.MachineCreateInput{
 		UUID:                  uuid,
 		Name:                  data.Name.ValueString(),
 		MachinePoolID:         data.MachinePoolID.ValueInt64(),
 		NetworkProfileID:      data.NetworkProfileID.ValueInt64(),
 		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64(),
+		ZoneID:                data.ZoneID.ValueInt64Pointer(),
 		Labels:                r.labelInput(labels),
+		IPAddresses:           ipAddressInput(ipAddresses),
 	}
 
 	result, err2 := r.client.Machine().Create(ctx, machineCreateInput)
@@ -206,8 +244,27 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.MachinePoolID = types.Int64PointerValue(result.Machine.MachinePoolID)
 	data.NetworkProfileID = types.Int64Value(result.Machine.NetworkProfileID)
 	data.DepotNetworkProfileID = types.Int64Value(result.Machine.DepotNetworkProfileID)
+	data.ZoneID = types.Int64PointerValue(result.Machine.ZoneID)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	var ipAddresses []IPAddressResourceModel
+	if result.Machine.Revision != nil {
+		for _, address := range result.Machine.Revision.IPAddresses {
+			if address.Source != "operator" {
+				continue
+			}
+			ipAddresses = append(ipAddresses, IPAddressResourceModel{
+				IPPoolID: types.Int64Value(address.IPPoolID),
+				Address:  types.StringValue(address.Address),
+			})
+		}
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("ip_address"), ipAddresses)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	var labels []LabelResourceModel
 	for _, label := range result.Machine.Labels {
@@ -238,12 +295,20 @@ func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	var ipAddresses []IPAddressResourceModel
+	resp.Diagnostics.Append(data.IPAddresses.ElementsAs(ctx, &ipAddresses, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	machineUpdateInput := &client.MachineUpdateInput{
 		Name:                  data.Name.ValueString(),
 		MachinePoolID:         data.MachinePoolID.ValueInt64(),
 		NetworkProfileID:      data.NetworkProfileID.ValueInt64(),
 		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64(),
+		ZoneID:                data.ZoneID.ValueInt64Pointer(),
 		Labels:                r.labelInput(labels),
+		IPAddresses:           ipAddressInput(ipAddresses),
 	}
 
 	result, err := r.client.Machine().Update(ctx, data.ID.ValueInt64(), machineUpdateInput)
@@ -307,7 +372,7 @@ func (r *MachineResource) ImportState(ctx context.Context, req resource.ImportSt
 }
 
 func (r *MachineResource) labelInput(labels []LabelResourceModel) []client.Label {
-	var labelInput []client.Label
+	labelInput := []client.Label{}
 	for _, label := range labels {
 		labelInput = append(labelInput, client.Label{
 			Key:   label.Key.ValueString(),
@@ -315,4 +380,16 @@ func (r *MachineResource) labelInput(labels []LabelResourceModel) []client.Label
 		})
 	}
 	return labelInput
+}
+
+// Only pinned addresses: the pools hand out the others.
+func ipAddressInput(addresses []IPAddressResourceModel) []client.IPAddress {
+	input := []client.IPAddress{}
+	for _, address := range addresses {
+		input = append(input, client.IPAddress{
+			IPPoolID: address.IPPoolID.ValueInt64(),
+			Address:  address.Address.ValueString(),
+		})
+	}
+	return input
 }

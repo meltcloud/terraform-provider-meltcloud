@@ -38,11 +38,12 @@ data "meltcloud_machine" "example_uuid" {
 - `machine_pool_id` (Number) ID of the associated machine pool
 - `name` (String) Name of the Machine
 - `status` (String) Status of the Machine
+- `zone_id` (Number) ID of the Zone the Machine is in. Its node gets the `topology.kubernetes.io/zone` and `topology.kubernetes.io/region` labels from it
 
 <a id="nestedatt--labels"></a>
 ### Nested Schema for `labels`
 
 Read-Only:
 
-- `key` (String) The key of the label, for example 'topology.kubernetes.io/zone'
-- `value` (String) The value of the label, for example 'my-zone-1'
+- `key` (String) The key of the label, for example 'node-role.example.com/storage'
+- `value` (String) The value of the label, for example 'true'
