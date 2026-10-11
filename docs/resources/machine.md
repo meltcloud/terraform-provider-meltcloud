@@ -55,14 +55,26 @@ resource "meltcloud_machine" "node2" {
   network_profile_id       = meltcloud_network_profile.single_untagged.id
   depot_network_profile_id = meltcloud_network_profile.auto.id
 
-  label {
-    key   = "topology.kubernetes.io/region"
-    value = "ch"
-  }
+  # sets the Kubernetes labels topology.kubernetes.io/region and topology.kubernetes.io/zone
+  zone_id = meltcloud_zone.zrh_dc1.id
 
   label {
-    key   = "topology.kubernetes.io/zone"
-    value = "az1"
+    key   = "node-role.example.com/storage"
+    value = "true"
+  }
+}
+
+# register a machine that always gets the same address on an IPAM subnet
+resource "meltcloud_machine" "node3" {
+  uuid = "5b0e3c55-9f1e-4f43-9d0a-6f2a5b3c7e21"
+  name = "meltcloud-node03"
+
+  network_profile_id       = meltcloud_network_profile.ipam.id
+  depot_network_profile_id = meltcloud_network_profile.ipam.id
+
+  ip_address {
+    ip_pool_id = meltcloud_ip_pool.example.id
+    address    = "10.20.0.50"
   }
 }
 
@@ -99,21 +111,32 @@ data "meltcloud_network_profile" "default" {
 
 ### Optional
 
+- `ip_address` (Block List) A [static IP](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in one of the IP Pools the Machine's Network Profiles use. In a pool without one, the Machine gets an address the pool allocates (see [below for nested schema](#nestedblock--ip_address))
 - `label` (Block List) (see [below for nested schema](#nestedblock--label))
 - `machine_pool_id` (Number) ID of the associated machine pool
 - `name` (String) Name of the Machine
+- `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the Machine is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on the Machine
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the Machine in meltcloud
+
+<a id="nestedblock--ip_address"></a>
+### Nested Schema for `ip_address`
+
+Required:
+
+- `address` (String) The address the Machine always gets in that IP Pool
+- `ip_pool_id` (Number) ID of the IP Pool the address is in. The Machine has one address per IP Pool
+
 
 <a id="nestedblock--label"></a>
 ### Nested Schema for `label`
 
 Required:
 
-- `key` (String) The key of the label, for example 'topology.kubernetes.io/zone'
-- `value` (String) The value of the label, for example 'my-zone-1'
+- `key` (String) The key of the label, for example 'node-role.example.com/storage'
+- `value` (String) The value of the label, for example 'true'
 
 ## Import
 
