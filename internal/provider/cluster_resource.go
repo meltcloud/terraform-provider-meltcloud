@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -117,16 +118,22 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			},
 		},
 		"addon_kube_proxy": schema.BoolAttribute{
-			MarkdownDescription: "Enable kube-proxy Addon",
+			MarkdownDescription: "Enable the kube-proxy Addon. Changing it replaces the Cluster",
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(true),
+			PlanModifiers: []planmodifier.Bool{
+				boolplanmodifier.RequiresReplace(),
+			},
 		},
 		"addon_core_dns": schema.BoolAttribute{
-			MarkdownDescription: "Enable CoreDNS Addon",
+			MarkdownDescription: "Enable the CoreDNS Addon. Changing it replaces the Cluster",
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(true),
+			PlanModifiers: []planmodifier.Bool{
+				boolplanmodifier.RequiresReplace(),
+			},
 		},
 		"high_availability": schema.BoolAttribute{
 			MarkdownDescription: "Run the control plane with three API servers and three etcd members, each on another Nest Instance. Needs a Nest with at least three instances. Changing it grows or shrinks the control plane in place, without replacing the Cluster",
