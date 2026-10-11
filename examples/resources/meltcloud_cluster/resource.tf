@@ -14,6 +14,14 @@ resource "meltcloud_cluster" "example_custom_network" {
   dns_service_ip = "10.96.0.10"
 }
 
+# create cluster whose control plane survives losing a Nest Instance
+# (needs a Nest with at least three instances)
+resource "meltcloud_cluster" "example_ha" {
+  name              = "melt04"
+  version           = "1.33"
+  high_availability = true
+}
+
 # use kubeconfig to install a helm chart, for example a CNI
 provider "helm" {
   kubernetes {
