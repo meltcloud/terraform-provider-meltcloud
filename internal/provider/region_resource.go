@@ -38,7 +38,7 @@ func (r *RegionResource) Metadata(ctx context.Context, req resource.MetadataRequ
 	resp.TypeName = req.ProviderTypeName + "_region"
 }
 
-const regionDesc = "A Region groups Zones. Machines and Nest Instances in its Zones get its name as the `topology.kubernetes.io/region` label."
+const regionDesc = "A [Region](https://docs.meltcloud.io/concepts/regions-and-zones) groups Zones. Machines and Nest Instances in its Zones get its name as the `topology.kubernetes.io/region` label."
 
 func regionResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

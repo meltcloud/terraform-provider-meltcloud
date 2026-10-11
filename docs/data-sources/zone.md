@@ -3,12 +3,12 @@
 page_title: "meltcloud_zone Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Zone is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the topology.kubernetes.io/zone label. A Zone cannot be deleted while Machines or Nest Instances are in it.
+  A Zone https://docs.meltcloud.io/concepts/regions-and-zones is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the topology.kubernetes.io/zone label. A Zone cannot be deleted while Machines or Nest Instances are in it.
 ---
 
 # meltcloud_zone (Data Source)
 
-A Zone is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the `topology.kubernetes.io/zone` label. A Zone cannot be deleted while Machines or Nest Instances are in it.
+A [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the `topology.kubernetes.io/zone` label. A Zone cannot be deleted while Machines or Nest Instances are in it.
 
 ## Example Usage
 

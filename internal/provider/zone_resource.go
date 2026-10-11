@@ -39,7 +39,7 @@ func (r *ZoneResource) Metadata(ctx context.Context, req resource.MetadataReques
 	resp.TypeName = req.ProviderTypeName + "_zone"
 }
 
-const zoneDesc = "A Zone is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the `topology.kubernetes.io/zone` label. A Zone cannot be deleted while Machines or Nest Instances are in it."
+const zoneDesc = "A [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) is a failure domain within a Region, such as a data center or a room. Machines and Nest Instances in it get its name as the `topology.kubernetes.io/zone` label. A Zone cannot be deleted while Machines or Nest Instances are in it."
 
 func zoneResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{

@@ -3,12 +3,12 @@
 page_title: "meltcloud_region Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Region groups Zones. Machines and Nest Instances in its Zones get its name as the topology.kubernetes.io/region label.
+  A Region https://docs.meltcloud.io/concepts/regions-and-zones groups Zones. Machines and Nest Instances in its Zones get its name as the topology.kubernetes.io/region label.
 ---
 
 # meltcloud_region (Resource)
 
-A Region groups Zones. Machines and Nest Instances in its Zones get its name as the `topology.kubernetes.io/region` label.
+A [Region](https://docs.meltcloud.io/concepts/regions-and-zones) groups Zones. Machines and Nest Instances in its Zones get its name as the `topology.kubernetes.io/region` label.
 
 ## Example Usage
 
