@@ -28,3 +28,16 @@ func TestOperationStatusFinished(t *testing.T) {
 		}
 	}
 }
+
+func TestUnavailable(t *testing.T) {
+	for _, status := range []int{0, 502, 503, 504} {
+		if !unavailable(&Error{HTTPStatusCode: status}) {
+			t.Errorf("status %d should count as the API restarting", status)
+		}
+	}
+	for _, status := range []int{401, 404, 422, 500} {
+		if unavailable(&Error{HTTPStatusCode: status}) {
+			t.Errorf("status %d should end the poll", status)
+		}
+	}
+}
