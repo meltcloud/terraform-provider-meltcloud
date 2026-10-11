@@ -34,8 +34,8 @@ data "meltcloud_cluster" "example_name" {
 
 ### Read-Only
 
-- `addon_core_dns` (Boolean) Enable CoreDNS Addon
-- `addon_kube_proxy` (Boolean) Enable kube-proxy Addon
+- `addon_core_dns` (Boolean) Whether the CoreDNS Addon is enabled
+- `addon_kube_proxy` (Boolean) Whether the kube-proxy Addon is enabled
 - `control_plane_status` (String) Control Plane Status of the Cluster
 - `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
 - `high_availability` (Boolean) Run the control plane with three API servers and three etcd members, each on another Nest Instance. Needs a Nest with at least three instances. Changing it grows or shrinks the control plane in place, without replacing the Cluster
