@@ -32,20 +32,23 @@ type Cluster struct {
 	DNSServiceIP       string `json:"dns_service_ip"`
 	AddonKubeProxy     bool   `json:"addon_kube_proxy"`
 	AddonCoreDNS       bool   `json:"addon_core_dns"`
+	HighAvailability   bool   `json:"high_availability"`
 }
 
 type ClusterCreateInput struct {
-	Name           string  `json:"name"`
-	UserVersion    string  `json:"user_version"`
-	PodCIDR        *string `json:"pod_cidr,omitempty"`
-	ServiceCIDR    *string `json:"service_cidr,omitempty"`
-	DNSServiceIP   *string `json:"dns_service_ip,omitempty"`
-	AddonKubeProxy *bool   `json:"addon_kube_proxy,omitempty"`
-	AddonCoreDNS   *bool   `json:"addon_core_dns,omitempty"`
+	Name             string  `json:"name"`
+	UserVersion      string  `json:"user_version"`
+	PodCIDR          *string `json:"pod_cidr,omitempty"`
+	ServiceCIDR      *string `json:"service_cidr,omitempty"`
+	DNSServiceIP     *string `json:"dns_service_ip,omitempty"`
+	AddonKubeProxy   *bool   `json:"addon_kube_proxy,omitempty"`
+	AddonCoreDNS     *bool   `json:"addon_core_dns,omitempty"`
+	HighAvailability *bool   `json:"high_availability,omitempty"`
 }
 
 type ClusterUpdateInput struct {
-	UserVersion string `json:"user_version,omitempty"`
+	UserVersion      string `json:"user_version,omitempty"`
+	HighAvailability *bool  `json:"high_availability,omitempty"`
 }
 
 func (c *Client) Cluster() *ClusterRequest {
