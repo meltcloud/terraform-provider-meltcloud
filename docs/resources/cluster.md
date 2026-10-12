@@ -15,14 +15,16 @@ A [Cluster](https://docs.meltcloud.io/tasks/clusters/create) in meltcloud consis
 ```terraform
 # create cluster with auto-assigned network defaults
 resource "meltcloud_cluster" "example" {
-  name    = "melt02"
-  version = "1.33"
+  name            = "melt02"
+  version         = "1.33"
+  release_channel = "stable"
 }
 
 # create cluster with explicit network configuration
 resource "meltcloud_cluster" "example_custom_network" {
-  name    = "melt03"
-  version = "1.33"
+  name            = "melt03"
+  version         = "1.33"
+  release_channel = "stable"
 
   pod_cidr       = "10.36.0.0/16"
   service_cidr   = "10.96.0.0/16"
@@ -34,7 +36,22 @@ resource "meltcloud_cluster" "example_custom_network" {
 resource "meltcloud_cluster" "example_ha" {
   name              = "melt04"
   version           = "1.33"
+  release_channel   = "stable"
   high_availability = true
+}
+
+# create cluster following the dev release channel
+resource "meltcloud_cluster" "example_dev" {
+  name            = "melt05"
+  version         = "1.35"
+  release_channel = "dev"
+}
+
+# create cluster pinned to a Kubernetes Bundle, version is derived from it
+resource "meltcloud_cluster" "example_pinned" {
+  name            = "melt06"
+  release_channel = "manual"
+  manual_version  = "1.35.5-melt.30"
 }
 
 # use kubeconfig to install a helm chart, for example a CNI
@@ -69,7 +86,7 @@ resource "helm_release" "cilium" {
 ### Required
 
 - `name` (String) Name of the cluster, not case-sensitive. Must be unique within the organization and consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com')
-- `version` (String) Kubernetes minor version of the cluster control plane
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. Switching to another channel without changing `version` moves the Cluster to the newest Kubernetes Bundle of that channel on its minor version.
 
 ### Optional
 
@@ -77,8 +94,10 @@ resource "helm_release" "cilium" {
 - `addon_kube_proxy` (Boolean) Enable the kube-proxy Addon. Changing it replaces the Cluster
 - `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
 - `high_availability` (Boolean) Run the control plane with three API servers and three etcd members, each on another Nest Instance. Needs a Nest with at least three instances. Changing it grows or shrinks the control plane in place, without replacing the Cluster
+- `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `pod_cidr` (String) CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.
 - `service_cidr` (String) CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.
+- `version` (String) Kubernetes minor version of the cluster control plane. Required unless `release_channel` is `manual`, in which case it is derived from `manual_version` if not set.
 
 ### Read-Only
 
@@ -86,6 +105,7 @@ resource "helm_release" "cilium" {
 - `kubeconfig` (Attributes, Sensitive) Kubeconfig values for the admin user (see [below for nested schema](#nestedatt--kubeconfig))
 - `kubeconfig_raw` (String, Sensitive) Kubeconfig file for the admin user
 - `kubeconfig_user_raw` (String, Sensitive) Kubeconfig file for the regular (OIDC) users
+- `kubernetes_bundle` (String) Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`
 - `patch_version` (String) Kubernetes patch version of the cluster control plane
 
 <a id="nestedatt--kubeconfig"></a>

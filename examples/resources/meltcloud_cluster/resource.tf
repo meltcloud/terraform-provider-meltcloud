@@ -1,13 +1,15 @@
 # create cluster with auto-assigned network defaults
 resource "meltcloud_cluster" "example" {
-  name    = "melt02"
-  version = "1.33"
+  name            = "melt02"
+  version         = "1.33"
+  release_channel = "stable"
 }
 
 # create cluster with explicit network configuration
 resource "meltcloud_cluster" "example_custom_network" {
-  name    = "melt03"
-  version = "1.33"
+  name            = "melt03"
+  version         = "1.33"
+  release_channel = "stable"
 
   pod_cidr       = "10.36.0.0/16"
   service_cidr   = "10.96.0.0/16"
@@ -19,7 +21,22 @@ resource "meltcloud_cluster" "example_custom_network" {
 resource "meltcloud_cluster" "example_ha" {
   name              = "melt04"
   version           = "1.33"
+  release_channel   = "stable"
   high_availability = true
+}
+
+# create cluster following the dev release channel
+resource "meltcloud_cluster" "example_dev" {
+  name            = "melt05"
+  version         = "1.35"
+  release_channel = "dev"
+}
+
+# create cluster pinned to a Kubernetes Bundle, version is derived from it
+resource "meltcloud_cluster" "example_pinned" {
+  name            = "melt06"
+  release_channel = "manual"
+  manual_version  = "1.35.5-melt.30"
 }
 
 # use kubeconfig to install a helm chart, for example a CNI

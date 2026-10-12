@@ -8,12 +8,14 @@ import (
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -80,6 +82,9 @@ func machineResourceAttributes() map[string]schema.Attribute {
 		"name": schema.StringAttribute{
 			MarkdownDescription: "Name of the Machine",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"machine_pool_id": schema.Int64Attribute{
 			MarkdownDescription: "ID of the associated machine pool",
@@ -200,7 +205,7 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 
 	machineCreateInput := &client.MachineCreateInput{
 		UUID:                  uuid,
-		Name:                  data.Name.ValueString(),
+		Name:                  optionalString(data.Name),
 		MachinePoolID:         data.MachinePoolID.ValueInt64(),
 		NetworkProfileID:      data.NetworkProfileID.ValueInt64(),
 		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64(),
@@ -240,7 +245,7 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	data.UUID = types.StringValue(result.Machine.UUID.String())
-	data.Name = types.StringValue(result.Machine.Name)
+	data.Name = types.StringPointerValue(result.Machine.Name)
 	data.MachinePoolID = types.Int64PointerValue(result.Machine.MachinePoolID)
 	data.NetworkProfileID = types.Int64Value(result.Machine.NetworkProfileID)
 	data.DepotNetworkProfileID = types.Int64Value(result.Machine.DepotNetworkProfileID)
@@ -302,7 +307,7 @@ func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	machineUpdateInput := &client.MachineUpdateInput{
-		Name:                  data.Name.ValueString(),
+		Name:                  optionalString(data.Name),
 		MachinePoolID:         data.MachinePoolID.ValueInt64(),
 		NetworkProfileID:      data.NetworkProfileID.ValueInt64(),
 		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64(),

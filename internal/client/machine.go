@@ -23,7 +23,7 @@ type MachinesResult struct {
 type Machine struct {
 	ID                    int64            `json:"id"`
 	UUID                  uuid.UUID        `json:"uuid"`
-	Name                  string           `json:"name,omitempty"`
+	Name                  *string          `json:"name"`
 	Status                string           `json:"status"`
 	MachinePoolID         *int64           `json:"machine_pool_id"`
 	NetworkProfileID      int64            `json:"network_profile_id"`
@@ -47,7 +47,7 @@ type IPAddress struct {
 
 type MachineCreateInput struct {
 	UUID                  uuid.UUID   `json:"uuid"`
-	Name                  string      `json:"name,omitempty"`
+	Name                  *string     `json:"name,omitempty"`
 	MachinePoolID         int64       `json:"machine_pool_id,omitempty"`
 	NetworkProfileID      int64       `json:"network_profile_id"`
 	DepotNetworkProfileID int64       `json:"depot_network_profile_id"`
@@ -61,9 +61,9 @@ type Label struct {
 	Value string `json:"value"`
 }
 
-// Sends every field, so an empty list or a null zone_id clears what the Machine has.
+// Sends every field, so an empty list or a null name or zone_id clears what the Machine has.
 type MachineUpdateInput struct {
-	Name                  string      `json:"name,omitempty"`
+	Name                  *string     `json:"name"`
 	MachinePoolID         int64       `json:"machine_pool_id,omitempty"`
 	NetworkProfileID      int64       `json:"network_profile_id"`
 	DepotNetworkProfileID int64       `json:"depot_network_profile_id"`
