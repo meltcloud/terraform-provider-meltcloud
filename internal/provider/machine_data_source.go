@@ -169,7 +169,7 @@ func (d *MachineDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	data.ID = types.Int64Value(machine.ID)
 	data.UUID = types.StringValue(machine.UUID.String())
-	data.Name = types.StringValue(machine.Name)
+	data.Name = types.StringPointerValue(machine.Name)
 	data.MachinePoolID = types.Int64PointerValue(machine.MachinePoolID)
 	data.Status = types.StringValue(machine.Status)
 	data.ZoneID = types.Int64PointerValue(machine.ZoneID)
