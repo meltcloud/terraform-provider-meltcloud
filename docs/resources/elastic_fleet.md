@@ -15,11 +15,12 @@ An [Elastic Fleet](https://docs.meltcloud.io/concepts/elastic-node-pools#elastic
 ```terraform
 # create cluster
 resource "meltcloud_cluster" "example" {
-  name           = "melt02"
-  version        = "1.35"
-  pod_cidr       = "10.36.0.0/16"
-  service_cidr   = "10.96.0.0/16"
-  dns_service_ip = "10.96.0.10"
+  name            = "melt02"
+  version         = "1.35"
+  release_channel = "stable"
+  pod_cidr        = "10.36.0.0/16"
+  service_cidr    = "10.96.0.0/16"
+  dns_service_ip  = "10.96.0.10"
 }
 
 # create elastic fleet backed by the cluster
@@ -41,3 +42,14 @@ resource "meltcloud_elastic_fleet" "example" {
 
 - `id` (Number) Internal ID of the Elastic Fleet on meltcloud
 - `status` (String) Status of the Elastic Fleet
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Resource can be imported by using the resource path as displayed in the URL
+terraform import meltcloud_elastic_fleet.example elastic_fleets/1
+```
