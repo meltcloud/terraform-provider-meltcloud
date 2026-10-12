@@ -24,12 +24,15 @@ type MachinePoolDataSource struct {
 
 // MachinePoolDataSourceModel describes the data source data model.
 type MachinePoolDataSourceModel struct {
-	ID           types.Int64  `tfsdk:"id"`
-	ClusterID    types.Int64  `tfsdk:"cluster_id"`
-	Name         types.String `tfsdk:"name"`
-	Version      types.String `tfsdk:"version"`
-	PatchVersion types.String `tfsdk:"patch_version"`
-	Status       types.String `tfsdk:"status"`
+	ID               types.Int64  `tfsdk:"id"`
+	ClusterID        types.Int64  `tfsdk:"cluster_id"`
+	Name             types.String `tfsdk:"name"`
+	Version          types.String `tfsdk:"version"`
+	PatchVersion     types.String `tfsdk:"patch_version"`
+	ReleaseChannel   types.String `tfsdk:"release_channel"`
+	ManualVersion    types.String `tfsdk:"manual_version"`
+	KubernetesBundle types.String `tfsdk:"kubernetes_bundle"`
+	Status           types.String `tfsdk:"status"`
 }
 
 func (d *MachinePoolDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -51,6 +54,18 @@ func (d *MachinePoolDataSource) Schema(ctx context.Context, req datasource.Schem
 			},
 			"patch_version": schema.StringAttribute{
 				MarkdownDescription: machinePoolResourceAttributes()["patch_version"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"release_channel": schema.StringAttribute{
+				MarkdownDescription: machinePoolResourceAttributes()["release_channel"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"manual_version": schema.StringAttribute{
+				MarkdownDescription: machinePoolResourceAttributes()["manual_version"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"kubernetes_bundle": schema.StringAttribute{
+				MarkdownDescription: machinePoolResourceAttributes()["kubernetes_bundle"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"status": schema.StringAttribute{
@@ -105,6 +120,9 @@ func (d *MachinePoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	data.Name = types.StringValue(result.MachinePool.Name)
 	data.Version = types.StringValue(result.MachinePool.UserVersion)
 	data.PatchVersion = types.StringValue(result.MachinePool.PatchVersion)
+	data.ReleaseChannel = types.StringValue(result.MachinePool.ReleaseChannel)
+	data.ManualVersion = types.StringPointerValue(result.MachinePool.ManualVersion)
+	data.KubernetesBundle = types.StringValue(result.MachinePool.KubernetesBundle)
 	data.Status = types.StringValue(result.MachinePool.Status)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

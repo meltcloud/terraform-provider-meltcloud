@@ -15,11 +15,12 @@ An [Elastic Quota](https://docs.meltcloud.io/tasks/elastic-fleets/create-quota) 
 ```terraform
 # create cluster and fleet
 resource "meltcloud_cluster" "example" {
-  name           = "melt02"
-  version        = "1.35"
-  pod_cidr       = "10.36.0.0/16"
-  service_cidr   = "10.96.0.0/16"
-  dns_service_ip = "10.96.0.10"
+  name            = "melt02"
+  version         = "1.35"
+  release_channel = "stable"
+  pod_cidr        = "10.36.0.0/16"
+  service_cidr    = "10.96.0.0/16"
+  dns_service_ip  = "10.96.0.10"
 }
 
 resource "meltcloud_elastic_fleet" "example" {
@@ -54,3 +55,14 @@ resource "meltcloud_elastic_quota" "example" {
 ### Read-Only
 
 - `id` (Number) Internal ID of the Elastic Quota on meltcloud
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Resource can be imported by using the resource path as displayed in the URL
+terraform import meltcloud_elastic_quota.example elastic_fleets/1/elastic_quotas/2
+```
