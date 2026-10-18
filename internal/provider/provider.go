@@ -157,6 +157,7 @@ func (p *MeltcloudProvider) Resources(ctx context.Context) []func() resource.Res
 		NewNetworkResource,
 		NewRegionResource,
 		NewZoneResource,
+		NewFoundryResource,
 		NewSubnetResource,
 		NewIPPoolResource,
 		NewElasticFleetResource,
