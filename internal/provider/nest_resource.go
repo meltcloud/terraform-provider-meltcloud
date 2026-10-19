@@ -62,7 +62,7 @@ func (r *NestResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:            true,
 				MarkdownDescription: "Status of the Nest, for example `ready` or `updating`",
 			},
-			"version": optionalComputedString("The Nest version to run, for example `1.35.3-nest.67`. It has to be a version this Nest can update to. Leave it out to keep the running one"),
+			"version": optionalComputedString("The Nest version to run, for example `1.35.3-nest.67`.. Leave it out to keep the running one"),
 		},
 	}
 }

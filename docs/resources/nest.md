@@ -35,7 +35,7 @@ resource "meltcloud_nest" "this" {
 
 ### Optional
 
-- `version` (String) The Nest version to run, for example `1.35.3-nest.67`. It has to be a version this Nest can update to. Leave it out to keep the running one
+- `version` (String) The Nest version to run, for example `1.35.3-nest.67`.. Leave it out to keep the running one
 
 ### Read-Only
 
