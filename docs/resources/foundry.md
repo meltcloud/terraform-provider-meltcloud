@@ -3,29 +3,23 @@
 page_title: "meltcloud_foundry Resource - meltcloud"
 subcategory: ""
 description: |-
-  The Foundry https://docs.meltcloud.io/concepts/nest/overview#foundry is the meltcloud management plane that runs on the Nest. The Nest installer creates it, so it is imported https://developer.hashicorp.com/terraform/language/import rather than created, and it cannot be destroyed: to stop managing it, use a removed https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources block with destroy = false.
+  The Foundry https://docs.meltcloud.io/concepts/nest/overview#foundry is the meltcloud management plane that runs on the Nest. Since it's created automatically during the Nest installation, it can't be created by Terraform and must be imported https://developer.hashicorp.com/terraform/language/import. Same for deletion: to stop managing it, use a removed https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources block with destroy = false.
   Needs the API Key of the admin Organization.
-  ~> Changing version updates the Foundry. Its API can be briefly unavailable during the update, and the apply waits until the update has finished.
-  ~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them.
-  A setting left out keeps its value, and an empty string clears it.
+  ~> Changing version updates the Foundry. Its API can be briefly unavailable during the update.
 ---
 
 # meltcloud_foundry (Resource)
 
-The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry) is the meltcloud management plane that runs on the Nest. The Nest installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.
+The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry) is the meltcloud management plane that runs on the Nest. Since it's created automatically during the Nest installation, it can't be created by Terraform and must be [imported](https://developer.hashicorp.com/terraform/language/import). Same for deletion: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.
 
 Needs the API Key of the admin Organization.
 
-~> Changing `version` updates the Foundry. Its API can be briefly unavailable during the update, and the apply waits until the update has finished.
-
-~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them.
-
-A setting left out keeps its value, and an empty string clears it.
+~> Changing `version` updates the Foundry. Its API can be briefly unavailable during the update.
 
 ## Example Usage
 
 ```terraform
-# the nest installer creates the foundry, so it is imported
+# the nest installer creates the foundry, import it
 import {
   to = meltcloud_foundry.this
   id = "foundry"
@@ -34,13 +28,18 @@ import {
 resource "meltcloud_foundry" "this" {
   version = "1.5.0"
 
-  identity_provider   = "auth0"
-  auth0_domain        = "example.eu.auth0.com"
-  auth0_client_id     = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-  auth0_client_secret = var.auth0_client_secret
+  identity_provider = "auth0"
+  auth0_config = {
+    domain                   = "example.eu.auth0.com"
+    client_id                = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    client_secret_wo         = var.auth0_client_secret
+    client_secret_wo_version = 1
+  }
 
-  letsencrypt_enabled = true
-  letsencrypt_email   = "ops@example.com"
+  letsencrypt_config = {
+    enabled = true
+    email   = "ops@example.com"
+  }
 }
 
 variable "auth0_client_secret" {
@@ -54,17 +53,11 @@ variable "auth0_client_secret" {
 
 ### Optional
 
-- `auth0_client_id` (String) Client ID of the Auth0 application
-- `auth0_client_secret` (String, Sensitive) Client secret of the Auth0 application. The Foundry never returns it, so Terraform cannot see a change made outside of it
-- `auth0_domain` (String) Domain of the Auth0 tenant, for example `tenant.eu.auth0.com`
+- `auth0_config` (Attributes) The Auth0 tenant users sign in through with `identity_provider = "auth0"`. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--auth0_config))
 - `identity_provider` (String) How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin, for trials only
-- `letsencrypt_email` (String) Email address Let's Encrypt sends expiry notices to
-- `letsencrypt_enabled` (Boolean) Issue the certificates for the Foundry hostnames with Let's Encrypt's HTTP01 challenge. Port 80 of the Foundry VIP must be reachable from the internet
-- `letsencrypt_staging` (Boolean) Use the Let's Encrypt staging environment, whose certificates browsers do not trust
+- `letsencrypt_config` (Attributes) Certificates from Let's Encrypt. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--letsencrypt_config))
 - `rails_log_level` (String) Log level of the Foundry application (web and worker)
-- `sentry_dsn` (String, Sensitive) DSN errors are reported to. The Foundry never returns it, so Terraform cannot see a change made outside of it
-- `sentry_enabled` (Boolean) Report errors to Sentry
-- `sentry_environment` (String) Environment the errors are reported under
+- `sentry_config` (Attributes) Error reporting to Sentry. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--sentry_config))
 - `version` (String) The Foundry version to run, for example `1.5.0`. It has to be a version this Foundry can update to. Leave it out to keep the running one
 
 ### Read-Only
@@ -72,6 +65,46 @@ variable "auth0_client_secret" {
 - `ha_topology` (String) [High availability](https://docs.meltcloud.io/concepts/nest/high-availability) mode of the Foundry: `none` for Single Instance, `host` for Multi-instance, `zone` for Multi-zone. [Enable high availability](https://docs.meltcloud.io/tasks/foundry/enable-high-availability) in the admin area
 - `id` (Number) Internal ID of the Foundry on meltcloud
 - `status` (String) Status of the Foundry, for example `ready` or `updating`
+
+<a id="nestedatt--auth0_config"></a>
+### Nested Schema for `auth0_config`
+
+Required:
+
+- `client_id` (String) Client ID of the Auth0 application
+- `domain` (String) Domain of the Auth0 tenant, for example `tenant.eu.auth0.com`
+
+Optional:
+
+- `client_secret_wo` (String, Sensitive) Client secret of the Auth0 application. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Change `client_secret_wo_version` to send a new one
+- `client_secret_wo_version` (Number) Version of `client_secret_wo`, see there
+
+
+<a id="nestedatt--letsencrypt_config"></a>
+### Nested Schema for `letsencrypt_config`
+
+Required:
+
+- `enabled` (Boolean) Issue the certificates for the Foundry hostnames with Let's Encrypt's HTTP01 challenge. Port 80 of the Foundry VIP must be reachable from the internet
+
+Optional:
+
+- `email` (String) Email address Let's Encrypt sends expiry notices to
+- `staging` (Boolean) Use the Let's Encrypt staging environment, whose certificates browsers do not trust. Defaults to `false`
+
+
+<a id="nestedatt--sentry_config"></a>
+### Nested Schema for `sentry_config`
+
+Required:
+
+- `enabled` (Boolean) Report errors of the Foundry application to Sentry
+
+Optional:
+
+- `dsn_wo` (String, Sensitive) DSN of the Sentry project. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Change `dsn_wo_version` to send a new one
+- `dsn_wo_version` (Number) Version of `dsn_wo`, see there
+- `environment` (String) Environment the errors are reported under, for example `production`
 
 ## Import
 
