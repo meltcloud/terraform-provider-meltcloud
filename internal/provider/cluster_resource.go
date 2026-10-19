@@ -141,7 +141,7 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			},
 		},
 		"high_availability": schema.BoolAttribute{
-			MarkdownDescription: "Run the control plane with three API servers and three etcd members, each on another Nest Instance. Needs a Nest with at least three instances. Changing it grows or shrinks the control plane in place, without replacing the Cluster",
+			MarkdownDescription: "Runs the control plane with multiple replicas, see [Enable High Availability](https://docs.meltcloud.io/tasks/clusters/high-availability). Available once the Nest is [scaled out](https://docs.meltcloud.io/tasks/nest/scale-out). Changing it grows or shrinks the control plane in place, without replacing the Cluster",
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(false),
