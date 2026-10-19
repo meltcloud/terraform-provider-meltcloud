@@ -3,12 +3,12 @@
 page_title: "meltcloud_nest_instance Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Nest Instance https://docs.meltcloud.io/concepts/nest is one machine of the Nest. Needs the API Key of the admin Organization.
+  A Nest Instance https://docs.meltcloud.io/tasks/nest/create-instance is one host of the Nest. Needs the API Key of the admin Organization.
 ---
 
 # meltcloud_nest_instance (Data Source)
 
-A [Nest Instance](https://docs.meltcloud.io/concepts/nest) is one machine of the Nest. Needs the API Key of the admin Organization.
+A [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance) is one host of the Nest. Needs the API Key of the admin Organization.
 
 ## Example Usage
 
@@ -25,7 +25,7 @@ data "meltcloud_nest_instance" "first" {
 ### Optional
 
 - `id` (Number) Internal ID of the Nest Instance on meltcloud
-- `name` (String) Name of the Nest Instance, unique within the Nest
+- `name` (String) Host name of the Nest Instance, unique within the Nest
 
 ### Read-Only
 
@@ -36,13 +36,13 @@ data "meltcloud_nest_instance" "first" {
 - `etcd_disk_device` (String) Device etcd is kept on
 - `etcd_disk_mirror` (Boolean) Whether the etcd disk is mirrored
 - `etcd_disk_mirror_device` (String) Device the etcd disk is mirrored to
-- `install_disk_device` (String) Device the instance installs to
-- `install_disk_mirror` (Boolean) Whether the install disk is mirrored
-- `install_disk_mirror_device` (String) Device the install disk is mirrored to
+- `install_disk_device` (String) Boot disk device the OS is installed to
+- `install_disk_mirror` (Boolean) Whether the boot disk is mirrored
+- `install_disk_mirror_device` (String) Device the boot disk is mirrored to
 - `ip_addresses` (Attributes List) The addresses of the instance, one per IP Pool of its Network Profile (see [below for nested schema](#nestedatt--ip_addresses))
 - `nest_id` (Number) ID of the Nest the instance belongs to
 - `network_profile_id` (Number) ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses
-- `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. A reset instance is `removed` until it installs again
+- `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again
 - `version` (String) Nest version the instance runs
 - `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in
 

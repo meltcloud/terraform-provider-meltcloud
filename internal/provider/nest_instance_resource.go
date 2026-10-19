@@ -80,11 +80,11 @@ func (r *NestInstanceResource) Metadata(ctx context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_nest_instance"
 }
 
-const nestInstanceDesc = "A [Nest Instance](https://docs.meltcloud.io/concepts/nest) is one machine of the Nest. " +
-	"It installs and joins the Nest once its machine boots from a `meltcloud_nest_instance_image`; `status` turns from `installing` to `ready` then.\n\n" +
+const nestInstanceDesc = "A [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance) is one host of the Nest. " +
+	"It installs and joins the Nest once the host boots from a `meltcloud_nest_instance_image`; `status` turns from `installing` to `ready` then.\n\n" +
 	"Needs the API Key of the admin Organization. A Nest has at most seven instances.\n\n" +
-	"~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, reset it in the admin area first; it is `removed` then.\n\n" +
-	"~> After an instance joins, rebalance a highly available Foundry in the admin area."
+	"~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, [reset](https://docs.meltcloud.io/tasks/nest/reset-instance) it in the admin area first; it is `removed` then.\n\n" +
+	"~> After an instance joins, [enable high availability](https://docs.meltcloud.io/tasks/foundry/enable-high-availability) on a single-instance Foundry once three instances are `ready`, or [rebalance](https://docs.meltcloud.io/tasks/foundry/rebalance) a highly available one, in the admin area."
 
 func immutableString(description string, required bool) schema.StringAttribute {
 	return schema.StringAttribute{
@@ -225,17 +225,17 @@ func (r *NestInstanceResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: "ID of the Nest the instance belongs to",
 				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
-			"name":                       immutableString("Name of the Nest Instance, unique within the Nest", true),
+			"name":                       immutableString("Host name of the Nest Instance, unique within the Nest", true),
 			"zone_id":                    immutableInt64("ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on its node", true),
 			"network_profile_id":         immutableInt64("ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses", true),
-			"install_disk_device":        immutableString("Device the instance installs to, for example `/dev/sda`. Leave it out to let the installer pick", false),
-			"install_disk_mirror":        immutableBool("Mirror the install disk"),
-			"install_disk_mirror_device": immutableString("Device the install disk is mirrored to", false),
+			"install_disk_device":        immutableString("Boot disk device the OS is installed to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots", true),
+			"install_disk_mirror":        immutableBool("Mirror the boot disk onto a second device"),
+			"install_disk_mirror_device": immutableString("Device the boot disk is mirrored to. Only with `install_disk_mirror`", false),
 			"etcd_disk":                  immutableBool("Keep etcd on a disk of its own"),
-			"etcd_disk_device":           immutableString("Device etcd is kept on", false),
+			"etcd_disk_device":           immutableString("Device etcd is kept on. Only with `etcd_disk`", false),
 			"etcd_disk_mirror":           immutableBool("Mirror the etcd disk"),
-			"etcd_disk_mirror_device":    immutableString("Device the etcd disk is mirrored to", false),
-			"status":                     computedString("Status of the instance: `installing` until it has joined the Nest, then `ready`. A reset instance is `removed` until it installs again"),
+			"etcd_disk_mirror_device":    immutableString("Device the etcd disk is mirrored to. Only with `etcd_disk_mirror`", false),
+			"status":                     computedString("Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again"),
 			"architecture":               computedString("CPU architecture the instance reported once it booted"),
 			"version":                    computedString("Nest version the instance runs"),
 			"ip_addresses": schema.SetNestedAttribute{

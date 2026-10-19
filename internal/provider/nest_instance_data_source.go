@@ -70,7 +70,7 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 	}
 
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A [Nest Instance](https://docs.meltcloud.io/concepts/nest) is one machine of the Nest. Needs the API Key of the admin Organization.",
+		MarkdownDescription: "A [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance) is one host of the Nest. Needs the API Key of the admin Organization.",
 		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"nest_id":            computedInt64("ID of the Nest the instance belongs to"),
 			"zone_id":            computedInt64("ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in"),
@@ -84,9 +84,9 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 					"static":     computedBool("Whether it is a [static IP](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) rather than one the pool allocated"),
 				}},
 			},
-			"install_disk_device":        computedStr("Device the instance installs to"),
-			"install_disk_mirror":        computedBool("Whether the install disk is mirrored"),
-			"install_disk_mirror_device": computedStr("Device the install disk is mirrored to"),
+			"install_disk_device":        computedStr("Boot disk device the OS is installed to"),
+			"install_disk_mirror":        computedBool("Whether the boot disk is mirrored"),
+			"install_disk_mirror_device": computedStr("Device the boot disk is mirrored to"),
 			"etcd_disk":                  computedBool("Whether etcd is kept on a disk of its own"),
 			"etcd_disk_device":           computedStr("Device etcd is kept on"),
 			"etcd_disk_mirror":           computedBool("Whether the etcd disk is mirrored"),
@@ -102,10 +102,10 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 					"bfd":      computedBool("Whether BFD is on"),
 				}},
 			},
-			"status":       computedStr("Status of the instance: `installing` until it has joined the Nest, then `ready`. A reset instance is `removed` until it installs again"),
+			"status":       computedStr("Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again"),
 			"architecture": computedStr("CPU architecture the instance reported once it booted"),
 			"version":      computedStr("Nest version the instance runs"),
-		}, "Internal ID of the Nest Instance on meltcloud", "Name of the Nest Instance, unique within the Nest"),
+		}, "Internal ID of the Nest Instance on meltcloud", "Host name of the Nest Instance, unique within the Nest"),
 	}
 }
 

@@ -38,7 +38,7 @@ func (r *NestResource) Metadata(ctx context.Context, req resource.MetadataReques
 	resp.TypeName = req.ProviderTypeName + "_nest"
 }
 
-const nestDesc = "The [Nest](https://docs.meltcloud.io/concepts/nest) is the appliance the Foundry and the Kubernetes control planes run on. " +
+const nestDesc = "The [Nest](https://docs.meltcloud.io/concepts/nest/overview) is the management appliance that hosts the Foundry and the Kubernetes control planes. " +
 	"Its installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: " +
 	"to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
 	"Needs the API Key of the admin Organization.\n\n" +

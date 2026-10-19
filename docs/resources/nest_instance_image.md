@@ -3,13 +3,13 @@
 page_title: "meltcloud_nest_instance_image Resource - meltcloud"
 subcategory: ""
 description: |-
-  An installer image of a Nest Instance https://docs.meltcloud.io/concepts/nest. Boot the instance's machine from it to install the instance and join it to the Nest. Creating the resource waits until the ISOs are built.
+  An Installer Image https://docs.meltcloud.io/tasks/nest/create-instance#create-an-installer-image of a Nest Instance. Boot the host from it to install the instance and join it to the Nest. Creating the resource waits until the ISOs are built.
   Needs the API Key of the admin Organization. The image stops working once it expires.
 ---
 
 # meltcloud_nest_instance_image (Resource)
 
-An installer image of a [Nest Instance](https://docs.meltcloud.io/concepts/nest). Boot the instance's machine from it to install the instance and join it to the Nest. Creating the resource waits until the ISOs are built.
+An [Installer Image](https://docs.meltcloud.io/tasks/nest/create-instance#create-an-installer-image) of a Nest Instance. Boot the host from it to install the instance and join it to the Nest. Creating the resource waits until the ISOs are built.
 
 Needs the API Key of the admin Organization. The image stops working once it expires.
 
@@ -22,7 +22,7 @@ resource "meltcloud_nest_instance_image" "nest_1" {
   expires_at       = "2026-12-31T23:59:59Z"
 }
 
-# boot the machine from the ISO, for example through its BMC
+# boot the host from the ISO, for example through its BMC
 output "nest_1_iso" {
   value     = meltcloud_nest_instance_image.nest_1.https_url_iso_amd64
   sensitive = true
@@ -34,7 +34,7 @@ output "nest_1_iso" {
 
 ### Required
 
-- `expires_at` (String) Timestamp when the image expires
+- `expires_at` (String) Timestamp after which the image can no longer be used for installation
 - `name` (String) Name of the image, unique within the Nest Instance
 - `nest_instance_id` (Number) ID of the Nest Instance the image installs
 

@@ -3,21 +3,21 @@
 page_title: "meltcloud_nest_instance Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Nest Instance https://docs.meltcloud.io/concepts/nest is one machine of the Nest. It installs and joins the Nest once its machine boots from a meltcloud_nest_instance_image; status turns from installing to ready then.
+  A Nest Instance https://docs.meltcloud.io/tasks/nest/create-instance is one host of the Nest. It installs and joins the Nest once the host boots from a meltcloud_nest_instance_image; status turns from installing to ready then.
   Needs the API Key of the admin Organization. A Nest has at most seven instances.
-  ~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, reset it in the admin area first; it is removed then.
-  ~> After an instance joins, rebalance a highly available Foundry in the admin area.
+  ~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, reset https://docs.meltcloud.io/tasks/nest/reset-instance it in the admin area first; it is removed then.
+  ~> After an instance joins, enable high availability https://docs.meltcloud.io/tasks/foundry/enable-high-availability on a single-instance Foundry once three instances are ready, or rebalance https://docs.meltcloud.io/tasks/foundry/rebalance a highly available one, in the admin area.
 ---
 
 # meltcloud_nest_instance (Resource)
 
-A [Nest Instance](https://docs.meltcloud.io/concepts/nest) is one machine of the Nest. It installs and joins the Nest once its machine boots from a `meltcloud_nest_instance_image`; `status` turns from `installing` to `ready` then.
+A [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance) is one host of the Nest. It installs and joins the Nest once the host boots from a `meltcloud_nest_instance_image`; `status` turns from `installing` to `ready` then.
 
 Needs the API Key of the admin Organization. A Nest has at most seven instances.
 
-~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, reset it in the admin area first; it is `removed` then.
+~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, [reset](https://docs.meltcloud.io/tasks/nest/reset-instance) it in the admin area first; it is `removed` then.
 
-~> After an instance joins, rebalance a highly available Foundry in the admin area.
+~> After an instance joins, [enable high availability](https://docs.meltcloud.io/tasks/foundry/enable-high-availability) on a single-instance Foundry once three instances are `ready`, or [rebalance](https://docs.meltcloud.io/tasks/foundry/rebalance) a highly available one, in the admin area.
 
 ## Example Usage
 
@@ -32,7 +32,7 @@ resource "meltcloud_nest_instance" "nest_1" {
     { ip_pool_id = meltcloud_ip_pool.hosts.id, address = "10.0.10.11" },
   ]
 
-  install_disk_device = "/dev/disk/by-id/nvme-SAMSUNG_MZQL2960HCJR-00A07_S64FNE0R123456"
+  install_disk_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
 }
 
 # on a nest that uses BGP, each instance peers with its routers
@@ -59,8 +59,9 @@ resource "meltcloud_nest_instance" "nest_2" {
 
 ### Required
 
+- `install_disk_device` (String) Boot disk device the OS is installed to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
 - `ip_addresses` (Attributes Set) [Static IPs](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in the IP Pools of the Network Profile, one per pool. The instance needs one on the primary host network. In the other pools, it gets an address the pool allocates (see [below for nested schema](#nestedatt--ip_addresses))
-- `name` (String) Name of the Nest Instance, unique within the Nest
+- `name` (String) Host name of the Nest Instance, unique within the Nest
 - `network_profile_id` (Number) ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses
 - `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on its node
 
@@ -68,19 +69,18 @@ resource "meltcloud_nest_instance" "nest_2" {
 
 - `bgp` (Attributes) BGP peering of the instance. Needed when the Nest uses BGP. Changing it replaces the instance (see [below for nested schema](#nestedatt--bgp))
 - `etcd_disk` (Boolean) Keep etcd on a disk of its own
-- `etcd_disk_device` (String) Device etcd is kept on
+- `etcd_disk_device` (String) Device etcd is kept on. Only with `etcd_disk`
 - `etcd_disk_mirror` (Boolean) Mirror the etcd disk
-- `etcd_disk_mirror_device` (String) Device the etcd disk is mirrored to
-- `install_disk_device` (String) Device the instance installs to, for example `/dev/sda`. Leave it out to let the installer pick
-- `install_disk_mirror` (Boolean) Mirror the install disk
-- `install_disk_mirror_device` (String) Device the install disk is mirrored to
+- `etcd_disk_mirror_device` (String) Device the etcd disk is mirrored to. Only with `etcd_disk_mirror`
+- `install_disk_mirror` (Boolean) Mirror the boot disk onto a second device
+- `install_disk_mirror_device` (String) Device the boot disk is mirrored to. Only with `install_disk_mirror`
 
 ### Read-Only
 
 - `architecture` (String) CPU architecture the instance reported once it booted
 - `id` (Number) Internal ID of the Nest Instance on meltcloud
 - `nest_id` (Number) ID of the Nest the instance belongs to
-- `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. A reset instance is `removed` until it installs again
+- `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again
 - `version` (String) Nest version the instance runs
 
 <a id="nestedatt--ip_addresses"></a>
