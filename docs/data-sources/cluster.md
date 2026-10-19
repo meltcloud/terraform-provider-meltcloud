@@ -38,7 +38,7 @@ data "meltcloud_cluster" "example_name" {
 - `addon_kube_proxy` (Boolean) Whether the kube-proxy Addon is enabled
 - `control_plane_status` (String) Control Plane Status of the Cluster
 - `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
-- `high_availability` (Boolean) Run the control plane with three API servers and three etcd members, each on another Nest Instance. Needs a Nest with at least three instances. Changing it grows or shrinks the control plane in place, without replacing the Cluster
+- `high_availability` (Boolean) Runs the control plane with multiple replicas, see [Enable High Availability](https://docs.meltcloud.io/tasks/clusters/high-availability). Available once the Nest is [scaled out](https://docs.meltcloud.io/tasks/nest/scale-out). Changing it grows or shrinks the control plane in place, without replacing the Cluster
 - `kubeconfig` (Attributes, Sensitive) (see [below for nested schema](#nestedatt--kubeconfig))
 - `kubeconfig_raw` (String, Sensitive)
 - `kubeconfig_user_raw` (String, Sensitive)
