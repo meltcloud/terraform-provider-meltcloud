@@ -45,6 +45,8 @@ resource "meltcloud_nest_instance" "nest_2" {
     { ip_pool_id = meltcloud_ip_pool.hosts.id, address = "10.0.10.12" },
   ]
 
+  install_disk_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+
   bgp = {
     local_asn = 65012
     peers = [
