@@ -93,7 +93,7 @@ resource "helm_release" "cilium" {
 - `addon_core_dns` (Boolean) Enable the CoreDNS Addon. Changing it replaces the Cluster
 - `addon_kube_proxy` (Boolean) Enable the kube-proxy Addon. Changing it replaces the Cluster
 - `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
-- `high_availability` (Boolean) Run the control plane with three API servers and three etcd members, each on another Nest Instance. Needs a Nest with at least three instances. Changing it grows or shrinks the control plane in place, without replacing the Cluster
+- `high_availability` (Boolean) Runs the control plane with multiple replicas, see [Enable High Availability](https://docs.meltcloud.io/tasks/clusters/high-availability). Available once the Nest is [scaled out](https://docs.meltcloud.io/tasks/nest/scale-out). Changing it grows or shrinks the control plane in place, without replacing the Cluster
 - `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `pod_cidr` (String) CIDR for the Kubernetes Pods. If not specified, a default will be assigned automatically.
 - `service_cidr` (String) CIDR for the Kubernetes Services. If not specified, a default will be assigned automatically.
