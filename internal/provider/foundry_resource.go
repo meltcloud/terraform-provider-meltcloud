@@ -52,7 +52,7 @@ func (r *FoundryResource) Metadata(ctx context.Context, req resource.MetadataReq
 	resp.TypeName = req.ProviderTypeName + "_foundry"
 }
 
-const foundryDesc = "The [Foundry](https://docs.meltcloud.io/concepts/foundry) is the meltcloud control plane that runs on the Nest. " +
+const foundryDesc = "The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry) is the meltcloud management plane that runs on the Nest. " +
 	"The Nest installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: " +
 	"to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
 	"Needs the API Key of the admin Organization.\n\n" +
@@ -100,13 +100,13 @@ func foundryResourceAttributes() map[string]schema.Attribute {
 		"version": optionalComputedString("The Foundry version to run, for example `1.5.0`. It has to be a version this Foundry can update to. Leave it out to keep the running one"),
 		"ha_topology": schema.StringAttribute{
 			Computed: true,
-			MarkdownDescription: "How the Foundry spreads over the Nest Instances: `none` runs it on one, `host` spreads it over at least three, `zone` over Nest Instances in at least two Zones. " +
-				"Make the Foundry highly available in the admin area",
+			MarkdownDescription: "[High availability](https://docs.meltcloud.io/concepts/nest/high-availability) mode of the Foundry: `none` for Single Instance, `host` for Multi-instance, `zone` for Multi-zone. " +
+				"[Enable high availability](https://docs.meltcloud.io/tasks/foundry/enable-high-availability) in the admin area",
 			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-		"rails_log_level":   optionalComputedString("Log level of the Foundry app", stringvalidator.OneOf("debug", "info", "warn", "error", "fatal", "unknown")),
-		"identity_provider": optionalComputedString("How users log in: `auth0`, or `dummy` without authentication, for development", stringvalidator.OneOf("auth0", "dummy")),
-		"auth0_domain":      optionalComputedString("Domain of the Auth0 tenant"),
+		"rails_log_level":   optionalComputedString("Log level of the Foundry application (web and worker)", stringvalidator.OneOf("debug", "info", "warn", "error", "fatal", "unknown")),
+		"identity_provider": optionalComputedString("How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin, for trials only", stringvalidator.OneOf("auth0", "dummy")),
+		"auth0_domain":      optionalComputedString("Domain of the Auth0 tenant, for example `tenant.eu.auth0.com`"),
 		"auth0_client_id":   optionalComputedString("Client ID of the Auth0 application"),
 		"auth0_client_secret": secretString(
 			"Client secret of the Auth0 application",
@@ -115,7 +115,7 @@ func foundryResourceAttributes() map[string]schema.Attribute {
 		"sentry_dsn":         secretString("DSN errors are reported to"),
 		"sentry_environment": optionalComputedString("Environment the errors are reported under"),
 		"letsencrypt_enabled": optionalComputedBool(
-			"Serve every Foundry host with a Let's Encrypt certificate",
+			"Issue the certificates for the Foundry hostnames with Let's Encrypt's HTTP01 challenge. Port 80 of the Foundry VIP must be reachable from the internet",
 		),
 		"letsencrypt_email":   optionalComputedString("Email address Let's Encrypt sends expiry notices to"),
 		"letsencrypt_staging": optionalComputedBool("Use the Let's Encrypt staging environment, whose certificates browsers do not trust"),

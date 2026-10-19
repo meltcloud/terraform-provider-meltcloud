@@ -3,7 +3,7 @@
 page_title: "meltcloud_foundry Resource - meltcloud"
 subcategory: ""
 description: |-
-  The Foundry https://docs.meltcloud.io/concepts/foundry is the meltcloud control plane that runs on the Nest. The Nest installer creates it, so it is imported https://developer.hashicorp.com/terraform/language/import rather than created, and it cannot be destroyed: to stop managing it, use a removed https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources block with destroy = false.
+  The Foundry https://docs.meltcloud.io/concepts/nest/overview#foundry is the meltcloud management plane that runs on the Nest. The Nest installer creates it, so it is imported https://developer.hashicorp.com/terraform/language/import rather than created, and it cannot be destroyed: to stop managing it, use a removed https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources block with destroy = false.
   Needs the API Key of the admin Organization.
   ~> Changing version updates the Foundry. Its API can be briefly unavailable during the update, and the apply waits until the update has finished.
   ~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them.
@@ -12,7 +12,7 @@ description: |-
 
 # meltcloud_foundry (Resource)
 
-The [Foundry](https://docs.meltcloud.io/concepts/foundry) is the meltcloud control plane that runs on the Nest. The Nest installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.
+The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry) is the meltcloud management plane that runs on the Nest. The Nest installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.
 
 Needs the API Key of the admin Organization.
 
@@ -56,12 +56,12 @@ variable "auth0_client_secret" {
 
 - `auth0_client_id` (String) Client ID of the Auth0 application
 - `auth0_client_secret` (String, Sensitive) Client secret of the Auth0 application. The Foundry never returns it, so Terraform cannot see a change made outside of it
-- `auth0_domain` (String) Domain of the Auth0 tenant
-- `identity_provider` (String) How users log in: `auth0`, or `dummy` without authentication, for development
+- `auth0_domain` (String) Domain of the Auth0 tenant, for example `tenant.eu.auth0.com`
+- `identity_provider` (String) How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin, for trials only
 - `letsencrypt_email` (String) Email address Let's Encrypt sends expiry notices to
-- `letsencrypt_enabled` (Boolean) Serve every Foundry host with a Let's Encrypt certificate
+- `letsencrypt_enabled` (Boolean) Issue the certificates for the Foundry hostnames with Let's Encrypt's HTTP01 challenge. Port 80 of the Foundry VIP must be reachable from the internet
 - `letsencrypt_staging` (Boolean) Use the Let's Encrypt staging environment, whose certificates browsers do not trust
-- `rails_log_level` (String) Log level of the Foundry app
+- `rails_log_level` (String) Log level of the Foundry application (web and worker)
 - `sentry_dsn` (String, Sensitive) DSN errors are reported to. The Foundry never returns it, so Terraform cannot see a change made outside of it
 - `sentry_enabled` (Boolean) Report errors to Sentry
 - `sentry_environment` (String) Environment the errors are reported under
@@ -69,7 +69,7 @@ variable "auth0_client_secret" {
 
 ### Read-Only
 
-- `ha_topology` (String) How the Foundry spreads over the Nest Instances: `none` runs it on one, `host` spreads it over at least three, `zone` over Nest Instances in at least two Zones. Make the Foundry highly available in the admin area
+- `ha_topology` (String) [High availability](https://docs.meltcloud.io/concepts/nest/high-availability) mode of the Foundry: `none` for Single Instance, `host` for Multi-instance, `zone` for Multi-zone. [Enable high availability](https://docs.meltcloud.io/tasks/foundry/enable-high-availability) in the admin area
 - `id` (Number) Internal ID of the Foundry on meltcloud
 - `status` (String) Status of the Foundry, for example `ready` or `updating`
 
