@@ -3,12 +3,12 @@
 page_title: "meltcloud_nest Data Source - meltcloud"
 subcategory: ""
 description: |-
-  The Nest https://docs.meltcloud.io/concepts/nest/overview, the management appliance that hosts the Foundry and the Kubernetes control planes. Needs the API Key of the admin Organization.
+  The Nest https://docs.meltcloud.io/concepts/nest/overview is the management appliance that hosts the Foundry and the Kubernetes control planes. Needs the API Key of the admin Organization.
 ---
 
 # meltcloud_nest (Data Source)
 
-The [Nest](https://docs.meltcloud.io/concepts/nest/overview), the management appliance that hosts the Foundry and the Kubernetes control planes. Needs the API Key of the admin Organization.
+The [Nest](https://docs.meltcloud.io/concepts/nest/overview) is the management appliance that hosts the Foundry and the Kubernetes control planes. Needs the API Key of the admin Organization.
 
 ## Example Usage
 

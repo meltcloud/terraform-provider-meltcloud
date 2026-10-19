@@ -30,7 +30,7 @@ func (d *NestDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 	}
 
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "The [Nest](https://docs.meltcloud.io/concepts/nest/overview), the management appliance that hosts the Foundry and the Kubernetes control planes. " +
+		MarkdownDescription: "The [Nest](https://docs.meltcloud.io/concepts/nest/overview) is the management appliance that hosts the Foundry and the Kubernetes control planes. " +
 			"Needs the API Key of the admin Organization.",
 		Attributes: map[string]schema.Attribute{
 			"id":      schema.Int64Attribute{Computed: true, MarkdownDescription: "Internal ID of the Nest on meltcloud"},
