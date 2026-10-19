@@ -58,7 +58,7 @@ variable "auth0_client_secret" {
 - `letsencrypt_config` (Attributes) Use certificates from Let's Encrypt. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--letsencrypt_config))
 - `rails_log_level` (String) Log level of the Foundry application (web and worker)
 - `sentry_config` (Attributes) Error reporting to Sentry. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--sentry_config))
-- `version` (String) The Foundry version to run, for example `1.5.0`. It has to be a version this Foundry can update to. Leave it out to keep the running one
+- `version` (String) The Foundry version to run, for example `1.5.0`.. Leave it out to keep the running one
 
 ### Read-Only
 
