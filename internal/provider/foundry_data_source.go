@@ -63,8 +63,8 @@ func (d *FoundryDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 	}
 
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry), the meltcloud management plane that runs on the Nest. " +
-			"Needs the API Key of the admin Organization. The secrets are never returned.",
+		MarkdownDescription: "The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry) is the meltcloud management plane that runs on the Nest. " +
+			"Needs the API Key of the admin Organization.",
 		Attributes: map[string]schema.Attribute{
 			"id":                schema.Int64Attribute{Computed: true, MarkdownDescription: description("id")},
 			"status":            str(description("status")),
