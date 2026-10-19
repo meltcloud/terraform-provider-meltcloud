@@ -121,7 +121,7 @@ func foundryAuth0Attribute() schema.SingleNestedAttribute {
 func foundryLetsencryptAttribute() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
 		Optional:            true,
-		MarkdownDescription: "Certificates from Let's Encrypt. Leave it out to keep the current settings",
+		MarkdownDescription: "Use certificates from Let's Encrypt. Leave it out to keep the current settings",
 		Attributes: map[string]schema.Attribute{
 			"enabled": schema.BoolAttribute{
 				Required:            true,
