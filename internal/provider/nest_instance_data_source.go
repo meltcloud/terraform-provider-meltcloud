@@ -109,7 +109,7 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 					"local_asn": computedInt64("ASN of the instance"),
 					"peers": schema.ListNestedAttribute{
 						Computed:            true,
-						MarkdownDescription: "The BGP peers of the instance, without their passwords",
+						MarkdownDescription: "The BGP peers of the instance",
 						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
 							"ip":       computedStr("IP address of the peer"),
 							"asn":      computedInt64("ASN of the peer"),

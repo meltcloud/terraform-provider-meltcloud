@@ -46,7 +46,7 @@ data "meltcloud_nest_instance" "first" {
 Read-Only:
 
 - `local_asn` (Number) ASN of the instance
-- `peers` (Attributes List) The BGP peers of the instance, without their passwords (see [below for nested schema](#nestedatt--bgp--peers))
+- `peers` (Attributes List) The BGP peers of the instance (see [below for nested schema](#nestedatt--bgp--peers))
 
 <a id="nestedatt--bgp--peers"></a>
 ### Nested Schema for `bgp.peers`
