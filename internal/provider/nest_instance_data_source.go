@@ -21,19 +21,18 @@ type NestInstanceDataSource struct {
 }
 
 type NestInstanceDataSourceModel struct {
-	ID               types.Int64                       `tfsdk:"id"`
-	NestID           types.Int64                       `tfsdk:"nest_id"`
-	Name             types.String                      `tfsdk:"name"`
-	ZoneID           types.Int64                       `tfsdk:"zone_id"`
-	NetworkProfileID types.Int64                       `tfsdk:"network_profile_id"`
-	IPAddresses      []NestInstanceIPAddressModel      `tfsdk:"ip_addresses"`
-	BootDisk         NestInstanceBootDiskModel         `tfsdk:"boot_disk"`
-	EtcdDisk         NestInstanceEtcdDiskModel         `tfsdk:"etcd_disk"`
-	BGPLocalASN      types.Int64                       `tfsdk:"bgp_local_asn"`
-	BGPPeers         []NestInstanceDataSourcePeerModel `tfsdk:"bgp_peers"`
-	Status           types.String                      `tfsdk:"status"`
-	Architecture     types.String                      `tfsdk:"architecture"`
-	Version          types.String                      `tfsdk:"version"`
+	ID               types.Int64                     `tfsdk:"id"`
+	NestID           types.Int64                     `tfsdk:"nest_id"`
+	Name             types.String                    `tfsdk:"name"`
+	ZoneID           types.Int64                     `tfsdk:"zone_id"`
+	NetworkProfileID types.Int64                     `tfsdk:"network_profile_id"`
+	IPAddresses      []NestInstanceIPAddressModel    `tfsdk:"ip_addresses"`
+	BootDisk         *NestInstanceBootDiskModel      `tfsdk:"boot_disk"`
+	EtcdDisk         *NestInstanceEtcdDiskModel      `tfsdk:"etcd_disk"`
+	BGP              *NestInstanceDataSourceBGPModel `tfsdk:"bgp"`
+	Status           types.String                    `tfsdk:"status"`
+	Architecture     types.String                    `tfsdk:"architecture"`
+	Version          types.String                    `tfsdk:"version"`
 }
 
 type NestInstanceIPAddressModel struct {
@@ -42,11 +41,16 @@ type NestInstanceIPAddressModel struct {
 	Static   types.Bool   `tfsdk:"static"`
 }
 
+type NestInstanceDataSourceBGPModel struct {
+	LocalASN types.Int64                       `tfsdk:"local_asn"`
+	Peers    []NestInstanceDataSourcePeerModel `tfsdk:"peers"`
+}
+
 type NestInstanceDataSourcePeerModel struct {
-	IP       types.String `tfsdk:"ip"`
-	ASN      types.Int64  `tfsdk:"asn"`
-	Multihop types.Bool   `tfsdk:"multihop"`
-	BFD      types.Bool   `tfsdk:"bfd"`
+	IP       types.String          `tfsdk:"ip"`
+	ASN      types.Int64           `tfsdk:"asn"`
+	Multihop types.Bool            `tfsdk:"multihop"`
+	BFD      *NestInstanceBFDModel `tfsdk:"bfd"`
 }
 
 func (d *NestInstanceDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -98,16 +102,30 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 					"mirror_device": computedStr("Device the etcd disk is mirrored to"),
 				},
 			},
-			"bgp_local_asn": computedInt64("BGP ASN of the instance"),
-			"bgp_peers": schema.ListNestedAttribute{
+			"bgp": schema.SingleNestedAttribute{
 				Computed:            true,
-				MarkdownDescription: "The BGP peers of the instance, without their passwords",
-				NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
-					"ip":       computedStr("IP address of the peer"),
-					"asn":      computedInt64("ASN of the peer"),
-					"multihop": computedBool("Whether the peer is more than one hop away"),
-					"bfd":      computedBool("Whether BFD is on"),
-				}},
+				MarkdownDescription: "BGP peering of the instance. Null when the Nest does not use BGP",
+				Attributes: map[string]schema.Attribute{
+					"local_asn": computedInt64("ASN of the instance"),
+					"peers": schema.ListNestedAttribute{
+						Computed:            true,
+						MarkdownDescription: "The BGP peers of the instance, without their passwords",
+						NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
+							"ip":       computedStr("IP address of the peer"),
+							"asn":      computedInt64("ASN of the peer"),
+							"multihop": computedBool("Whether the peer is more than one hop away"),
+							"bfd": schema.SingleNestedAttribute{
+								Computed:            true,
+								MarkdownDescription: "BFD on the session. Null when BFD is off",
+								Attributes: map[string]schema.Attribute{
+									"receive_interval":  computedInt64("Receive interval in milliseconds"),
+									"transmit_interval": computedInt64("Transmit interval in milliseconds"),
+									"detect_multiplier": computedInt64("Detect multiplier"),
+								},
+							},
+						}},
+					},
+				},
 			},
 			"status":       computedStr("Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again"),
 			"architecture": computedStr("CPU architecture the instance reported once it booted"),
@@ -147,19 +165,17 @@ func (d *NestInstanceDataSource) Read(ctx context.Context, req datasource.ReadRe
 		ZoneID:           types.Int64Value(instance.ZoneID),
 		NetworkProfileID: types.Int64Value(instance.NetworkProfileID),
 		IPAddresses:      []NestInstanceIPAddressModel{},
-		BootDisk: NestInstanceBootDiskModel{
+		BootDisk: &NestInstanceBootDiskModel{
 			Device:       types.StringValue(instance.InstallDiskDevice),
 			Mirror:       types.BoolValue(instance.InstallDiskMirror),
 			MirrorDevice: emptyAsNull(instance.InstallDiskMirrorDevice),
 		},
-		EtcdDisk: NestInstanceEtcdDiskModel{
+		EtcdDisk: &NestInstanceEtcdDiskModel{
 			Enabled:      types.BoolValue(instance.EtcdDisk),
 			Device:       emptyAsNull(instance.EtcdDiskDevice),
 			Mirror:       types.BoolValue(instance.EtcdDiskMirror),
 			MirrorDevice: emptyAsNull(instance.EtcdDiskMirrorDevice),
 		},
-		BGPLocalASN:  types.Int64PointerValue(instance.BGPLocalASN),
-		BGPPeers:     []NestInstanceDataSourcePeerModel{},
 		Status:       types.StringValue(instance.Status),
 		Architecture: types.StringValue(instance.Architecture),
 		Version:      types.StringValue(instance.Version),
@@ -171,13 +187,11 @@ func (d *NestInstanceDataSource) Read(ctx context.Context, req datasource.ReadRe
 			Static:   types.BoolValue(address.Source == "operator"),
 		})
 	}
-	for _, peer := range instance.BGPPeers {
-		data.BGPPeers = append(data.BGPPeers, NestInstanceDataSourcePeerModel{
-			IP:       types.StringValue(peer.IP),
-			ASN:      types.Int64Value(peer.ASN),
-			Multihop: types.BoolValue(peer.Multihop),
-			BFD:      types.BoolValue(peer.BFD),
-		})
+	if bgp := bgpValues(instance, nil); bgp != nil {
+		data.BGP = &NestInstanceDataSourceBGPModel{LocalASN: bgp.LocalASN, Peers: []NestInstanceDataSourcePeerModel{}}
+		for _, peer := range bgp.Peers {
+			data.BGP.Peers = append(data.BGP.Peers, NestInstanceDataSourcePeerModel{IP: peer.IP, ASN: peer.ASN, Multihop: peer.Multihop, BFD: peer.BFD})
+		}
 	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

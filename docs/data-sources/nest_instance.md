@@ -30,8 +30,7 @@ data "meltcloud_nest_instance" "first" {
 ### Read-Only
 
 - `architecture` (String) CPU architecture the instance reported once it booted
-- `bgp_local_asn` (Number) BGP ASN of the instance
-- `bgp_peers` (Attributes List) The BGP peers of the instance, without their passwords (see [below for nested schema](#nestedatt--bgp_peers))
+- `bgp` (Attributes) BGP peering of the instance. Null when the Nest does not use BGP (see [below for nested schema](#nestedatt--bgp))
 - `boot_disk` (Attributes) The boot disk of the instance (see [below for nested schema](#nestedatt--boot_disk))
 - `etcd_disk` (Attributes) The disk etcd is kept on (see [below for nested schema](#nestedatt--etcd_disk))
 - `ip_addresses` (Attributes List) The addresses of the instance, one per IP Pool of its Network Profile (see [below for nested schema](#nestedatt--ip_addresses))
@@ -41,15 +40,34 @@ data "meltcloud_nest_instance" "first" {
 - `version` (String) Nest version the instance runs
 - `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in
 
-<a id="nestedatt--bgp_peers"></a>
-### Nested Schema for `bgp_peers`
+<a id="nestedatt--bgp"></a>
+### Nested Schema for `bgp`
+
+Read-Only:
+
+- `local_asn` (Number) ASN of the instance
+- `peers` (Attributes List) The BGP peers of the instance, without their passwords (see [below for nested schema](#nestedatt--bgp--peers))
+
+<a id="nestedatt--bgp--peers"></a>
+### Nested Schema for `bgp.peers`
 
 Read-Only:
 
 - `asn` (Number) ASN of the peer
-- `bfd` (Boolean) Whether BFD is on
+- `bfd` (Attributes) BFD on the session. Null when BFD is off (see [below for nested schema](#nestedatt--bgp--peers--bfd))
 - `ip` (String) IP address of the peer
 - `multihop` (Boolean) Whether the peer is more than one hop away
+
+<a id="nestedatt--bgp--peers--bfd"></a>
+### Nested Schema for `bgp.peers.bfd`
+
+Read-Only:
+
+- `detect_multiplier` (Number) Detect multiplier
+- `receive_interval` (Number) Receive interval in milliseconds
+- `transmit_interval` (Number) Transmit interval in milliseconds
+
+
 
 
 <a id="nestedatt--boot_disk"></a>
