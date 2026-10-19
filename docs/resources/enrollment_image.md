@@ -56,10 +56,10 @@ resource "meltcloud_enrollment_image" "mirrored" {
 
 ### Read-Only
 
-- `http_url_iso_amd64` (String, Sensitive) URL to download the ISO for AMD64 via HTTP
-- `http_url_iso_arm64` (String, Sensitive) URL to download the ISO for ARM64 via HTTP
-- `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for AMD64 via HTTPS
-- `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for ARM64 via HTTPS
+- `http_url_iso_amd64` (String, Sensitive) URL to download the ISO for amd64 via HTTP
+- `http_url_iso_arm64` (String, Sensitive) URL to download the ISO for arm64 via HTTP
+- `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for amd64 via HTTPS
+- `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for arm64 via HTTPS
 - `id` (Number) Internal ID of the Enrollment Image
 - `last_used_at` (String) Timestamp when the image was last used for an enrollment
 
