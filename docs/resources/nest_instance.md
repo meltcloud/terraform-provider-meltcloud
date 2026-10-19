@@ -5,6 +5,7 @@ subcategory: ""
 description: |-
   To add a host as Nest Instance https://docs.meltcloud.io/tasks/nest/create-instance, create it, then boot the host from a meltcloud_nest_instance_image. status turns from installing to ready once it has joined the Nest.
   Needs the API Key of the admin Organization. A Nest has at most seven instances.
+  The API can't update an instance, so any change replaces it.
   ~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, reset https://docs.meltcloud.io/tasks/nest/reset-instance it in the admin area first; it is removed then.
   ~> After an instance joins, enable high availability https://docs.meltcloud.io/tasks/foundry/enable-high-availability on a single-instance Foundry once three instances are ready, or rebalance https://docs.meltcloud.io/tasks/foundry/rebalance a highly available one, in the admin area.
 ---
@@ -14,6 +15,8 @@ description: |-
 To add a host as [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance), create it, then boot the host from a `meltcloud_nest_instance_image`. `status` turns from `installing` to `ready` once it has joined the Nest.
 
 Needs the API Key of the admin Organization. A Nest has at most seven instances.
+
+The API can't update an instance, so any change replaces it.
 
 ~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, [reset](https://docs.meltcloud.io/tasks/nest/reset-instance) it in the admin area first; it is `removed` then.
 
@@ -86,7 +89,7 @@ resource "meltcloud_nest_instance" "nest_2" {
 
 ### Required
 
-- `boot_disk` (Attributes) The boot disk of the instance. Changing it replaces the instance (see [below for nested schema](#nestedatt--boot_disk))
+- `boot_disk` (Attributes) The boot disk of the instance (see [below for nested schema](#nestedatt--boot_disk))
 - `ip_addresses` (Attributes Set) [Static IPs](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in the IP Pools of the Network Profile, one per pool. The instance needs one on the primary host network. In the other pools, it gets an address the pool allocates (see [below for nested schema](#nestedatt--ip_addresses))
 - `name` (String) Host name of the Nest Instance, unique within the Nest
 - `network_profile_id` (Number) ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses
@@ -94,8 +97,8 @@ resource "meltcloud_nest_instance" "nest_2" {
 
 ### Optional
 
-- `bgp` (Attributes) BGP peering of the instance. Needed when the Nest uses BGP. Changing it replaces the instance (see [below for nested schema](#nestedatt--bgp))
-- `etcd_disk` (Attributes) A dedicated disk for etcd. Leave it out to keep etcd on the boot disk. Changing it replaces the instance (see [below for nested schema](#nestedatt--etcd_disk))
+- `bgp` (Attributes) BGP peering of the instance. Needed when the Nest uses BGP (see [below for nested schema](#nestedatt--bgp))
+- `etcd_disk` (Attributes) A dedicated disk for etcd. Leave it out to keep etcd on the boot disk (see [below for nested schema](#nestedatt--etcd_disk))
 
 ### Read-Only
 
@@ -147,7 +150,7 @@ Optional:
 
 - `bfd` (Attributes) BFD on the session. Leave it out to keep BFD off (see [below for nested schema](#nestedatt--bgp--peers--bfd))
 - `multihop` (Boolean) Enable if the peer is not directly connected (more than one hop away). Defaults to `false`
-- `password_wo` (String, Sensitive) Password of the BGP session. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Changing `password_wo_version` replaces the instance. On an imported instance, set it to the password in use: the first version is recorded without a replace
+- `password_wo` (String, Sensitive) Password of the BGP session. Write-only, needs Terraform 1.11 or later: it is not stored in the state. On an imported instance, set it to the password in use: the first version is recorded without a replace
 - `password_wo_version` (Number) Version of `password_wo`, see there
 
 <a id="nestedatt--bgp--peers--bfd"></a>

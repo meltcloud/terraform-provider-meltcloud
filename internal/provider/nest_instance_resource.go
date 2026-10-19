@@ -126,6 +126,7 @@ func (r *NestInstanceResource) Metadata(ctx context.Context, req resource.Metada
 const nestInstanceDesc = "To add a host as [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance), create it, then boot the host from a `meltcloud_nest_instance_image`. " +
 	"`status` turns from `installing` to `ready` once it has joined the Nest.\n\n" +
 	"Needs the API Key of the admin Organization. A Nest has at most seven instances.\n\n" +
+	"The API can't update an instance, so any change replaces it.\n\n" +
 	"~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, [reset](https://docs.meltcloud.io/tasks/nest/reset-instance) it in the admin area first; it is `removed` then.\n\n" +
 	"~> After an instance joins, [enable high availability](https://docs.meltcloud.io/tasks/foundry/enable-high-availability) on a single-instance Foundry once three instances are `ready`, or [rebalance](https://docs.meltcloud.io/tasks/foundry/rebalance) a highly available one, in the admin area."
 
@@ -222,7 +223,7 @@ func bootDiskAttribute() schema.SingleNestedAttribute {
 		Required:            true,
 	}
 	return schema.SingleNestedAttribute{
-		MarkdownDescription: "The boot disk of the instance. Changing it replaces the instance",
+		MarkdownDescription: "The boot disk of the instance",
 		Required:            true,
 		PlanModifiers:       []planmodifier.Object{objectplanmodifier.RequiresReplace()},
 		Attributes:          attributes,
@@ -234,7 +235,7 @@ func etcdDiskAttribute() schema.SingleNestedAttribute {
 	attributes["enabled"] = schema.BoolAttribute{MarkdownDescription: "Keep etcd on a disk of its own", Required: true}
 	attributes["device"] = schema.StringAttribute{MarkdownDescription: "Block device to use for etcd. Only with `enabled`. " + diskDeviceHint, Optional: true}
 	return schema.SingleNestedAttribute{
-		MarkdownDescription: "A dedicated disk for etcd. Leave it out to keep etcd on the boot disk. Changing it replaces the instance",
+		MarkdownDescription: "A dedicated disk for etcd. Leave it out to keep etcd on the boot disk",
 		Optional:            true,
 		Computed:            true,
 		Default: objectdefault.StaticValue(types.ObjectValueMust(etcdDiskObjectType.AttrTypes, map[string]attr.Value{
@@ -277,9 +278,9 @@ func bgpAttribute() schema.SingleNestedAttribute {
 		},
 	}
 	writeOnlySecret(peer, "password_wo", "Password of the BGP session",
-		"Changing `password_wo_version` replaces the instance. On an imported instance, set it to the password in use: the first version is recorded without a replace")
+		"On an imported instance, set it to the password in use: the first version is recorded without a replace")
 	return schema.SingleNestedAttribute{
-		MarkdownDescription: "BGP peering of the instance. Needed when the Nest uses BGP. Changing it replaces the instance",
+		MarkdownDescription: "BGP peering of the instance. Needed when the Nest uses BGP",
 		Optional:            true,
 		PlanModifiers: []planmodifier.Object{objectplanmodifier.RequiresReplaceIf(bgpRequiresReplace,
 			"Changing BGP replaces the Nest Instance", "Changing BGP replaces the Nest Instance")},
