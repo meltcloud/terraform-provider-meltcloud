@@ -160,7 +160,7 @@ func foundryResourceAttributes() map[string]schema.Attribute {
 			Computed:            true,
 			MarkdownDescription: "Status of the Foundry, for example `ready` or `updating`",
 		},
-		"version": optionalComputedString("The Foundry version to run, for example `1.5.0`.. Leave it out to keep the running one"),
+		"version": optionalComputedString("The Foundry version to run, for example `1.5.0`. Leave it out to keep the running one"),
 		"ha_topology": schema.StringAttribute{
 			Computed: true,
 			MarkdownDescription: "[High availability](https://docs.meltcloud.io/concepts/nest/high-availability) mode of the Foundry: `none` for Single Instance, `host` for Multi-instance, `zone` for Multi-zone. " +
