@@ -173,6 +173,7 @@ func (p *MeltcloudProvider) DataSources(ctx context.Context) []func() datasource
 	return []func() datasource.DataSource{
 		NewClusterDataSource,
 		NewFoundryDataSource,
+		NewNestDataSource,
 		NewMachinePoolDataSource,
 		NewMachineDataSource,
 		NewEnrollmentImageDataSource,
