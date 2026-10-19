@@ -159,7 +159,7 @@ func (r *NestResource) apply(ctx context.Context, data *NestResourceModel, addEr
 		}
 
 		if result.Operation != nil {
-			if _, err := r.client.Operation().PollUntilDoneThroughRestarts(ctx, result.Operation.ID); err != nil {
+			if _, err := r.client.Operation().PollUntilDone(ctx, result.Operation.ID); err != nil {
 				addError("Client Error", fmt.Sprintf("Unable to update Nest, got error: %s", err))
 				return
 			}
