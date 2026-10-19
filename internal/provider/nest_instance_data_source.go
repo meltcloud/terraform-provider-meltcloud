@@ -116,8 +116,9 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 							"multihop": computedBool("Whether the peer is more than one hop away"),
 							"bfd": schema.SingleNestedAttribute{
 								Computed:            true,
-								MarkdownDescription: "BFD on the session. Null when BFD is off",
+								MarkdownDescription: "BFD on the session",
 								Attributes: map[string]schema.Attribute{
+									"enabled":           computedBool("Whether BFD is on"),
 									"receive_interval":  computedInt64("Receive interval in milliseconds"),
 									"transmit_interval": computedInt64("Transmit interval in milliseconds"),
 									"detect_multiplier": computedInt64("Detect multiplier"),

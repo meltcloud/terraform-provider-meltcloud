@@ -1,10 +1,13 @@
 package provider
 
 import (
+	"context"
 	"strings"
 	"terraform-provider-meltcloud/internal/client"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -33,11 +36,11 @@ func TestBGPValuesKeepKnownPasswordVersions(t *testing.T) {
 	if !first.PasswordWO.IsNull() {
 		t.Errorf("got password %v; want none, as it is write-only", first.PasswordWO)
 	}
-	if second.BFD == nil || second.BFD.DetectMultiplier.ValueInt64() != multiplier || !second.BFD.ReceiveInterval.IsNull() {
+	if second.BFD == nil || !second.BFD.Enabled.ValueBool() || second.BFD.DetectMultiplier.ValueInt64() != multiplier || !second.BFD.ReceiveInterval.IsNull() {
 		t.Errorf("bfd: got %+v; want detect multiplier %d only", second.BFD, multiplier)
 	}
-	if first.BFD != nil {
-		t.Errorf("bfd: got %+v; want none", first.BFD)
+	if first.BFD == nil || first.BFD.Enabled.ValueBool() || !first.BFD.ReceiveInterval.IsNull() {
+		t.Errorf("bfd: got %+v; want it off without timings", first.BFD)
 	}
 }
 
@@ -63,7 +66,7 @@ func TestBGPValuesWithoutBGP(t *testing.T) {
 func TestBGPPeersInput(t *testing.T) {
 	planned := NestInstanceBGPPeerModel{
 		IP: types.StringValue("10.0.10.1"), ASN: types.Int64Value(65000), PasswordWO: types.StringNull(),
-		Multihop: types.BoolValue(true), BFD: &NestInstanceBFDModel{ReceiveInterval: types.Int64Value(300)},
+		Multihop: types.BoolValue(true), BFD: &NestInstanceBFDModel{Enabled: types.BoolValue(true), ReceiveInterval: types.Int64Value(300)},
 	}
 	configured := planned
 	configured.PasswordWO = types.StringValue("secret")
@@ -86,7 +89,7 @@ func TestBGPChanged(t *testing.T) {
 		return NestInstanceBGPModel{LocalASN: types.Int64Value(65010), Peers: peers}
 	}
 	withBFD := peer("10.0.10.2", 0)
-	withBFD.BFD = &NestInstanceBFDModel{ReceiveInterval: types.Int64Value(300)}
+	withBFD.BFD = &NestInstanceBFDModel{Enabled: types.BoolValue(true), ReceiveInterval: types.Int64Value(300)}
 
 	tests := []struct {
 		name         string
@@ -105,6 +108,31 @@ func TestBGPChanged(t *testing.T) {
 	for _, tt := range tests {
 		if got := bgpChanged(tt.state, tt.plan); got != tt.wantReplaced {
 			t.Errorf("%s: got %v; want %v", tt.name, got, tt.wantReplaced)
+		}
+	}
+}
+
+func TestBFDTimingsNeedEnabled(t *testing.T) {
+	bfd := func(enabled bool, receive attr.Value) types.Object {
+		return types.ObjectValueMust(bfdObjectType.AttrTypes, map[string]attr.Value{
+			"enabled": types.BoolValue(enabled), "receive_interval": receive,
+			"transmit_interval": types.Int64Null(), "detect_multiplier": types.Int64Null(),
+		})
+	}
+	tests := []struct {
+		name    string
+		value   types.Object
+		wantErr bool
+	}{
+		{"timings with BFD on", bfd(true, types.Int64Value(300)), false},
+		{"BFD off without timings", bfd(false, types.Int64Null()), false},
+		{"timings with BFD off", bfd(false, types.Int64Value(300)), true},
+	}
+	for _, tt := range tests {
+		resp := &validator.ObjectResponse{}
+		bfdTimingsNeedEnabled{}.ValidateObject(context.Background(), validator.ObjectRequest{ConfigValue: tt.value}, resp)
+		if resp.Diagnostics.HasError() != tt.wantErr {
+			t.Errorf("%s: got error %v, want %v", tt.name, resp.Diagnostics.HasError(), tt.wantErr)
 		}
 	}
 }

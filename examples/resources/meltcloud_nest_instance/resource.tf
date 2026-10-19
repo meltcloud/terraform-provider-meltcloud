@@ -37,7 +37,7 @@ resource "meltcloud_nest_instance" "nest_2" {
   bgp = {
     local_asn = 65012
     peers = [
-      { ip = "10.0.10.1", asn = 65000, password_wo = var.bgp_password, password_wo_version = 1, bfd = {} },
+      { ip = "10.0.10.1", asn = 65000, password_wo = var.bgp_password, password_wo_version = 1, bfd = { enabled = true } },
     ]
   }
 }

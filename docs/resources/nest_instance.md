@@ -61,7 +61,7 @@ resource "meltcloud_nest_instance" "nest_2" {
   bgp = {
     local_asn = 65012
     peers = [
-      { ip = "10.0.10.1", asn = 65000, password_wo = var.bgp_password, password_wo_version = 1, bfd = {} },
+      { ip = "10.0.10.1", asn = 65000, password_wo = var.bgp_password, password_wo_version = 1, bfd = { enabled = true } },
     ]
   }
 }
@@ -131,7 +131,7 @@ Required:
 
 Optional:
 
-- `bfd` (Attributes) Enables BFD on the session. Timings left out keep the defaults (see [below for nested schema](#nestedatt--bgp--peers--bfd))
+- `bfd` (Attributes) BFD on the session. Leave it out to keep BFD off (see [below for nested schema](#nestedatt--bgp--peers--bfd))
 - `multihop` (Boolean) Enable if the peer is not directly connected (more than one hop away). Defaults to `false`
 - `password_wo` (String, Sensitive) Password of the BGP session. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Changing `password_wo_version` replaces the instance. On an imported instance, set it to the password in use: the first version is recorded without a replace
 - `password_wo_version` (Number) Version of `password_wo`, see there
@@ -139,11 +139,15 @@ Optional:
 <a id="nestedatt--bgp--peers--bfd"></a>
 ### Nested Schema for `bgp.peers.bfd`
 
+Required:
+
+- `enabled` (Boolean) Enable BFD on the session
+
 Optional:
 
-- `detect_multiplier` (Number) Detect multiplier
-- `receive_interval` (Number) Receive interval in milliseconds
-- `transmit_interval` (Number) Transmit interval in milliseconds
+- `detect_multiplier` (Number) Detect multiplier. Only with `enabled`; left out, it keeps the default
+- `receive_interval` (Number) Receive interval in milliseconds. Only with `enabled`; left out, it keeps the default
+- `transmit_interval` (Number) Transmit interval in milliseconds. Only with `enabled`; left out, it keeps the default
 
 
 

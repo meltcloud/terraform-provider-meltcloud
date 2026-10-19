@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -65,6 +66,34 @@ type NestInstanceEtcdDiskModel struct {
 	MirrorDevice types.String `tfsdk:"mirror_device"`
 }
 
+var bfdObjectType = types.ObjectType{AttrTypes: map[string]attr.Type{
+	"enabled": types.BoolType, "receive_interval": types.Int64Type, "transmit_interval": types.Int64Type, "detect_multiplier": types.Int64Type,
+}}
+
+// The foundry drops the timings of a peer without BFD, so they would show up as a change on every plan.
+type bfdTimingsNeedEnabled struct{}
+
+func (bfdTimingsNeedEnabled) Description(ctx context.Context) string {
+	return "BFD timings need enabled = true"
+}
+
+func (v bfdTimingsNeedEnabled) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+func (bfdTimingsNeedEnabled) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+	var bfd NestInstanceBFDModel
+	if req.ConfigValue.As(ctx, &bfd, basetypes.ObjectAsOptions{}).HasError() || bfd.Enabled.IsUnknown() || bfd.Enabled.ValueBool() {
+		return
+	}
+	if !bfd.ReceiveInterval.IsNull() || !bfd.TransmitInterval.IsNull() || !bfd.DetectMultiplier.IsNull() {
+		resp.Diagnostics.AddAttributeError(req.Path, "BFD Timings Without BFD", "Set enabled = true to use the BFD timings, or leave them out.")
+	}
+}
+
 var etcdDiskObjectType = types.ObjectType{AttrTypes: map[string]attr.Type{
 	"enabled": types.BoolType, "device": types.StringType, "mirror": types.BoolType, "mirror_device": types.StringType,
 }}
@@ -84,6 +113,7 @@ type NestInstanceBGPPeerModel struct {
 }
 
 type NestInstanceBFDModel struct {
+	Enabled          types.Bool  `tfsdk:"enabled"`
 	ReceiveInterval  types.Int64 `tfsdk:"receive_interval"`
 	TransmitInterval types.Int64 `tfsdk:"transmit_interval"`
 	DetectMultiplier types.Int64 `tfsdk:"detect_multiplier"`
@@ -164,7 +194,8 @@ func bfdChanged(state, plan *NestInstanceBFDModel) bool {
 	if state == nil || plan == nil {
 		return (state == nil) != (plan == nil)
 	}
-	return !state.ReceiveInterval.Equal(plan.ReceiveInterval) ||
+	return !state.Enabled.Equal(plan.Enabled) ||
+		!state.ReceiveInterval.Equal(plan.ReceiveInterval) ||
 		!state.TransmitInterval.Equal(plan.TransmitInterval) ||
 		!state.DetectMultiplier.Equal(plan.DetectMultiplier)
 }
@@ -229,12 +260,19 @@ func bgpAttribute() schema.SingleNestedAttribute {
 			Default:             booldefault.StaticBool(false),
 		},
 		"bfd": schema.SingleNestedAttribute{
-			MarkdownDescription: "Enables BFD on the session. Timings left out keep the defaults",
+			MarkdownDescription: "BFD on the session. Leave it out to keep BFD off",
 			Optional:            true,
+			Computed:            true,
+			Default: objectdefault.StaticValue(types.ObjectValueMust(bfdObjectType.AttrTypes, map[string]attr.Value{
+				"enabled": types.BoolValue(false), "receive_interval": types.Int64Null(),
+				"transmit_interval": types.Int64Null(), "detect_multiplier": types.Int64Null(),
+			})),
+			Validators: []validator.Object{bfdTimingsNeedEnabled{}},
 			Attributes: map[string]schema.Attribute{
-				"receive_interval":  optionalInt64("Receive interval in milliseconds"),
-				"transmit_interval": optionalInt64("Transmit interval in milliseconds"),
-				"detect_multiplier": optionalInt64("Detect multiplier"),
+				"enabled":           schema.BoolAttribute{MarkdownDescription: "Enable BFD on the session", Required: true},
+				"receive_interval":  optionalInt64("Receive interval in milliseconds. Only with `enabled`; left out, it keeps the default"),
+				"transmit_interval": optionalInt64("Transmit interval in milliseconds. Only with `enabled`; left out, it keeps the default"),
+				"detect_multiplier": optionalInt64("Detect multiplier. Only with `enabled`; left out, it keeps the default"),
 			},
 		},
 	}
@@ -431,9 +469,9 @@ func bgpPeersInput(peers, configPeers []NestInstanceBGPPeerModel) []client.BGPPe
 			ASN:      peer.ASN.ValueInt64(),
 			Password: knownString(configPeers[i].PasswordWO),
 			Multihop: peer.Multihop.ValueBool(),
-			BFD:      peer.BFD != nil,
+			BFD:      peer.BFD != nil && peer.BFD.Enabled.ValueBool(),
 		}
-		if peer.BFD != nil {
+		if p.BFD {
 			p.BFDReceiveInterval = peer.BFD.ReceiveInterval.ValueInt64Pointer()
 			p.BFDTransmitInterval = peer.BFD.TransmitInterval.ValueInt64Pointer()
 			p.BFDDetectMultiplier = peer.BFD.DetectMultiplier.ValueInt64Pointer()
@@ -469,12 +507,16 @@ func bgpValues(instance *client.NestInstance, known *NestInstanceBGPModel) *Nest
 			PasswordWOVersion: version,
 			Multihop:          types.BoolValue(peer.Multihop),
 		}
+		model.BFD = &NestInstanceBFDModel{
+			Enabled:          types.BoolValue(peer.BFD),
+			ReceiveInterval:  types.Int64Null(),
+			TransmitInterval: types.Int64Null(),
+			DetectMultiplier: types.Int64Null(),
+		}
 		if peer.BFD {
-			model.BFD = &NestInstanceBFDModel{
-				ReceiveInterval:  types.Int64PointerValue(peer.BFDReceiveInterval),
-				TransmitInterval: types.Int64PointerValue(peer.BFDTransmitInterval),
-				DetectMultiplier: types.Int64PointerValue(peer.BFDDetectMultiplier),
-			}
+			model.BFD.ReceiveInterval = types.Int64PointerValue(peer.BFDReceiveInterval)
+			model.BFD.TransmitInterval = types.Int64PointerValue(peer.BFDTransmitInterval)
+			model.BFD.DetectMultiplier = types.Int64PointerValue(peer.BFDDetectMultiplier)
 		}
 		bgp.Peers = append(bgp.Peers, model)
 	}

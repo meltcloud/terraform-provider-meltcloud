@@ -54,7 +54,7 @@ Read-Only:
 Read-Only:
 
 - `asn` (Number) ASN of the peer
-- `bfd` (Attributes) BFD on the session. Null when BFD is off (see [below for nested schema](#nestedatt--bgp--peers--bfd))
+- `bfd` (Attributes) BFD on the session (see [below for nested schema](#nestedatt--bgp--peers--bfd))
 - `ip` (String) IP address of the peer
 - `multihop` (Boolean) Whether the peer is more than one hop away
 
@@ -64,6 +64,7 @@ Read-Only:
 Read-Only:
 
 - `detect_multiplier` (Number) Detect multiplier
+- `enabled` (Boolean) Whether BFD is on
 - `receive_interval` (Number) Receive interval in milliseconds
 - `transmit_interval` (Number) Transmit interval in milliseconds
 
