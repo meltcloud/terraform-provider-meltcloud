@@ -32,7 +32,7 @@ resource "meltcloud_cluster" "example_custom_network" {
 }
 
 # create cluster whose control plane survives losing a Nest Instance
-# (needs a Nest with at least three instances)
+# (needs a scaled-out Nest and a highly available Foundry)
 resource "meltcloud_cluster" "example_ha" {
   name              = "melt04"
   version           = "1.33"
