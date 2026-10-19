@@ -168,7 +168,7 @@ func foundryResourceAttributes() map[string]schema.Attribute {
 			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
 		"rails_log_level":    optionalComputedString("Log level of the Foundry application (web and worker)", stringvalidator.OneOf("debug", "info", "warn", "error", "fatal", "unknown")),
-		"identity_provider":  optionalComputedString("How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin, for trials only", stringvalidator.OneOf("auth0", "dummy")),
+		"identity_provider":  optionalComputedString("How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin (for trials only)", stringvalidator.OneOf("auth0", "dummy")),
 		"auth0_config":       foundryAuth0Attribute(),
 		"letsencrypt_config": foundryLetsencryptAttribute(),
 		"sentry_config":      foundrySentryAttribute(),

@@ -54,7 +54,7 @@ variable "auth0_client_secret" {
 ### Optional
 
 - `auth0_config` (Attributes) The Auth0 tenant that users sign in through if `identity_provider = "auth0"`. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--auth0_config))
-- `identity_provider` (String) How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin, for trials only
+- `identity_provider` (String) How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin (for trials only)
 - `letsencrypt_config` (Attributes) Use certificates from Let's Encrypt. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--letsencrypt_config))
 - `rails_log_level` (String) Log level of the Foundry application (web and worker)
 - `sentry_config` (Attributes) Error reporting to Sentry. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--sentry_config))

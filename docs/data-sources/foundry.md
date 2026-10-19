@@ -28,7 +28,7 @@ output "foundry_version" {
 - `auth0_config` (Attributes) The Auth0 tenant users sign in through. Null when none is set (see [below for nested schema](#nestedatt--auth0_config))
 - `ha_topology` (String) [High availability](https://docs.meltcloud.io/concepts/nest/high-availability) mode of the Foundry: `none` for Single Instance, `host` for Multi-instance, `zone` for Multi-zone. [Enable high availability](https://docs.meltcloud.io/tasks/foundry/enable-high-availability) in the admin area
 - `id` (Number) Internal ID of the Foundry on meltcloud
-- `identity_provider` (String) How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin, for trials only
+- `identity_provider` (String) How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin (for trials only)
 - `letsencrypt_config` (Attributes) Certificates from Let's Encrypt (see [below for nested schema](#nestedatt--letsencrypt_config))
 - `rails_log_level` (String) Log level of the Foundry application (web and worker)
 - `sentry_config` (Attributes) Error reporting to Sentry (see [below for nested schema](#nestedatt--sentry_config))
