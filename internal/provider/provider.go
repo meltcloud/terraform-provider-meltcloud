@@ -182,6 +182,7 @@ func (p *MeltcloudProvider) DataSources(ctx context.Context) []func() datasource
 		NewRegionDataSource,
 		NewZoneDataSource,
 		NewNestInstanceDataSource,
+		NewNestInstanceImageDataSource,
 		NewSubnetDataSource,
 		NewIPPoolDataSource,
 		NewElasticFleetDataSource,

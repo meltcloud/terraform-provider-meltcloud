@@ -154,6 +154,14 @@ func (nr *NestRequest) GetInstanceImage(ctx context.Context, instanceID, id int6
 	})
 }
 
+func (nr *NestRequest) GetInstanceImageByName(ctx context.Context, instanceID int64, name string) (*NestInstanceImageResult, *Error) {
+	return send[NestInstanceImageResult](ctx, nr.client.Get, &ClientRequest{
+		Path:        fmt.Sprintf("nest_instances/%d/images/%s", instanceID, url.PathEscape(name)),
+		QueryParams: byName,
+		Result:      &NestInstanceImageResult{},
+	})
+}
+
 // Starts building the image; the operation is the build.
 func (nr *NestRequest) CreateInstanceImage(ctx context.Context, instanceID int64, input *NestInstanceImageCreateInput) (*NestInstanceImageResult, *Error) {
 	return send[NestInstanceImageResult](ctx, nr.client.Post, &ClientRequest{
