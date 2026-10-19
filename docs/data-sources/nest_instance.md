@@ -36,8 +36,8 @@ data "meltcloud_nest_instance" "first" {
 - `ip_addresses` (Attributes List) The addresses of the instance, one per IP Pool of its Network Profile (see [below for nested schema](#nestedatt--ip_addresses))
 - `nest_id` (Number) ID of the Nest the instance belongs to
 - `network_profile_id` (Number) ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses
-- `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again
-- `version` (String) Nest version the instance runs
+- `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). `updating` during a Nest update, `update_failed` or `update_cancelled` if that update fails or is cancelled. A reset instance is `removed` until it installs again
+- `version` (String) Nest version of the instance
 - `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in
 
 <a id="nestedatt--bgp"></a>
