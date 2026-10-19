@@ -133,22 +133,22 @@ func enrollmentImageResourceAttributes() map[string]schema.Attribute {
 			},
 		},
 		"http_url_iso_amd64": schema.StringAttribute{
-			MarkdownDescription: "URL to download the ISO for AMD64 via HTTP",
+			MarkdownDescription: "URL to download the ISO for amd64 via HTTP",
 			Computed:            true,
 			Sensitive:           true,
 		},
 		"http_url_iso_arm64": schema.StringAttribute{
-			MarkdownDescription: "URL to download the ISO for ARM64 via HTTP",
+			MarkdownDescription: "URL to download the ISO for arm64 via HTTP",
 			Computed:            true,
 			Sensitive:           true,
 		},
 		"https_url_iso_amd64": schema.StringAttribute{
-			MarkdownDescription: "URL to download the ISO for AMD64 via HTTPS",
+			MarkdownDescription: "URL to download the ISO for amd64 via HTTPS",
 			Computed:            true,
 			Sensitive:           true,
 		},
 		"https_url_iso_arm64": schema.StringAttribute{
-			MarkdownDescription: "URL to download the ISO for ARM64 via HTTPS",
+			MarkdownDescription: "URL to download the ISO for arm64 via HTTPS",
 			Computed:            true,
 			Sensitive:           true,
 		},

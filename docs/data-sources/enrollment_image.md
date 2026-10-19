@@ -36,10 +36,10 @@ data "meltcloud_enrollment_image" "example_name" {
 
 - `enable_http` (Boolean) Whether the images should be downloadable via insecure HTTP
 - `expires_at` (String) Timestamp when the image should expire
-- `http_url_iso_amd64` (String, Sensitive) URL to download the ISO for AMD64 via HTTP
-- `http_url_iso_arm64` (String, Sensitive) URL to download the ISO for ARM64 via HTTP
-- `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for AMD64 via HTTPS
-- `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for ARM64 via HTTPS
+- `http_url_iso_amd64` (String, Sensitive) URL to download the ISO for amd64 via HTTP
+- `http_url_iso_arm64` (String, Sensitive) URL to download the ISO for arm64 via HTTP
+- `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for amd64 via HTTPS
+- `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for arm64 via HTTPS
 - `install_disk_device` (String) Device path of the disk where the system should be installed to. Use a `/dev/disk/by-path/` path (i.e. `/dev/disk/by-path/pci-0000:00:17.0-ata-1`) rather than a kernel name such as `/dev/sda`, as those can change between boots; see [Choosing Disk Devices](https://docs.meltcloud.io/tasks/enrollment-images#choosing-disk-devices). If not specified, the disk is auto-detected, which only works if Linux sees exactly one block device (i.e. a single attached disk, or a Dell BOSS RAID pair that shows up as one). It must be specified if `install_disk_mirror` is enabled.
 - `install_disk_force_overwrite` (Boolean) Force overwrite disk if it contains unknown data
 - `install_disk_mirror` (Boolean) Whether the install disk is mirrored onto a second disk (RAID1) for redundancy. Requires `install_disk_device` and `install_disk_mirror_device` to be set, since auto-detection cannot decide which of two disks is the primary and which the mirror.
