@@ -13,7 +13,6 @@ type FoundryResult struct {
 	Operation *Operation `json:"operation,omitempty"`
 }
 
-// The foundry never returns its secrets.
 type Foundry struct {
 	ID                 int64  `json:"id"`
 	Status             string `json:"status"`
