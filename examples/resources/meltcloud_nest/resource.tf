@@ -1,4 +1,4 @@
-# the nest installer creates the nest, so it is imported
+# the nest installer creates the nest, import it
 import {
   to = meltcloud_nest.this
   id = "nest"

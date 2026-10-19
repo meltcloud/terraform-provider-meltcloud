@@ -32,7 +32,16 @@ resource "meltcloud_nest_instance" "nest_1" {
     { ip_pool_id = meltcloud_ip_pool.hosts.id, address = "10.0.10.11" },
   ]
 
-  install_disk_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+  boot_disk = {
+    device        = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+    mirror        = true
+    mirror_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-2"
+  }
+
+  etcd_disk = {
+    enabled = true
+    device  = "/dev/disk/by-path/pci-0000:00:17.0-ata-3"
+  }
 }
 
 # on a nest that uses BGP, each instance peers with its routers
@@ -45,7 +54,9 @@ resource "meltcloud_nest_instance" "nest_2" {
     { ip_pool_id = meltcloud_ip_pool.hosts.id, address = "10.0.10.12" },
   ]
 
-  install_disk_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+  boot_disk = {
+    device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+  }
 
   bgp = {
     local_asn = 65012
@@ -61,7 +72,7 @@ resource "meltcloud_nest_instance" "nest_2" {
 
 ### Required
 
-- `install_disk_device` (String) Boot disk device the OS is installed to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
+- `boot_disk` (Attributes) The boot disk of the instance. Changing it replaces the instance (see [below for nested schema](#nestedatt--boot_disk))
 - `ip_addresses` (Attributes Set) [Static IPs](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in the IP Pools of the Network Profile, one per pool. The instance needs one on the primary host network. In the other pools, it gets an address the pool allocates (see [below for nested schema](#nestedatt--ip_addresses))
 - `name` (String) Host name of the Nest Instance, unique within the Nest
 - `network_profile_id` (Number) ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses
@@ -70,12 +81,7 @@ resource "meltcloud_nest_instance" "nest_2" {
 ### Optional
 
 - `bgp` (Attributes) BGP peering of the instance. Needed when the Nest uses BGP. Changing it replaces the instance (see [below for nested schema](#nestedatt--bgp))
-- `etcd_disk` (Boolean) Keep etcd on a disk of its own
-- `etcd_disk_device` (String) Device etcd is kept on. Only with `etcd_disk`
-- `etcd_disk_mirror` (Boolean) Mirror the etcd disk
-- `etcd_disk_mirror_device` (String) Device the etcd disk is mirrored to. Only with `etcd_disk_mirror`
-- `install_disk_mirror` (Boolean) Mirror the boot disk onto a second device
-- `install_disk_mirror_device` (String) Device the boot disk is mirrored to. Only with `install_disk_mirror`
+- `etcd_disk` (Attributes) A disk of its own for etcd. Leave it out to keep etcd on the boot disk. Changing it replaces the instance (see [below for nested schema](#nestedatt--etcd_disk))
 
 ### Read-Only
 
@@ -84,6 +90,19 @@ resource "meltcloud_nest_instance" "nest_2" {
 - `nest_id` (Number) ID of the Nest the instance belongs to
 - `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again
 - `version` (String) Nest version the instance runs
+
+<a id="nestedatt--boot_disk"></a>
+### Nested Schema for `boot_disk`
+
+Required:
+
+- `device` (String) Device the OS is installed to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
+
+Optional:
+
+- `mirror` (Boolean) Mirror the boot disk onto a second device. Defaults to `false`
+- `mirror_device` (String) Device the boot disk is mirrored to. Only with `mirror`
+
 
 <a id="nestedatt--ip_addresses"></a>
 ### Nested Schema for `ip_addresses`
@@ -125,6 +144,22 @@ Optional:
 - `detect_multiplier` (Number) Detect multiplier
 - `receive_interval` (Number) Receive interval in milliseconds
 - `transmit_interval` (Number) Transmit interval in milliseconds
+
+
+
+
+<a id="nestedatt--etcd_disk"></a>
+### Nested Schema for `etcd_disk`
+
+Required:
+
+- `enabled` (Boolean) Keep etcd on a disk of its own
+
+Optional:
+
+- `device` (String) Device etcd is kept on. Only with `enabled`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
+- `mirror` (Boolean) Mirror the etcd disk onto a second device. Defaults to `false`
+- `mirror_device` (String) Device the etcd disk is mirrored to. Only with `mirror`
 
 ## Import
 

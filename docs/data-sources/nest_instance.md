@@ -32,13 +32,8 @@ data "meltcloud_nest_instance" "first" {
 - `architecture` (String) CPU architecture the instance reported once it booted
 - `bgp_local_asn` (Number) BGP ASN of the instance
 - `bgp_peers` (Attributes List) The BGP peers of the instance, without their passwords (see [below for nested schema](#nestedatt--bgp_peers))
-- `etcd_disk` (Boolean) Whether etcd is kept on a disk of its own
-- `etcd_disk_device` (String) Device etcd is kept on
-- `etcd_disk_mirror` (Boolean) Whether the etcd disk is mirrored
-- `etcd_disk_mirror_device` (String) Device the etcd disk is mirrored to
-- `install_disk_device` (String) Boot disk device the OS is installed to
-- `install_disk_mirror` (Boolean) Whether the boot disk is mirrored
-- `install_disk_mirror_device` (String) Device the boot disk is mirrored to
+- `boot_disk` (Attributes) The boot disk of the instance (see [below for nested schema](#nestedatt--boot_disk))
+- `etcd_disk` (Attributes) The disk etcd is kept on (see [below for nested schema](#nestedatt--etcd_disk))
 - `ip_addresses` (Attributes List) The addresses of the instance, one per IP Pool of its Network Profile (see [below for nested schema](#nestedatt--ip_addresses))
 - `nest_id` (Number) ID of the Nest the instance belongs to
 - `network_profile_id` (Number) ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses
@@ -55,6 +50,27 @@ Read-Only:
 - `bfd` (Boolean) Whether BFD is on
 - `ip` (String) IP address of the peer
 - `multihop` (Boolean) Whether the peer is more than one hop away
+
+
+<a id="nestedatt--boot_disk"></a>
+### Nested Schema for `boot_disk`
+
+Read-Only:
+
+- `device` (String) Device the OS is installed to
+- `mirror` (Boolean) Whether the boot disk is mirrored
+- `mirror_device` (String) Device the boot disk is mirrored to
+
+
+<a id="nestedatt--etcd_disk"></a>
+### Nested Schema for `etcd_disk`
+
+Read-Only:
+
+- `device` (String) Device etcd is kept on
+- `enabled` (Boolean) Whether etcd is kept on a disk of its own
+- `mirror` (Boolean) Whether the etcd disk is mirrored
+- `mirror_device` (String) Device the etcd disk is mirrored to
 
 
 <a id="nestedatt--ip_addresses"></a>

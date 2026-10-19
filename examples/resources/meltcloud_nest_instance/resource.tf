@@ -8,7 +8,16 @@ resource "meltcloud_nest_instance" "nest_1" {
     { ip_pool_id = meltcloud_ip_pool.hosts.id, address = "10.0.10.11" },
   ]
 
-  install_disk_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+  boot_disk = {
+    device        = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+    mirror        = true
+    mirror_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-2"
+  }
+
+  etcd_disk = {
+    enabled = true
+    device  = "/dev/disk/by-path/pci-0000:00:17.0-ata-3"
+  }
 }
 
 # on a nest that uses BGP, each instance peers with its routers
@@ -21,7 +30,9 @@ resource "meltcloud_nest_instance" "nest_2" {
     { ip_pool_id = meltcloud_ip_pool.hosts.id, address = "10.0.10.12" },
   ]
 
-  install_disk_device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+  boot_disk = {
+    device = "/dev/disk/by-path/pci-0000:00:17.0-ata-1"
+  }
 
   bgp = {
     local_asn = 65012

@@ -21,24 +21,19 @@ type NestInstanceDataSource struct {
 }
 
 type NestInstanceDataSourceModel struct {
-	ID                      types.Int64                       `tfsdk:"id"`
-	NestID                  types.Int64                       `tfsdk:"nest_id"`
-	Name                    types.String                      `tfsdk:"name"`
-	ZoneID                  types.Int64                       `tfsdk:"zone_id"`
-	NetworkProfileID        types.Int64                       `tfsdk:"network_profile_id"`
-	IPAddresses             []NestInstanceIPAddressModel      `tfsdk:"ip_addresses"`
-	InstallDiskDevice       types.String                      `tfsdk:"install_disk_device"`
-	InstallDiskMirror       types.Bool                        `tfsdk:"install_disk_mirror"`
-	InstallDiskMirrorDevice types.String                      `tfsdk:"install_disk_mirror_device"`
-	EtcdDisk                types.Bool                        `tfsdk:"etcd_disk"`
-	EtcdDiskDevice          types.String                      `tfsdk:"etcd_disk_device"`
-	EtcdDiskMirror          types.Bool                        `tfsdk:"etcd_disk_mirror"`
-	EtcdDiskMirrorDevice    types.String                      `tfsdk:"etcd_disk_mirror_device"`
-	BGPLocalASN             types.Int64                       `tfsdk:"bgp_local_asn"`
-	BGPPeers                []NestInstanceDataSourcePeerModel `tfsdk:"bgp_peers"`
-	Status                  types.String                      `tfsdk:"status"`
-	Architecture            types.String                      `tfsdk:"architecture"`
-	Version                 types.String                      `tfsdk:"version"`
+	ID               types.Int64                       `tfsdk:"id"`
+	NestID           types.Int64                       `tfsdk:"nest_id"`
+	Name             types.String                      `tfsdk:"name"`
+	ZoneID           types.Int64                       `tfsdk:"zone_id"`
+	NetworkProfileID types.Int64                       `tfsdk:"network_profile_id"`
+	IPAddresses      []NestInstanceIPAddressModel      `tfsdk:"ip_addresses"`
+	BootDisk         NestInstanceBootDiskModel         `tfsdk:"boot_disk"`
+	EtcdDisk         NestInstanceEtcdDiskModel         `tfsdk:"etcd_disk"`
+	BGPLocalASN      types.Int64                       `tfsdk:"bgp_local_asn"`
+	BGPPeers         []NestInstanceDataSourcePeerModel `tfsdk:"bgp_peers"`
+	Status           types.String                      `tfsdk:"status"`
+	Architecture     types.String                      `tfsdk:"architecture"`
+	Version          types.String                      `tfsdk:"version"`
 }
 
 type NestInstanceIPAddressModel struct {
@@ -84,14 +79,26 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 					"static":     computedBool("Whether it is a [static IP](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) rather than one the pool allocated"),
 				}},
 			},
-			"install_disk_device":        computedStr("Boot disk device the OS is installed to"),
-			"install_disk_mirror":        computedBool("Whether the boot disk is mirrored"),
-			"install_disk_mirror_device": computedStr("Device the boot disk is mirrored to"),
-			"etcd_disk":                  computedBool("Whether etcd is kept on a disk of its own"),
-			"etcd_disk_device":           computedStr("Device etcd is kept on"),
-			"etcd_disk_mirror":           computedBool("Whether the etcd disk is mirrored"),
-			"etcd_disk_mirror_device":    computedStr("Device the etcd disk is mirrored to"),
-			"bgp_local_asn":              computedInt64("BGP ASN of the instance"),
+			"boot_disk": schema.SingleNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "The boot disk of the instance",
+				Attributes: map[string]schema.Attribute{
+					"device":        computedStr("Device the OS is installed to"),
+					"mirror":        computedBool("Whether the boot disk is mirrored"),
+					"mirror_device": computedStr("Device the boot disk is mirrored to"),
+				},
+			},
+			"etcd_disk": schema.SingleNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "The disk etcd is kept on",
+				Attributes: map[string]schema.Attribute{
+					"enabled":       computedBool("Whether etcd is kept on a disk of its own"),
+					"device":        computedStr("Device etcd is kept on"),
+					"mirror":        computedBool("Whether the etcd disk is mirrored"),
+					"mirror_device": computedStr("Device the etcd disk is mirrored to"),
+				},
+			},
+			"bgp_local_asn": computedInt64("BGP ASN of the instance"),
 			"bgp_peers": schema.ListNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "The BGP peers of the instance, without their passwords",
@@ -134,24 +141,28 @@ func (d *NestInstanceDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	instance := result.NestInstance
 	data = NestInstanceDataSourceModel{
-		ID:                      types.Int64Value(instance.ID),
-		NestID:                  types.Int64Value(instance.NestID),
-		Name:                    types.StringValue(instance.Name),
-		ZoneID:                  types.Int64Value(instance.ZoneID),
-		NetworkProfileID:        types.Int64Value(instance.NetworkProfileID),
-		IPAddresses:             []NestInstanceIPAddressModel{},
-		InstallDiskDevice:       types.StringValue(instance.InstallDiskDevice),
-		InstallDiskMirror:       types.BoolValue(instance.InstallDiskMirror),
-		InstallDiskMirrorDevice: types.StringValue(instance.InstallDiskMirrorDevice),
-		EtcdDisk:                types.BoolValue(instance.EtcdDisk),
-		EtcdDiskDevice:          types.StringValue(instance.EtcdDiskDevice),
-		EtcdDiskMirror:          types.BoolValue(instance.EtcdDiskMirror),
-		EtcdDiskMirrorDevice:    types.StringValue(instance.EtcdDiskMirrorDevice),
-		BGPLocalASN:             types.Int64PointerValue(instance.BGPLocalASN),
-		BGPPeers:                []NestInstanceDataSourcePeerModel{},
-		Status:                  types.StringValue(instance.Status),
-		Architecture:            types.StringValue(instance.Architecture),
-		Version:                 types.StringValue(instance.Version),
+		ID:               types.Int64Value(instance.ID),
+		NestID:           types.Int64Value(instance.NestID),
+		Name:             types.StringValue(instance.Name),
+		ZoneID:           types.Int64Value(instance.ZoneID),
+		NetworkProfileID: types.Int64Value(instance.NetworkProfileID),
+		IPAddresses:      []NestInstanceIPAddressModel{},
+		BootDisk: NestInstanceBootDiskModel{
+			Device:       types.StringValue(instance.InstallDiskDevice),
+			Mirror:       types.BoolValue(instance.InstallDiskMirror),
+			MirrorDevice: emptyAsNull(instance.InstallDiskMirrorDevice),
+		},
+		EtcdDisk: NestInstanceEtcdDiskModel{
+			Enabled:      types.BoolValue(instance.EtcdDisk),
+			Device:       emptyAsNull(instance.EtcdDiskDevice),
+			Mirror:       types.BoolValue(instance.EtcdDiskMirror),
+			MirrorDevice: emptyAsNull(instance.EtcdDiskMirrorDevice),
+		},
+		BGPLocalASN:  types.Int64PointerValue(instance.BGPLocalASN),
+		BGPPeers:     []NestInstanceDataSourcePeerModel{},
+		Status:       types.StringValue(instance.Status),
+		Architecture: types.StringValue(instance.Architecture),
+		Version:      types.StringValue(instance.Version),
 	}
 	for _, address := range instance.IPAddresses {
 		data.IPAddresses = append(data.IPAddresses, NestInstanceIPAddressModel{

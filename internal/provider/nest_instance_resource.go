@@ -14,8 +14,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -38,24 +38,36 @@ type NestInstanceResource struct {
 }
 
 type NestInstanceResourceModel struct {
-	ID                      types.Int64           `tfsdk:"id"`
-	NestID                  types.Int64           `tfsdk:"nest_id"`
-	Name                    types.String          `tfsdk:"name"`
-	ZoneID                  types.Int64           `tfsdk:"zone_id"`
-	NetworkProfileID        types.Int64           `tfsdk:"network_profile_id"`
-	IPAddresses             types.Set             `tfsdk:"ip_addresses"`
-	InstallDiskDevice       types.String          `tfsdk:"install_disk_device"`
-	InstallDiskMirror       types.Bool            `tfsdk:"install_disk_mirror"`
-	InstallDiskMirrorDevice types.String          `tfsdk:"install_disk_mirror_device"`
-	EtcdDisk                types.Bool            `tfsdk:"etcd_disk"`
-	EtcdDiskDevice          types.String          `tfsdk:"etcd_disk_device"`
-	EtcdDiskMirror          types.Bool            `tfsdk:"etcd_disk_mirror"`
-	EtcdDiskMirrorDevice    types.String          `tfsdk:"etcd_disk_mirror_device"`
-	BGP                     *NestInstanceBGPModel `tfsdk:"bgp"`
-	Status                  types.String          `tfsdk:"status"`
-	Architecture            types.String          `tfsdk:"architecture"`
-	Version                 types.String          `tfsdk:"version"`
+	ID               types.Int64                `tfsdk:"id"`
+	NestID           types.Int64                `tfsdk:"nest_id"`
+	Name             types.String               `tfsdk:"name"`
+	ZoneID           types.Int64                `tfsdk:"zone_id"`
+	NetworkProfileID types.Int64                `tfsdk:"network_profile_id"`
+	IPAddresses      types.Set                  `tfsdk:"ip_addresses"`
+	BootDisk         *NestInstanceBootDiskModel `tfsdk:"boot_disk"`
+	EtcdDisk         types.Object               `tfsdk:"etcd_disk"`
+	BGP              *NestInstanceBGPModel      `tfsdk:"bgp"`
+	Status           types.String               `tfsdk:"status"`
+	Architecture     types.String               `tfsdk:"architecture"`
+	Version          types.String               `tfsdk:"version"`
 }
+
+type NestInstanceBootDiskModel struct {
+	Device       types.String `tfsdk:"device"`
+	Mirror       types.Bool   `tfsdk:"mirror"`
+	MirrorDevice types.String `tfsdk:"mirror_device"`
+}
+
+type NestInstanceEtcdDiskModel struct {
+	Enabled      types.Bool   `tfsdk:"enabled"`
+	Device       types.String `tfsdk:"device"`
+	Mirror       types.Bool   `tfsdk:"mirror"`
+	MirrorDevice types.String `tfsdk:"mirror_device"`
+}
+
+var etcdDiskObjectType = types.ObjectType{AttrTypes: map[string]attr.Type{
+	"enabled": types.BoolType, "device": types.StringType, "mirror": types.BoolType, "mirror_device": types.StringType,
+}}
 
 type NestInstanceBGPModel struct {
 	LocalASN types.Int64                `tfsdk:"local_asn"`
@@ -94,15 +106,6 @@ func immutableString(description string, required bool) schema.StringAttribute {
 		Optional:            !required,
 		Computed:            !required,
 		PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace(), stringplanmodifier.UseStateForUnknown()},
-	}
-}
-
-func immutableBool(description string) schema.BoolAttribute {
-	return schema.BoolAttribute{
-		MarkdownDescription: description,
-		Optional:            true,
-		Computed:            true,
-		PlanModifiers:       []planmodifier.Bool{boolplanmodifier.RequiresReplace(), boolplanmodifier.UseStateForUnknown()},
 	}
 }
 
@@ -166,6 +169,50 @@ func bfdChanged(state, plan *NestInstanceBFDModel) bool {
 		!state.DetectMultiplier.Equal(plan.DetectMultiplier)
 }
 
+const diskDeviceHint = "Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots"
+
+func mirrorAttributes(disk string) map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"mirror": schema.BoolAttribute{
+			MarkdownDescription: "Mirror the " + disk + " onto a second device. Defaults to `false`",
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
+		},
+		"mirror_device": schema.StringAttribute{MarkdownDescription: "Device the " + disk + " is mirrored to. Only with `mirror`", Optional: true},
+	}
+}
+
+func bootDiskAttribute() schema.SingleNestedAttribute {
+	attributes := mirrorAttributes("boot disk")
+	attributes["device"] = schema.StringAttribute{
+		MarkdownDescription: "Device the OS is installed to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. " + diskDeviceHint,
+		Required:            true,
+	}
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "The boot disk of the instance. Changing it replaces the instance",
+		Required:            true,
+		PlanModifiers:       []planmodifier.Object{objectplanmodifier.RequiresReplace()},
+		Attributes:          attributes,
+	}
+}
+
+func etcdDiskAttribute() schema.SingleNestedAttribute {
+	attributes := mirrorAttributes("etcd disk")
+	attributes["enabled"] = schema.BoolAttribute{MarkdownDescription: "Keep etcd on a disk of its own", Required: true}
+	attributes["device"] = schema.StringAttribute{MarkdownDescription: "Device etcd is kept on. Only with `enabled`. " + diskDeviceHint, Optional: true}
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "A disk of its own for etcd. Leave it out to keep etcd on the boot disk. Changing it replaces the instance",
+		Optional:            true,
+		Computed:            true,
+		Default: objectdefault.StaticValue(types.ObjectValueMust(etcdDiskObjectType.AttrTypes, map[string]attr.Value{
+			"enabled": types.BoolValue(false), "device": types.StringNull(), "mirror": types.BoolValue(false), "mirror_device": types.StringNull(),
+		})),
+		PlanModifiers: []planmodifier.Object{objectplanmodifier.RequiresReplace()},
+		Attributes:    attributes,
+	}
+}
+
 func optionalInt64(description string) schema.Int64Attribute {
 	return schema.Int64Attribute{MarkdownDescription: description, Optional: true}
 }
@@ -222,19 +269,14 @@ func (r *NestInstanceResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: "ID of the Nest the instance belongs to",
 				PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 			},
-			"name":                       immutableString("Host name of the Nest Instance, unique within the Nest", true),
-			"zone_id":                    immutableInt64("ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on its node", true),
-			"network_profile_id":         immutableInt64("ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses", true),
-			"install_disk_device":        immutableString("Boot disk device the OS is installed to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots", true),
-			"install_disk_mirror":        immutableBool("Mirror the boot disk onto a second device"),
-			"install_disk_mirror_device": immutableString("Device the boot disk is mirrored to. Only with `install_disk_mirror`", false),
-			"etcd_disk":                  immutableBool("Keep etcd on a disk of its own"),
-			"etcd_disk_device":           immutableString("Device etcd is kept on. Only with `etcd_disk`", false),
-			"etcd_disk_mirror":           immutableBool("Mirror the etcd disk"),
-			"etcd_disk_mirror_device":    immutableString("Device the etcd disk is mirrored to. Only with `etcd_disk_mirror`", false),
-			"status":                     computedString("Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again"),
-			"architecture":               computedString("CPU architecture the instance reported once it booted"),
-			"version":                    computedString("Nest version the instance runs"),
+			"name":               immutableString("Host name of the Nest Instance, unique within the Nest", true),
+			"zone_id":            immutableInt64("ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on its node", true),
+			"network_profile_id": immutableInt64("ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses", true),
+			"boot_disk":          bootDiskAttribute(),
+			"etcd_disk":          etcdDiskAttribute(),
+			"status":             computedString("Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again"),
+			"architecture":       computedString("CPU architecture the instance reported once it booted"),
+			"version":            computedString("Nest version the instance runs"),
 			"ip_addresses": schema.SetNestedAttribute{
 				MarkdownDescription: "[Static IPs](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in the IP Pools of the Network Profile, one per pool. The instance needs one on the primary host network. In the other pools, it gets an address the pool allocates",
 				Required:            true,
@@ -285,13 +327,17 @@ func (r *NestInstanceResource) Create(ctx context.Context, req resource.CreateRe
 		ZoneID:                  data.ZoneID.ValueInt64(),
 		NetworkProfileID:        data.NetworkProfileID.ValueInt64(),
 		IPAddresses:             ipAddressInput(ipAddresses),
-		InstallDiskDevice:       knownString(data.InstallDiskDevice),
-		InstallDiskMirror:       knownBool(data.InstallDiskMirror),
-		InstallDiskMirrorDevice: knownString(data.InstallDiskMirrorDevice),
-		EtcdDisk:                knownBool(data.EtcdDisk),
-		EtcdDiskDevice:          knownString(data.EtcdDiskDevice),
-		EtcdDiskMirror:          knownBool(data.EtcdDiskMirror),
-		EtcdDiskMirrorDevice:    knownString(data.EtcdDiskMirrorDevice),
+		InstallDiskDevice:       knownString(data.BootDisk.Device),
+		InstallDiskMirror:       knownBool(data.BootDisk.Mirror),
+		InstallDiskMirrorDevice: knownString(data.BootDisk.MirrorDevice),
+	}
+	if !data.EtcdDisk.IsNull() && !data.EtcdDisk.IsUnknown() {
+		var etcd NestInstanceEtcdDiskModel
+		resp.Diagnostics.Append(data.EtcdDisk.As(ctx, &etcd, basetypes.ObjectAsOptions{})...)
+		input.EtcdDisk = knownBool(etcd.Enabled)
+		input.EtcdDiskDevice = knownString(etcd.Device)
+		input.EtcdDiskMirror = knownBool(etcd.Mirror)
+		input.EtcdDiskMirrorDevice = knownString(etcd.MirrorDevice)
 	}
 	if data.BGP != nil {
 		input.BGPLocalASN = data.BGP.LocalASN.ValueInt64Pointer()
@@ -467,19 +513,23 @@ func setNestInstanceValues(ctx context.Context, instance *client.NestInstance, d
 	data.Name = types.StringValue(instance.Name)
 	data.ZoneID = types.Int64Value(instance.ZoneID)
 	data.NetworkProfileID = types.Int64Value(instance.NetworkProfileID)
-	data.InstallDiskDevice = types.StringValue(instance.InstallDiskDevice)
-	data.InstallDiskMirror = types.BoolValue(instance.InstallDiskMirror)
-	data.InstallDiskMirrorDevice = types.StringValue(instance.InstallDiskMirrorDevice)
-	data.EtcdDisk = types.BoolValue(instance.EtcdDisk)
-	data.EtcdDiskDevice = types.StringValue(instance.EtcdDiskDevice)
-	data.EtcdDiskMirror = types.BoolValue(instance.EtcdDiskMirror)
-	data.EtcdDiskMirrorDevice = types.StringValue(instance.EtcdDiskMirrorDevice)
+	data.BootDisk = &NestInstanceBootDiskModel{
+		Device:       types.StringValue(instance.InstallDiskDevice),
+		Mirror:       types.BoolValue(instance.InstallDiskMirror),
+		MirrorDevice: emptyAsNull(instance.InstallDiskMirrorDevice),
+	}
 	data.BGP = bgpValues(instance, knownBGP)
 	data.Status = types.StringValue(instance.Status)
 	data.Architecture = types.StringValue(instance.Architecture)
 	data.Version = types.StringValue(instance.Version)
 
-	var diags diag.Diagnostics
+	var diags, etcdDiags diag.Diagnostics
+	data.EtcdDisk, etcdDiags = types.ObjectValueFrom(ctx, etcdDiskObjectType.AttrTypes, NestInstanceEtcdDiskModel{
+		Enabled:      types.BoolValue(instance.EtcdDisk),
+		Device:       emptyAsNull(instance.EtcdDiskDevice),
+		Mirror:       types.BoolValue(instance.EtcdDiskMirror),
+		MirrorDevice: emptyAsNull(instance.EtcdDiskMirrorDevice),
+	})
 	data.IPAddresses, diags = staticIPAddresses(ctx, instance.IPAddresses)
-	return diags
+	return append(diags, etcdDiags...)
 }

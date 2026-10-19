@@ -39,11 +39,10 @@ func (r *NestResource) Metadata(ctx context.Context, req resource.MetadataReques
 }
 
 const nestDesc = "The [Nest](https://docs.meltcloud.io/concepts/nest/overview) is the management appliance that hosts the Foundry and the Kubernetes control planes. " +
-	"Its installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: " +
-	"to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
+	"Since it's created automatically during the Nest installation, it can't be created by Terraform and must be [imported](https://developer.hashicorp.com/terraform/language/import). " +
+	"Same for deletion: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
 	"Needs the API Key of the admin Organization.\n\n" +
-	"~> Changing `version` rolls the Nest out to it, updating and rebooting one Nest Instance after the other. The Foundry's API can be unavailable meanwhile, and the apply waits until the roll-out has finished.\n\n" +
-	"~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them."
+	"~> Changing `version` updates and reboots one Nest Instance after the other. The Foundry's API can be briefly unavailable during the update."
 
 func (r *NestResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
