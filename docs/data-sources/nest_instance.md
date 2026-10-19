@@ -29,7 +29,7 @@ data "meltcloud_nest_instance" "first" {
 
 ### Read-Only
 
-- `architecture` (String) CPU architecture the instance reported once it booted
+- `architecture` (String) CPU architecture the instance reported
 - `bgp` (Attributes) BGP peering of the instance. Null when the Nest does not use BGP (see [below for nested schema](#nestedatt--bgp))
 - `boot_disk` (Attributes) The boot disk of the instance (see [below for nested schema](#nestedatt--boot_disk))
 - `etcd_disk` (Attributes) The disk etcd is kept on (see [below for nested schema](#nestedatt--etcd_disk))

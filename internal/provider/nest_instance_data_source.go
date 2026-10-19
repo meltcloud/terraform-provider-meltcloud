@@ -128,7 +128,7 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 				},
 			},
 			"status":       computedStr("Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again"),
-			"architecture": computedStr("CPU architecture the instance reported once it booted"),
+			"architecture": computedStr("CPU architecture the instance reported"),
 			"version":      computedStr("Nest version the instance runs"),
 		}, "Internal ID of the Nest Instance on meltcloud", "Host name of the Nest Instance, unique within the Nest"),
 	}
