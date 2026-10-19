@@ -105,8 +105,8 @@ resource "meltcloud_nest_instance" "nest_2" {
 - `architecture` (String) CPU architecture the instance reported
 - `id` (Number) Internal ID of the Nest Instance on meltcloud
 - `nest_id` (Number) ID of the Nest the instance belongs to
-- `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again
-- `version` (String) Nest version the instance runs
+- `status` (String) Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). `updating` during a Nest update, `update_failed` or `update_cancelled` if that update fails or is cancelled. A reset instance is `removed` until it installs again
+- `version` (String) Nest version of the instance
 
 <a id="nestedatt--boot_disk"></a>
 ### Nested Schema for `boot_disk`
@@ -118,7 +118,7 @@ Required:
 Optional:
 
 - `mirror` (Boolean) Mirror the boot disk onto a second device. Defaults to `false`
-- `mirror_device` (String) Block device to use as the boot mirror disk. Only with `mirror`
+- `mirror_device` (String) Block device to use as the boot mirror disk. Required with `mirror`
 
 
 <a id="nestedatt--ip_addresses"></a>
@@ -178,9 +178,9 @@ Required:
 
 Optional:
 
-- `device` (String) Block device to use for etcd. Only with `enabled`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
+- `device` (String) Block device to use for etcd. Required with `enabled`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
 - `mirror` (Boolean) Mirror the etcd disk onto a second device. Defaults to `false`
-- `mirror_device` (String) Block device to use as the etcd mirror disk. Only with `mirror`
+- `mirror_device` (String) Block device to use as the etcd mirror disk. Required with `mirror`
 
 ## Import
 

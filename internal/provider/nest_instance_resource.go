@@ -212,7 +212,7 @@ func mirrorAttributes(disk string) map[string]schema.Attribute {
 			Computed:            true,
 			Default:             booldefault.StaticBool(false),
 		},
-		"mirror_device": schema.StringAttribute{MarkdownDescription: "Block device to use as the " + disk + " mirror disk. Only with `mirror`", Optional: true},
+		"mirror_device": schema.StringAttribute{MarkdownDescription: "Block device to use as the " + disk + " mirror disk. Required with `mirror`", Optional: true},
 	}
 }
 
@@ -233,7 +233,7 @@ func bootDiskAttribute() schema.SingleNestedAttribute {
 func etcdDiskAttribute() schema.SingleNestedAttribute {
 	attributes := mirrorAttributes("etcd")
 	attributes["enabled"] = schema.BoolAttribute{MarkdownDescription: "Keep etcd on a disk of its own", Required: true}
-	attributes["device"] = schema.StringAttribute{MarkdownDescription: "Block device to use for etcd. Only with `enabled`. " + diskDeviceHint, Optional: true}
+	attributes["device"] = schema.StringAttribute{MarkdownDescription: "Block device to use for etcd. Required with `enabled`. " + diskDeviceHint, Optional: true}
 	return schema.SingleNestedAttribute{
 		MarkdownDescription: "A dedicated disk for etcd. Leave it out to keep etcd on the boot disk",
 		Optional:            true,
@@ -314,9 +314,9 @@ func (r *NestInstanceResource) Schema(ctx context.Context, req resource.SchemaRe
 			"network_profile_id": immutableInt64("ID of the [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profiles) the instance uses", true),
 			"boot_disk":          bootDiskAttribute(),
 			"etcd_disk":          etcdDiskAttribute(),
-			"status":             computedString("Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). A reset instance is `removed` until it installs again"),
+			"status":             computedString("Status of the instance: `installing` until it has joined the Nest, then `ready`. `boot_failed` if it reported a failed boot; see [Troubleshoot](https://docs.meltcloud.io/tasks/nest/troubleshoot#joining). `updating` during a Nest update, `update_failed` or `update_cancelled` if that update fails or is cancelled. A reset instance is `removed` until it installs again"),
 			"architecture":       computedString("CPU architecture the instance reported"),
-			"version":            computedString("Nest version the instance runs"),
+			"version":            computedString("Nest version of the instance"),
 			"ip_addresses": schema.SetNestedAttribute{
 				MarkdownDescription: "[Static IPs](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in the IP Pools of the Network Profile, one per pool. The instance needs one on the primary host network. In the other pools, it gets an address the pool allocates",
 				Required:            true,
