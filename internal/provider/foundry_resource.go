@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"terraform-provider-meltcloud/internal/client"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -31,21 +32,35 @@ type FoundryResource struct {
 }
 
 type FoundryResourceModel struct {
-	ID                 types.Int64  `tfsdk:"id"`
-	Status             types.String `tfsdk:"status"`
-	Version            types.String `tfsdk:"version"`
-	HATopology         types.String `tfsdk:"ha_topology"`
-	RailsLogLevel      types.String `tfsdk:"rails_log_level"`
-	IdentityProvider   types.String `tfsdk:"identity_provider"`
-	Auth0Domain        types.String `tfsdk:"auth0_domain"`
-	Auth0ClientID      types.String `tfsdk:"auth0_client_id"`
-	Auth0ClientSecret  types.String `tfsdk:"auth0_client_secret"`
-	SentryEnabled      types.Bool   `tfsdk:"sentry_enabled"`
-	SentryDSN          types.String `tfsdk:"sentry_dsn"`
-	SentryEnvironment  types.String `tfsdk:"sentry_environment"`
-	LetsencryptEnabled types.Bool   `tfsdk:"letsencrypt_enabled"`
-	LetsencryptEmail   types.String `tfsdk:"letsencrypt_email"`
-	LetsencryptStaging types.Bool   `tfsdk:"letsencrypt_staging"`
+	ID                types.Int64              `tfsdk:"id"`
+	Status            types.String             `tfsdk:"status"`
+	Version           types.String             `tfsdk:"version"`
+	HATopology        types.String             `tfsdk:"ha_topology"`
+	RailsLogLevel     types.String             `tfsdk:"rails_log_level"`
+	IdentityProvider  types.String             `tfsdk:"identity_provider"`
+	Auth0Config       *FoundryAuth0Model       `tfsdk:"auth0_config"`
+	LetsencryptConfig *FoundryLetsencryptModel `tfsdk:"letsencrypt_config"`
+	SentryConfig      *FoundrySentryModel      `tfsdk:"sentry_config"`
+}
+
+type FoundryAuth0Model struct {
+	Domain                types.String `tfsdk:"domain"`
+	ClientID              types.String `tfsdk:"client_id"`
+	ClientSecretWO        types.String `tfsdk:"client_secret_wo"`
+	ClientSecretWOVersion types.Int64  `tfsdk:"client_secret_wo_version"`
+}
+
+type FoundryLetsencryptModel struct {
+	Enabled types.Bool   `tfsdk:"enabled"`
+	Email   types.String `tfsdk:"email"`
+	Staging types.Bool   `tfsdk:"staging"`
+}
+
+type FoundrySentryModel struct {
+	Enabled      types.Bool   `tfsdk:"enabled"`
+	DSNWO        types.String `tfsdk:"dsn_wo"`
+	DSNWOVersion types.Int64  `tfsdk:"dsn_wo_version"`
+	Environment  types.String `tfsdk:"environment"`
 }
 
 func (r *FoundryResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -53,11 +68,10 @@ func (r *FoundryResource) Metadata(ctx context.Context, req resource.MetadataReq
 }
 
 const foundryDesc = "The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry) is the meltcloud management plane that runs on the Nest. " +
-	"The Nest installer creates it, so it is [imported](https://developer.hashicorp.com/terraform/language/import) rather than created, and it cannot be destroyed: " +
-	"to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
+	"Since it's created automatically during the Nest installation, it can't be created by Terraform and must be [imported](https://developer.hashicorp.com/terraform/language/import). " +
+	"Same for deletion: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
 	"Needs the API Key of the admin Organization.\n\n" +
-	"~> Changing `version` updates the Foundry. Its API can be briefly unavailable during the update, and the apply waits until the update has finished.\n\n" +
-	"~> An apply also rolls out changes saved in the admin area but not rolled out yet. The plan does not show them."
+	"~> Changing `version` updates the Foundry. Its API can be briefly unavailable during the update."
 
 func optionalComputedString(description string, validators ...validator.String) schema.StringAttribute {
 	return schema.StringAttribute{
@@ -69,20 +83,71 @@ func optionalComputedString(description string, validators ...validator.String) 
 	}
 }
 
-func optionalComputedBool(description string) schema.BoolAttribute {
-	return schema.BoolAttribute{
-		MarkdownDescription: description,
+func settingString(description string) schema.StringAttribute {
+	return schema.StringAttribute{MarkdownDescription: description, Optional: true}
+}
+
+// A secret Terraform sends but never stores, with the version that sends it again when changed.
+// onChange says what a new version does.
+func writeOnlySecret(attributes map[string]schema.Attribute, name, description, onChange string) {
+	version := name + "_version"
+	attributes[name] = schema.StringAttribute{
+		MarkdownDescription: description + ". Write-only, needs Terraform 1.11 or later: it is not stored in the state. " + onChange,
 		Optional:            true,
-		Computed:            true,
-		PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
+		Sensitive:           true,
+		WriteOnly:           true,
+		Validators:          []validator.String{stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName(version))},
+	}
+	attributes[version] = schema.Int64Attribute{
+		MarkdownDescription: "Version of `" + name + "`, see there",
+		Optional:            true,
+		Validators:          []validator.Int64{int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName(name))},
 	}
 }
 
-func secretString(description string) schema.StringAttribute {
-	return schema.StringAttribute{
-		MarkdownDescription: description + ". The Foundry never returns it, so Terraform cannot see a change made outside of it",
+func foundryAuth0Attribute() schema.SingleNestedAttribute {
+	attributes := map[string]schema.Attribute{
+		"domain":    schema.StringAttribute{Required: true, MarkdownDescription: "Domain of the Auth0 tenant, for example `tenant.eu.auth0.com`"},
+		"client_id": schema.StringAttribute{Required: true, MarkdownDescription: "Client ID of the Auth0 application"},
+	}
+	writeOnlySecret(attributes, "client_secret_wo", "Client secret of the Auth0 application", "Change `client_secret_wo_version` to send a new one")
+	return schema.SingleNestedAttribute{
 		Optional:            true,
-		Sensitive:           true,
+		MarkdownDescription: "The Auth0 tenant users sign in through with `identity_provider = \"auth0\"`. Leave it out to keep the current settings",
+		Attributes:          attributes,
+	}
+}
+
+func foundryLetsencryptAttribute() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		Optional:            true,
+		MarkdownDescription: "Certificates from Let's Encrypt. Leave it out to keep the current settings",
+		Attributes: map[string]schema.Attribute{
+			"enabled": schema.BoolAttribute{
+				Required:            true,
+				MarkdownDescription: "Issue the certificates for the Foundry hostnames with Let's Encrypt's HTTP01 challenge. Port 80 of the Foundry VIP must be reachable from the internet",
+			},
+			"email": settingString("Email address Let's Encrypt sends expiry notices to"),
+			"staging": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+				MarkdownDescription: "Use the Let's Encrypt staging environment, whose certificates browsers do not trust. Defaults to `false`",
+			},
+		},
+	}
+}
+
+func foundrySentryAttribute() schema.SingleNestedAttribute {
+	attributes := map[string]schema.Attribute{
+		"enabled":     schema.BoolAttribute{Required: true, MarkdownDescription: "Report errors of the Foundry application to Sentry"},
+		"environment": settingString("Environment the errors are reported under, for example `production`"),
+	}
+	writeOnlySecret(attributes, "dsn_wo", "DSN of the Sentry project", "Change `dsn_wo_version` to send a new one")
+	return schema.SingleNestedAttribute{
+		Optional:            true,
+		MarkdownDescription: "Error reporting to Sentry. Leave it out to keep the current settings",
+		Attributes:          attributes,
 	}
 }
 
@@ -104,29 +169,18 @@ func foundryResourceAttributes() map[string]schema.Attribute {
 				"[Enable high availability](https://docs.meltcloud.io/tasks/foundry/enable-high-availability) in the admin area",
 			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-		"rails_log_level":   optionalComputedString("Log level of the Foundry application (web and worker)", stringvalidator.OneOf("debug", "info", "warn", "error", "fatal", "unknown")),
-		"identity_provider": optionalComputedString("How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin, for trials only", stringvalidator.OneOf("auth0", "dummy")),
-		"auth0_domain":      optionalComputedString("Domain of the Auth0 tenant, for example `tenant.eu.auth0.com`"),
-		"auth0_client_id":   optionalComputedString("Client ID of the Auth0 application"),
-		"auth0_client_secret": secretString(
-			"Client secret of the Auth0 application",
-		),
-		"sentry_enabled":     optionalComputedBool("Report errors to Sentry"),
-		"sentry_dsn":         secretString("DSN errors are reported to"),
-		"sentry_environment": optionalComputedString("Environment the errors are reported under"),
-		"letsencrypt_enabled": optionalComputedBool(
-			"Issue the certificates for the Foundry hostnames with Let's Encrypt's HTTP01 challenge. Port 80 of the Foundry VIP must be reachable from the internet",
-		),
-		"letsencrypt_email":   optionalComputedString("Email address Let's Encrypt sends expiry notices to"),
-		"letsencrypt_staging": optionalComputedBool("Use the Let's Encrypt staging environment, whose certificates browsers do not trust"),
+		"rails_log_level":    optionalComputedString("Log level of the Foundry application (web and worker)", stringvalidator.OneOf("debug", "info", "warn", "error", "fatal", "unknown")),
+		"identity_provider":  optionalComputedString("How users sign in: `auth0` through an Auth0 tenant, or `dummy`, which signs everyone in as admin, for trials only", stringvalidator.OneOf("auth0", "dummy")),
+		"auth0_config":       foundryAuth0Attribute(),
+		"letsencrypt_config": foundryLetsencryptAttribute(),
+		"sentry_config":      foundrySentryAttribute(),
 	}
 }
 
 func (r *FoundryResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: foundryDesc + "\n\n" +
-			"A setting left out keeps its value, and an empty string clears it.",
-		Attributes: foundryResourceAttributes(),
+		MarkdownDescription: foundryDesc,
+		Attributes:          foundryResourceAttributes(),
 	}
 }
 
@@ -177,13 +231,15 @@ func (r *FoundryResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *FoundryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data FoundryResourceModel
+	var data, config, state FoundryResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	r.apply(ctx, &data, resp.Diagnostics.AddError)
+	r.apply(ctx, &data, foundryUpdateInput(&data, &config, &state), resp.Diagnostics.AddError)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -209,12 +265,25 @@ func (r *FoundryResource) ImportState(ctx context.Context, req resource.ImportSt
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), result.Foundry.ID)...)
+	// The blocks of the settings in use are filled in, so a config that matches the Foundry plans no change.
+	foundry := result.Foundry
+	var data FoundryResourceModel
+	if foundry.Auth0Domain != "" {
+		data.Auth0Config = &FoundryAuth0Model{}
+	}
+	if foundry.LetsencryptEnabled {
+		data.LetsencryptConfig = &FoundryLetsencryptModel{}
+	}
+	if foundry.SentryEnabled {
+		data.SentryConfig = &FoundrySentryModel{}
+	}
+	setFoundryValues(foundry, &data)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 // Sends the settings and version, waits for the update, and reads the Foundry back into data.
-func (r *FoundryResource) apply(ctx context.Context, data *FoundryResourceModel, addError func(string, string)) {
-	result, err := r.client.Foundry().Update(ctx, foundryUpdateInput(data))
+func (r *FoundryResource) apply(ctx context.Context, data *FoundryResourceModel, input *client.FoundryUpdateInput, addError func(string, string)) {
+	result, err := r.client.Foundry().Update(ctx, input)
 	if err != nil {
 		addError("Client Error", fmt.Sprintf("Unable to update Foundry, got error: %s", err))
 		return
@@ -257,24 +326,36 @@ func knownBool(value types.Bool) *bool {
 	return value.ValueBoolPointer()
 }
 
-func foundryUpdateInput(data *FoundryResourceModel) *client.FoundryUpdateInput {
-	return &client.FoundryUpdateInput{
-		Version:            knownString(data.Version),
-		RailsLogLevel:      knownString(data.RailsLogLevel),
-		IdentityProvider:   knownString(data.IdentityProvider),
-		Auth0Domain:        knownString(data.Auth0Domain),
-		Auth0ClientID:      knownString(data.Auth0ClientID),
-		Auth0ClientSecret:  knownString(data.Auth0ClientSecret),
-		SentryEnabled:      knownBool(data.SentryEnabled),
-		SentryDSN:          knownString(data.SentryDSN),
-		SentryEnvironment:  knownString(data.SentryEnvironment),
-		LetsencryptEnabled: knownBool(data.LetsencryptEnabled),
-		LetsencryptEmail:   knownString(data.LetsencryptEmail),
-		LetsencryptStaging: knownBool(data.LetsencryptStaging),
+// A block left out sends nothing. A secret goes along only when its version changed.
+func foundryUpdateInput(data, config, state *FoundryResourceModel) *client.FoundryUpdateInput {
+	input := &client.FoundryUpdateInput{
+		Version:          knownString(data.Version),
+		RailsLogLevel:    knownString(data.RailsLogLevel),
+		IdentityProvider: knownString(data.IdentityProvider),
 	}
+	if auth0 := data.Auth0Config; auth0 != nil {
+		input.Auth0Domain = auth0.Domain.ValueStringPointer()
+		input.Auth0ClientID = auth0.ClientID.ValueStringPointer()
+		if config.Auth0Config != nil && (state.Auth0Config == nil || !auth0.ClientSecretWOVersion.Equal(state.Auth0Config.ClientSecretWOVersion)) {
+			input.Auth0ClientSecret = knownString(config.Auth0Config.ClientSecretWO)
+		}
+	}
+	if letsencrypt := data.LetsencryptConfig; letsencrypt != nil {
+		input.LetsencryptEnabled = letsencrypt.Enabled.ValueBoolPointer()
+		input.LetsencryptEmail = clearedIfNull(letsencrypt.Email)
+		input.LetsencryptStaging = knownBool(letsencrypt.Staging)
+	}
+	if sentry := data.SentryConfig; sentry != nil {
+		input.SentryEnabled = sentry.Enabled.ValueBoolPointer()
+		input.SentryEnvironment = clearedIfNull(sentry.Environment)
+		if config.SentryConfig != nil && (state.SentryConfig == nil || !sentry.DSNWOVersion.Equal(state.SentryConfig.DSNWOVersion)) {
+			input.SentryDSN = knownString(config.SentryConfig.DSNWO)
+		}
+	}
+	return input
 }
 
-// The secrets stay as they are in data: the Foundry does not return them.
+// Fills in only the blocks data has, so a block left out of the config stays unmanaged.
 func setFoundryValues(foundry *client.Foundry, data *FoundryResourceModel) {
 	data.ID = types.Int64Value(foundry.ID)
 	data.Status = types.StringValue(foundry.Status)
@@ -282,11 +363,32 @@ func setFoundryValues(foundry *client.Foundry, data *FoundryResourceModel) {
 	data.HATopology = types.StringValue(foundry.HATopology)
 	data.RailsLogLevel = types.StringValue(foundry.RailsLogLevel)
 	data.IdentityProvider = types.StringValue(foundry.IdentityProvider)
-	data.Auth0Domain = types.StringValue(foundry.Auth0Domain)
-	data.Auth0ClientID = types.StringValue(foundry.Auth0ClientID)
-	data.SentryEnabled = types.BoolValue(foundry.SentryEnabled)
-	data.SentryEnvironment = types.StringValue(foundry.SentryEnvironment)
-	data.LetsencryptEnabled = types.BoolValue(foundry.LetsencryptEnabled)
-	data.LetsencryptEmail = types.StringValue(foundry.LetsencryptEmail)
-	data.LetsencryptStaging = types.BoolValue(foundry.LetsencryptStaging)
+	if auth0 := data.Auth0Config; auth0 != nil {
+		auth0.Domain = types.StringValue(foundry.Auth0Domain)
+		auth0.ClientID = types.StringValue(foundry.Auth0ClientID)
+		auth0.ClientSecretWO = types.StringNull()
+	}
+	if letsencrypt := data.LetsencryptConfig; letsencrypt != nil {
+		letsencrypt.Enabled = types.BoolValue(foundry.LetsencryptEnabled)
+		letsencrypt.Email = emptyAsNull(foundry.LetsencryptEmail)
+		letsencrypt.Staging = types.BoolValue(foundry.LetsencryptStaging)
+	}
+	if sentry := data.SentryConfig; sentry != nil {
+		sentry.Enabled = types.BoolValue(foundry.SentryEnabled)
+		sentry.Environment = emptyAsNull(foundry.SentryEnvironment)
+		sentry.DSNWO = types.StringNull()
+	}
+}
+
+// An empty string makes the Foundry clear the setting.
+func clearedIfNull(value types.String) *string {
+	cleared := value.ValueString()
+	return &cleared
+}
+
+func emptyAsNull(value string) types.String {
+	if value == "" {
+		return types.StringNull()
+	}
+	return types.StringValue(value)
 }
