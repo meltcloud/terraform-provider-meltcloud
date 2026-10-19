@@ -118,14 +118,14 @@ func (nr *NestRequest) Update(ctx context.Context, version string) (*NestResult,
 
 func (nr *NestRequest) GetInstance(ctx context.Context, id int64) (*NestInstanceResult, *Error) {
 	return send[NestInstanceResult](ctx, nr.client.Get, &ClientRequest{
-		Path:   fmt.Sprintf("nest_instances/%d", id),
+		Path:   fmt.Sprintf("nest/nest_instances/%d", id),
 		Result: &NestInstanceResult{},
 	})
 }
 
 func (nr *NestRequest) GetInstanceByName(ctx context.Context, name string) (*NestInstanceResult, *Error) {
 	return send[NestInstanceResult](ctx, nr.client.Get, &ClientRequest{
-		Path:        fmt.Sprintf("nest_instances/%s", url.PathEscape(name)),
+		Path:        fmt.Sprintf("nest/nest_instances/%s", url.PathEscape(name)),
 		QueryParams: byName,
 		Result:      &NestInstanceResult{},
 	})
@@ -133,7 +133,7 @@ func (nr *NestRequest) GetInstanceByName(ctx context.Context, name string) (*Nes
 
 func (nr *NestRequest) CreateInstance(ctx context.Context, input *NestInstanceCreateInput) (*NestInstanceResult, *Error) {
 	return send[NestInstanceResult](ctx, nr.client.Post, &ClientRequest{
-		Path:   "nest_instances",
+		Path:   "nest/nest_instances",
 		Result: &NestInstanceResult{},
 		Body:   input,
 	})
@@ -142,21 +142,21 @@ func (nr *NestRequest) CreateInstance(ctx context.Context, input *NestInstanceCr
 // Only an instance that never joined the Nest or was reset can be deleted.
 func (nr *NestRequest) DeleteInstance(ctx context.Context, id int64) (*NestInstanceResult, *Error) {
 	return send[NestInstanceResult](ctx, nr.client.Delete, &ClientRequest{
-		Path:   fmt.Sprintf("nest_instances/%d", id),
+		Path:   fmt.Sprintf("nest/nest_instances/%d", id),
 		Result: &NestInstanceResult{},
 	})
 }
 
 func (nr *NestRequest) GetInstanceImage(ctx context.Context, instanceID, id int64) (*NestInstanceImageResult, *Error) {
 	return send[NestInstanceImageResult](ctx, nr.client.Get, &ClientRequest{
-		Path:   fmt.Sprintf("nest_instances/%d/images/%d", instanceID, id),
+		Path:   fmt.Sprintf("nest/nest_instances/%d/images/%d", instanceID, id),
 		Result: &NestInstanceImageResult{},
 	})
 }
 
 func (nr *NestRequest) GetInstanceImageByName(ctx context.Context, instanceID int64, name string) (*NestInstanceImageResult, *Error) {
 	return send[NestInstanceImageResult](ctx, nr.client.Get, &ClientRequest{
-		Path:        fmt.Sprintf("nest_instances/%d/images/%s", instanceID, url.PathEscape(name)),
+		Path:        fmt.Sprintf("nest/nest_instances/%d/images/%s", instanceID, url.PathEscape(name)),
 		QueryParams: byName,
 		Result:      &NestInstanceImageResult{},
 	})
@@ -165,7 +165,7 @@ func (nr *NestRequest) GetInstanceImageByName(ctx context.Context, instanceID in
 // Starts building the image; the operation is the build.
 func (nr *NestRequest) CreateInstanceImage(ctx context.Context, instanceID int64, input *NestInstanceImageCreateInput) (*NestInstanceImageResult, *Error) {
 	return send[NestInstanceImageResult](ctx, nr.client.Post, &ClientRequest{
-		Path:   fmt.Sprintf("nest_instances/%d/images", instanceID),
+		Path:   fmt.Sprintf("nest/nest_instances/%d/images", instanceID),
 		Result: &NestInstanceImageResult{},
 		Body:   input,
 	})
@@ -173,7 +173,7 @@ func (nr *NestRequest) CreateInstanceImage(ctx context.Context, instanceID int64
 
 func (nr *NestRequest) DeleteInstanceImage(ctx context.Context, instanceID, id int64) (*NestInstanceImageResult, *Error) {
 	return send[NestInstanceImageResult](ctx, nr.client.Delete, &ClientRequest{
-		Path:   fmt.Sprintf("nest_instances/%d/images/%d", instanceID, id),
+		Path:   fmt.Sprintf("nest/nest_instances/%d/images/%d", instanceID, id),
 		Result: &NestInstanceImageResult{},
 	})
 }
