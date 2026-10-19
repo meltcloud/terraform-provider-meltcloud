@@ -31,14 +31,14 @@ type NestInstanceImageResource struct {
 }
 
 type NestInstanceImageResourceModel struct {
-	ID             types.Int64       `tfsdk:"id"`
-	NestInstanceID types.Int64       `tfsdk:"nest_instance_id"`
-	Name           types.String      `tfsdk:"name"`
-	ExpiresAt      timetypes.RFC3339 `tfsdk:"expires_at"`
-	Status         types.String      `tfsdk:"status"`
-	LastUsedAt     timetypes.RFC3339 `tfsdk:"last_used_at"`
-	URLISOAMD64    types.String      `tfsdk:"url_iso_amd64"`
-	URLISOARM64    types.String      `tfsdk:"url_iso_arm64"`
+	ID               types.Int64       `tfsdk:"id"`
+	NestInstanceID   types.Int64       `tfsdk:"nest_instance_id"`
+	Name             types.String      `tfsdk:"name"`
+	ExpiresAt        timetypes.RFC3339 `tfsdk:"expires_at"`
+	Status           types.String      `tfsdk:"status"`
+	LastUsedAt       timetypes.RFC3339 `tfsdk:"last_used_at"`
+	HTTPSURLISOAMD64 types.String      `tfsdk:"https_url_iso_amd64"`
+	HTTPSURLISOARM64 types.String      `tfsdk:"https_url_iso_arm64"`
 }
 
 func (r *NestInstanceImageResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -79,15 +79,15 @@ func (r *NestInstanceImageResource) Schema(ctx context.Context, req resource.Sch
 				Computed:            true,
 				MarkdownDescription: "Timestamp when an install last used the image",
 			},
-			"url_iso_amd64": schema.StringAttribute{
+			"https_url_iso_amd64": schema.StringAttribute{
 				Computed:            true,
 				Sensitive:           true,
-				MarkdownDescription: "URL to download the ISO for amd64 machines. It carries a download token",
+				MarkdownDescription: "URL to download the ISO for AMD64 via HTTPS",
 			},
-			"url_iso_arm64": schema.StringAttribute{
+			"https_url_iso_arm64": schema.StringAttribute{
 				Computed:            true,
 				Sensitive:           true,
-				MarkdownDescription: "URL to download the ISO for arm64 machines. It carries a download token",
+				MarkdownDescription: "URL to download the ISO for ARM64 via HTTPS",
 			},
 		},
 	}
@@ -229,6 +229,6 @@ func setNestInstanceImageValues(image *client.NestInstanceImage, data *NestInsta
 	data.ExpiresAt = timetypes.NewRFC3339TimeValue(image.ExpiresAt.UTC())
 	data.Status = types.StringValue(image.Status)
 	data.LastUsedAt = timetypes.NewRFC3339TimePointerValue(image.LastUsedAt)
-	data.URLISOAMD64 = types.StringPointerValue(image.URLISOAMD64)
-	data.URLISOARM64 = types.StringPointerValue(image.URLISOARM64)
+	data.HTTPSURLISOAMD64 = types.StringPointerValue(image.HTTPSURLISOAMD64)
+	data.HTTPSURLISOARM64 = types.StringPointerValue(image.HTTPSURLISOARM64)
 }

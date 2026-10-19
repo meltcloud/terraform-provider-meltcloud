@@ -24,7 +24,7 @@ resource "meltcloud_nest_instance_image" "nest_1" {
 
 # boot the machine from the ISO, for example through its BMC
 output "nest_1_iso" {
-  value     = meltcloud_nest_instance_image.nest_1.url_iso_amd64
+  value     = meltcloud_nest_instance_image.nest_1.https_url_iso_amd64
   sensitive = true
 }
 ```
@@ -40,11 +40,11 @@ output "nest_1_iso" {
 
 ### Read-Only
 
+- `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for AMD64 via HTTPS
+- `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for ARM64 via HTTPS
 - `id` (Number) Internal ID of the image on meltcloud
 - `last_used_at` (String) Timestamp when an install last used the image
 - `status` (String) Status of the image: `pending` while it builds, then `ready`
-- `url_iso_amd64` (String, Sensitive) URL to download the ISO for amd64 machines. It carries a download token
-- `url_iso_arm64` (String, Sensitive) URL to download the ISO for arm64 machines. It carries a download token
 
 ## Import
 

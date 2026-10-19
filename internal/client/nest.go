@@ -84,14 +84,14 @@ type NestInstanceImageResult struct {
 
 // The URLs are set once the image is built, and carry its download token.
 type NestInstanceImage struct {
-	ID             int64      `json:"id"`
-	NestInstanceID int64      `json:"nest_instance_id"`
-	Name           string     `json:"name"`
-	Status         string     `json:"status"`
-	ExpiresAt      time.Time  `json:"expires_at"`
-	LastUsedAt     *time.Time `json:"last_used_at"`
-	URLISOAMD64    *string    `json:"url_iso_amd64"`
-	URLISOARM64    *string    `json:"url_iso_arm64"`
+	ID               int64      `json:"id"`
+	NestInstanceID   int64      `json:"nest_instance_id"`
+	Name             string     `json:"name"`
+	Status           string     `json:"status"`
+	ExpiresAt        time.Time  `json:"expires_at"`
+	LastUsedAt       *time.Time `json:"last_used_at"`
+	HTTPSURLISOAMD64 *string    `json:"https_url_iso_amd64"`
+	HTTPSURLISOARM64 *string    `json:"https_url_iso_arm64"`
 }
 
 type NestInstanceImageCreateInput struct {
