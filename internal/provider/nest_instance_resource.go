@@ -171,22 +171,23 @@ func bfdChanged(state, plan *NestInstanceBFDModel) bool {
 
 const diskDeviceHint = "Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots"
 
+// disk is "boot" or "etcd".
 func mirrorAttributes(disk string) map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"mirror": schema.BoolAttribute{
-			MarkdownDescription: "Mirror the " + disk + " onto a second device. Defaults to `false`",
+			MarkdownDescription: "Mirror the " + disk + " disk onto a second device. Defaults to `false`",
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(false),
 		},
-		"mirror_device": schema.StringAttribute{MarkdownDescription: "Device the " + disk + " is mirrored to. Only with `mirror`", Optional: true},
+		"mirror_device": schema.StringAttribute{MarkdownDescription: "Block device to use as the " + disk + " mirror disk. Only with `mirror`", Optional: true},
 	}
 }
 
 func bootDiskAttribute() schema.SingleNestedAttribute {
-	attributes := mirrorAttributes("boot disk")
+	attributes := mirrorAttributes("boot")
 	attributes["device"] = schema.StringAttribute{
-		MarkdownDescription: "Device the OS is installed to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. " + diskDeviceHint,
+		MarkdownDescription: "Block device to install the OS to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. " + diskDeviceHint,
 		Required:            true,
 	}
 	return schema.SingleNestedAttribute{
@@ -198,11 +199,11 @@ func bootDiskAttribute() schema.SingleNestedAttribute {
 }
 
 func etcdDiskAttribute() schema.SingleNestedAttribute {
-	attributes := mirrorAttributes("etcd disk")
+	attributes := mirrorAttributes("etcd")
 	attributes["enabled"] = schema.BoolAttribute{MarkdownDescription: "Keep etcd on a disk of its own", Required: true}
-	attributes["device"] = schema.StringAttribute{MarkdownDescription: "Device etcd is kept on. Only with `enabled`. " + diskDeviceHint, Optional: true}
+	attributes["device"] = schema.StringAttribute{MarkdownDescription: "Block device to use for etcd. Only with `enabled`. " + diskDeviceHint, Optional: true}
 	return schema.SingleNestedAttribute{
-		MarkdownDescription: "A disk of its own for etcd. Leave it out to keep etcd on the boot disk. Changing it replaces the instance",
+		MarkdownDescription: "A dedicated disk for etcd. Leave it out to keep etcd on the boot disk. Changing it replaces the instance",
 		Optional:            true,
 		Computed:            true,
 		Default: objectdefault.StaticValue(types.ObjectValueMust(etcdDiskObjectType.AttrTypes, map[string]attr.Value{

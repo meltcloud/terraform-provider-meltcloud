@@ -81,7 +81,7 @@ resource "meltcloud_nest_instance" "nest_2" {
 ### Optional
 
 - `bgp` (Attributes) BGP peering of the instance. Needed when the Nest uses BGP. Changing it replaces the instance (see [below for nested schema](#nestedatt--bgp))
-- `etcd_disk` (Attributes) A disk of its own for etcd. Leave it out to keep etcd on the boot disk. Changing it replaces the instance (see [below for nested schema](#nestedatt--etcd_disk))
+- `etcd_disk` (Attributes) A dedicated disk for etcd. Leave it out to keep etcd on the boot disk. Changing it replaces the instance (see [below for nested schema](#nestedatt--etcd_disk))
 
 ### Read-Only
 
@@ -96,12 +96,12 @@ resource "meltcloud_nest_instance" "nest_2" {
 
 Required:
 
-- `device` (String) Device the OS is installed to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
+- `device` (String) Block device to install the OS to, for example `/dev/disk/by-path/pci-0000:00:17.0-ata-1`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
 
 Optional:
 
 - `mirror` (Boolean) Mirror the boot disk onto a second device. Defaults to `false`
-- `mirror_device` (String) Device the boot disk is mirrored to. Only with `mirror`
+- `mirror_device` (String) Block device to use as the boot mirror disk. Only with `mirror`
 
 
 <a id="nestedatt--ip_addresses"></a>
@@ -157,9 +157,9 @@ Required:
 
 Optional:
 
-- `device` (String) Device etcd is kept on. Only with `enabled`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
+- `device` (String) Block device to use for etcd. Only with `enabled`. Use a `/dev/disk/by-path/` path rather than a kernel name such as `/dev/sda`, which can change between boots
 - `mirror` (Boolean) Mirror the etcd disk onto a second device. Defaults to `false`
-- `mirror_device` (String) Device the etcd disk is mirrored to. Only with `mirror`
+- `mirror_device` (String) Block device to use as the etcd mirror disk. Only with `mirror`
 
 ## Import
 

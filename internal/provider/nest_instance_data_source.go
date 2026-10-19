@@ -87,19 +87,19 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 				MarkdownDescription: "The boot disk of the instance",
 				Attributes: map[string]schema.Attribute{
-					"device":        computedStr("Device the OS is installed to"),
+					"device":        computedStr("Block device the OS is installed to"),
 					"mirror":        computedBool("Whether the boot disk is mirrored"),
-					"mirror_device": computedStr("Device the boot disk is mirrored to"),
+					"mirror_device": computedStr("Block device used as the boot mirror disk"),
 				},
 			},
 			"etcd_disk": schema.SingleNestedAttribute{
 				Computed:            true,
-				MarkdownDescription: "The disk etcd is kept on",
+				MarkdownDescription: "The dedicated etcd disk of the instance",
 				Attributes: map[string]schema.Attribute{
-					"enabled":       computedBool("Whether etcd is kept on a disk of its own"),
-					"device":        computedStr("Device etcd is kept on"),
+					"enabled":       computedBool("Whether etcd is on a disk of its own"),
+					"device":        computedStr("Block device used for etcd"),
 					"mirror":        computedBool("Whether the etcd disk is mirrored"),
-					"mirror_device": computedStr("Device the etcd disk is mirrored to"),
+					"mirror_device": computedStr("Block device used as the etcd mirror disk"),
 				},
 			},
 			"bgp": schema.SingleNestedAttribute{
