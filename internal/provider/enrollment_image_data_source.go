@@ -36,8 +36,8 @@ type EnrollmentImageDataSourceModel struct {
 	EnableHTTP                types.Bool        `tfsdk:"enable_http"`
 	HTTPURLISOAMD64           types.String      `tfsdk:"http_url_iso_amd64"`
 	HTTPURLISOARM64           types.String      `tfsdk:"http_url_iso_arm64"`
-	HTTPSURLISOAMD64          types.String      `tfsdk:"https_url_iso_arm64"`
-	HTTPSURLISOARM64          types.String      `tfsdk:"https_url_iso_amd64"`
+	HTTPSURLISOAMD64          types.String      `tfsdk:"https_url_iso_amd64"`
+	HTTPSURLISOARM64          types.String      `tfsdk:"https_url_iso_arm64"`
 	LastUsedAt                timetypes.RFC3339 `tfsdk:"last_used_at"`
 }
 

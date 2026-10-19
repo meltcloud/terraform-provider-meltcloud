@@ -33,8 +33,8 @@ type EnrollmentImage struct {
 	EnableHTTP                bool       `json:"enable_http"`
 	HTTPURLISOAMD64           string     `json:"http_url_iso_amd64"`
 	HTTPURLISOARM64           string     `json:"http_url_iso_arm64"`
-	HTTPSURLISOAMD64          string     `json:"https_url_iso_arm64"`
-	HTTPSURLISOARM64          string     `json:"https_url_iso_amd64"`
+	HTTPSURLISOAMD64          string     `json:"https_url_iso_amd64"`
+	HTTPSURLISOARM64          string     `json:"https_url_iso_arm64"`
 	LastUsedAt                *time.Time `json:"last_used_at"`
 }
 
