@@ -82,12 +82,12 @@ func (r *NestInstanceImageResource) Schema(ctx context.Context, req resource.Sch
 			"https_url_iso_amd64": schema.StringAttribute{
 				Computed:            true,
 				Sensitive:           true,
-				MarkdownDescription: "URL to download the ISO for AMD64 via HTTPS",
+				MarkdownDescription: "URL to download the ISO for amd64 via HTTPS",
 			},
 			"https_url_iso_arm64": schema.StringAttribute{
 				Computed:            true,
 				Sensitive:           true,
-				MarkdownDescription: "URL to download the ISO for ARM64 via HTTPS",
+				MarkdownDescription: "URL to download the ISO for arm64 via HTTPS",
 			},
 		},
 	}

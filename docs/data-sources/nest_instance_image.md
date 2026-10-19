@@ -34,7 +34,7 @@ data "meltcloud_nest_instance_image" "nest_1" {
 ### Read-Only
 
 - `expires_at` (String) Timestamp after which the image can no longer be used for installation
-- `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for AMD64 via HTTPS
-- `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for ARM64 via HTTPS
+- `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for amd64 via HTTPS
+- `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for arm64 via HTTPS
 - `last_used_at` (String) Timestamp when an install last used the image
 - `status` (String) Status of the image: `pending` while it builds, then `ready`
