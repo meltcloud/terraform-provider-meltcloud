@@ -111,7 +111,7 @@ func foundryAuth0Attribute() schema.SingleNestedAttribute {
 	writeOnlySecret(attributes, "client_secret_wo", "Client secret of the Auth0 application", "Change `client_secret_wo_version` to send a new one")
 	return schema.SingleNestedAttribute{
 		Optional:            true,
-		MarkdownDescription: "The Auth0 tenant users sign in through with `identity_provider = \"auth0\"`. Leave it out to keep the current settings",
+		MarkdownDescription: "The Auth0 tenant that users sign in through if `identity_provider = \"auth0\"`. Leave it out to keep the current settings",
 		Attributes:          attributes,
 	}
 }
