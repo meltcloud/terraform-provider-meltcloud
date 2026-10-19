@@ -3,12 +3,12 @@
 page_title: "meltcloud_foundry Data Source - meltcloud"
 subcategory: ""
 description: |-
-  The Foundry https://docs.meltcloud.io/concepts/nest/overview#foundry, the meltcloud management plane that runs on the Nest. Needs the API Key of the admin Organization. The secrets are never returned.
+  The Foundry https://docs.meltcloud.io/concepts/nest/overview#foundry is the meltcloud management plane that runs on the Nest. Needs the API Key of the admin Organization.
 ---
 
 # meltcloud_foundry (Data Source)
 
-The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry), the meltcloud management plane that runs on the Nest. Needs the API Key of the admin Organization. The secrets are never returned.
+The [Foundry](https://docs.meltcloud.io/concepts/nest/overview#foundry) is the meltcloud management plane that runs on the Nest. Needs the API Key of the admin Organization.
 
 ## Example Usage
 
