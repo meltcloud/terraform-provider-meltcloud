@@ -3,7 +3,7 @@
 page_title: "meltcloud_nest_instance Resource - meltcloud"
 subcategory: ""
 description: |-
-  A Nest Instance https://docs.meltcloud.io/tasks/nest/create-instance is one host of the Nest. It installs and joins the Nest once the host boots from a meltcloud_nest_instance_image; status turns from installing to ready then.
+  To add a host as Nest Instance https://docs.meltcloud.io/tasks/nest/create-instance, create it, then boot the host from a meltcloud_nest_instance_image. status turns from installing to ready once it has joined the Nest.
   Needs the API Key of the admin Organization. A Nest has at most seven instances.
   ~> Only an instance that has not joined the Nest can be destroyed. To take out one that has, reset https://docs.meltcloud.io/tasks/nest/reset-instance it in the admin area first; it is removed then.
   ~> After an instance joins, enable high availability https://docs.meltcloud.io/tasks/foundry/enable-high-availability on a single-instance Foundry once three instances are ready, or rebalance https://docs.meltcloud.io/tasks/foundry/rebalance a highly available one, in the admin area.
@@ -11,7 +11,7 @@ description: |-
 
 # meltcloud_nest_instance (Resource)
 
-A [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance) is one host of the Nest. It installs and joins the Nest once the host boots from a `meltcloud_nest_instance_image`; `status` turns from `installing` to `ready` then.
+To add a host as [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance), create it, then boot the host from a `meltcloud_nest_instance_image`. `status` turns from `installing` to `ready` once it has joined the Nest.
 
 Needs the API Key of the admin Organization. A Nest has at most seven instances.
 

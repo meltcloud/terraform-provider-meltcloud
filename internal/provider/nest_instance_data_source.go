@@ -65,7 +65,7 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 	}
 
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance) is one host of the Nest. Needs the API Key of the admin Organization.",
+		MarkdownDescription: "A host added to the Nest as [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance). Needs the API Key of the admin Organization.",
 		Attributes: withLookupAttributes(map[string]schema.Attribute{
 			"nest_id":            computedInt64("ID of the Nest the instance belongs to"),
 			"zone_id":            computedInt64("ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the instance is in"),

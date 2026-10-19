@@ -3,12 +3,12 @@
 page_title: "meltcloud_nest_instance Data Source - meltcloud"
 subcategory: ""
 description: |-
-  A Nest Instance https://docs.meltcloud.io/tasks/nest/create-instance is one host of the Nest. Needs the API Key of the admin Organization.
+  A host added to the Nest as Nest Instance https://docs.meltcloud.io/tasks/nest/create-instance. Needs the API Key of the admin Organization.
 ---
 
 # meltcloud_nest_instance (Data Source)
 
-A [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance) is one host of the Nest. Needs the API Key of the admin Organization.
+A host added to the Nest as [Nest Instance](https://docs.meltcloud.io/tasks/nest/create-instance). Needs the API Key of the admin Organization.
 
 ## Example Usage
 
