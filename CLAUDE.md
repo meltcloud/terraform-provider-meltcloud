@@ -11,3 +11,4 @@
 - Make secrets write-only: `<name>_wo` with `<name>_wo_version`. Don't use `Sensitive` for them, Terraform still stores those in the state.
 - Use a list, not a set, for objects with a secret. A set can't hold write-only attributes.
 - Take the wording of descriptions from the docs and the foundry UI, and link the docs page.
+- If every change replaces a resource, say so once in its description. Say it on an attribute only if that attribute replaces a resource that otherwise updates in place.
