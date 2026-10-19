@@ -63,11 +63,12 @@ type NestInstanceBGPModel struct {
 }
 
 type NestInstanceBGPPeerModel struct {
-	IP       types.String          `tfsdk:"ip"`
-	ASN      types.Int64           `tfsdk:"asn"`
-	Password types.String          `tfsdk:"password"`
-	Multihop types.Bool            `tfsdk:"multihop"`
-	BFD      *NestInstanceBFDModel `tfsdk:"bfd"`
+	IP                types.String          `tfsdk:"ip"`
+	ASN               types.Int64           `tfsdk:"asn"`
+	PasswordWO        types.String          `tfsdk:"password_wo"`
+	PasswordWOVersion types.Int64           `tfsdk:"password_wo_version"`
+	Multihop          types.Bool            `tfsdk:"multihop"`
+	BFD               *NestInstanceBFDModel `tfsdk:"bfd"`
 }
 
 type NestInstanceBFDModel struct {
@@ -118,8 +119,8 @@ func computedString(description string) schema.StringAttribute {
 	return schema.StringAttribute{MarkdownDescription: description, Computed: true}
 }
 
-// The instance has no update, so any change to BGP replaces it. A password is the exception while the
-// state does not know it, as after an import.
+// The instance has no update, so any change to BGP replaces it. A password version is the exception while
+// the state has none, as after an import.
 func bgpRequiresReplace(ctx context.Context, req planmodifier.ObjectRequest, resp *objectplanmodifier.RequiresReplaceIfFuncResponse) {
 	if req.StateValue.IsNull() || req.PlanValue.IsNull() {
 		resp.RequiresReplace = req.StateValue.IsNull() != req.PlanValue.IsNull()
@@ -149,7 +150,7 @@ func bgpChanged(state, plan NestInstanceBGPModel) bool {
 		if !ok || p.IP.IsUnknown() || !s.ASN.Equal(p.ASN) || !s.Multihop.Equal(p.Multihop) || bfdChanged(s.BFD, p.BFD) {
 			return true
 		}
-		if !s.Password.IsNull() && !s.Password.Equal(p.Password) {
+		if !s.PasswordWOVersion.IsNull() && !s.PasswordWOVersion.Equal(p.PasswordWOVersion) {
 			return true
 		}
 	}
@@ -170,6 +171,27 @@ func optionalInt64(description string) schema.Int64Attribute {
 }
 
 func bgpAttribute() schema.SingleNestedAttribute {
+	peer := map[string]schema.Attribute{
+		"ip":  schema.StringAttribute{MarkdownDescription: "IP address of the peer", Required: true},
+		"asn": schema.Int64Attribute{MarkdownDescription: "ASN of the peer", Required: true},
+		"multihop": schema.BoolAttribute{
+			MarkdownDescription: "Enable if the peer is not directly connected (more than one hop away). Defaults to `false`",
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
+		},
+		"bfd": schema.SingleNestedAttribute{
+			MarkdownDescription: "Enables BFD on the session. Timings left out keep the defaults",
+			Optional:            true,
+			Attributes: map[string]schema.Attribute{
+				"receive_interval":  optionalInt64("Receive interval in milliseconds"),
+				"transmit_interval": optionalInt64("Transmit interval in milliseconds"),
+				"detect_multiplier": optionalInt64("Detect multiplier"),
+			},
+		},
+	}
+	writeOnlySecret(peer, "password_wo", "Password of the BGP session",
+		"Changing `password_wo_version` replaces the instance. On an imported instance, set it to the password in use: the first version is recorded without a replace")
 	return schema.SingleNestedAttribute{
 		MarkdownDescription: "BGP peering of the instance. Needed when the Nest uses BGP. Changing it replaces the instance",
 		Optional:            true,
@@ -180,32 +202,7 @@ func bgpAttribute() schema.SingleNestedAttribute {
 			"peers": schema.ListNestedAttribute{
 				MarkdownDescription: "The BGP peers of the instance, each with its own address",
 				Required:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"ip":  schema.StringAttribute{MarkdownDescription: "IP address of the peer", Required: true},
-						"asn": schema.Int64Attribute{MarkdownDescription: "ASN of the peer", Required: true},
-						"password": schema.StringAttribute{
-							MarkdownDescription: "Password of the BGP session. It is never read back, so on an imported instance set it to the one in use",
-							Optional:            true,
-							Sensitive:           true,
-						},
-						"multihop": schema.BoolAttribute{
-							MarkdownDescription: "Enable if the peer is not directly connected (more than one hop away). Defaults to `false`",
-							Optional:            true,
-							Computed:            true,
-							Default:             booldefault.StaticBool(false),
-						},
-						"bfd": schema.SingleNestedAttribute{
-							MarkdownDescription: "Enables BFD on the session. Timings left out keep the defaults",
-							Optional:            true,
-							Attributes: map[string]schema.Attribute{
-								"receive_interval":  optionalInt64("Receive interval in milliseconds"),
-								"transmit_interval": optionalInt64("Transmit interval in milliseconds"),
-								"detect_multiplier": optionalInt64("Detect multiplier"),
-							},
-						},
-					},
-				},
+				NestedObject:        schema.NestedAttributeObject{Attributes: peer},
 			},
 		},
 	}
@@ -270,8 +267,9 @@ func (r *NestInstanceResource) Configure(ctx context.Context, req resource.Confi
 }
 
 func (r *NestInstanceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data NestInstanceResourceModel
+	var data, config NestInstanceResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -297,7 +295,7 @@ func (r *NestInstanceResource) Create(ctx context.Context, req resource.CreateRe
 	}
 	if data.BGP != nil {
 		input.BGPLocalASN = data.BGP.LocalASN.ValueInt64Pointer()
-		input.BGPPeers = bgpPeersInput(data.BGP.Peers)
+		input.BGPPeers = bgpPeersInput(data.BGP.Peers, config.BGP.Peers)
 	}
 
 	result, err := r.client.Nest().CreateInstance(ctx, input)
@@ -332,8 +330,8 @@ func (r *NestInstanceResource) Read(ctx context.Context, req resource.ReadReques
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// Every other change replaces the instance, so an update only sets BGP passwords the state did not know
-// or the order of the peers.
+// Every other change replaces the instance, so an update only records a first password version or the
+// order of the peers.
 func (r *NestInstanceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state NestInstanceResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -377,13 +375,14 @@ func (r *NestInstanceResource) ImportState(ctx context.Context, req resource.Imp
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
 }
 
-func bgpPeersInput(peers []NestInstanceBGPPeerModel) []client.BGPPeer {
+// The passwords come from the config: being write-only, the plan has none.
+func bgpPeersInput(peers, configPeers []NestInstanceBGPPeerModel) []client.BGPPeer {
 	input := []client.BGPPeer{}
-	for _, peer := range peers {
+	for i, peer := range peers {
 		p := client.BGPPeer{
 			IP:       peer.IP.ValueString(),
 			ASN:      peer.ASN.ValueInt64(),
-			Password: peer.Password.ValueStringPointer(),
+			Password: knownString(configPeers[i].PasswordWO),
 			Multihop: peer.Multihop.ValueBool(),
 			BFD:      peer.BFD != nil,
 		}
@@ -397,30 +396,31 @@ func bgpPeersInput(peers []NestInstanceBGPPeerModel) []client.BGPPeer {
 	return input
 }
 
-// The API never returns the passwords, so they come from known, matched to the peers by address.
+// The API never returns the passwords, so their versions come from known, matched to the peers by address.
 func bgpValues(instance *client.NestInstance, known *NestInstanceBGPModel) *NestInstanceBGPModel {
 	if instance.BGPLocalASN == nil && len(instance.BGPPeers) == 0 {
 		return nil
 	}
 
-	passwords := map[string]types.String{}
+	versions := map[string]types.Int64{}
 	if known != nil {
 		for _, peer := range known.Peers {
-			passwords[peer.IP.ValueString()] = peer.Password
+			versions[peer.IP.ValueString()] = peer.PasswordWOVersion
 		}
 	}
 
 	bgp := &NestInstanceBGPModel{LocalASN: types.Int64PointerValue(instance.BGPLocalASN), Peers: []NestInstanceBGPPeerModel{}}
 	for _, peer := range instance.BGPPeers {
-		password, ok := passwords[peer.IP]
+		version, ok := versions[peer.IP]
 		if !ok {
-			password = types.StringNull()
+			version = types.Int64Null()
 		}
 		model := NestInstanceBGPPeerModel{
-			IP:       types.StringValue(peer.IP),
-			ASN:      types.Int64Value(peer.ASN),
-			Password: password,
-			Multihop: types.BoolValue(peer.Multihop),
+			IP:                types.StringValue(peer.IP),
+			ASN:               types.Int64Value(peer.ASN),
+			PasswordWO:        types.StringNull(),
+			PasswordWOVersion: version,
+			Multihop:          types.BoolValue(peer.Multihop),
 		}
 		if peer.BFD {
 			model.BFD = &NestInstanceBFDModel{

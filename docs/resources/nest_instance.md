@@ -48,7 +48,7 @@ resource "meltcloud_nest_instance" "nest_2" {
   bgp = {
     local_asn = 65012
     peers = [
-      { ip = "10.0.10.1", asn = 65000, password = var.bgp_password, bfd = {} },
+      { ip = "10.0.10.1", asn = 65000, password_wo = var.bgp_password, password_wo_version = 1, bfd = {} },
     ]
   }
 }
@@ -112,7 +112,8 @@ Optional:
 
 - `bfd` (Attributes) Enables BFD on the session. Timings left out keep the defaults (see [below for nested schema](#nestedatt--bgp--peers--bfd))
 - `multihop` (Boolean) Enable if the peer is not directly connected (more than one hop away). Defaults to `false`
-- `password` (String, Sensitive) Password of the BGP session. It is never read back, so on an imported instance set it to the one in use
+- `password_wo` (String, Sensitive) Password of the BGP session. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Changing `password_wo_version` replaces the instance. On an imported instance, set it to the password in use: the first version is recorded without a replace
+- `password_wo_version` (Number) Version of `password_wo`, see there
 
 <a id="nestedatt--bgp--peers--bfd"></a>
 ### Nested Schema for `bgp.peers.bfd`

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func TestBGPValuesKeepKnownPasswords(t *testing.T) {
+func TestBGPValuesKeepKnownPasswordVersions(t *testing.T) {
 	asn, multiplier := int64(65012), int64(5)
 	instance := &client.NestInstance{
 		BGPLocalASN: &asn,
@@ -18,7 +18,7 @@ func TestBGPValuesKeepKnownPasswords(t *testing.T) {
 		},
 	}
 	known := &NestInstanceBGPModel{Peers: []NestInstanceBGPPeerModel{
-		{IP: types.StringValue("10.0.10.1"), Password: types.StringValue("secret")},
+		{IP: types.StringValue("10.0.10.1"), PasswordWOVersion: types.Int64Value(2)},
 	}}
 
 	bgp := bgpValues(instance, known)
@@ -27,8 +27,11 @@ func TestBGPValuesKeepKnownPasswords(t *testing.T) {
 		t.Fatalf("got %+v; want local ASN %d and two peers", bgp, asn)
 	}
 	first, second := bgp.Peers[0], bgp.Peers[1]
-	if first.IP.ValueString() != "10.0.10.1" || first.Password.ValueString() != "secret" || !second.Password.IsNull() {
-		t.Errorf("got %v with %v, then %v; want the known peer first with its password", first.IP, first.Password, second.Password)
+	if first.IP.ValueString() != "10.0.10.1" || first.PasswordWOVersion.ValueInt64() != 2 || !second.PasswordWOVersion.IsNull() {
+		t.Errorf("got %v with %v, then %v; want the known peer first with its password version", first.IP, first.PasswordWOVersion, second.PasswordWOVersion)
+	}
+	if !first.PasswordWO.IsNull() {
+		t.Errorf("got password %v; want none, as it is write-only", first.PasswordWO)
 	}
 	if second.BFD == nil || second.BFD.DetectMultiplier.ValueInt64() != multiplier || !second.BFD.ReceiveInterval.IsNull() {
 		t.Errorf("bfd: got %+v; want detect multiplier %d only", second.BFD, multiplier)
@@ -58,29 +61,31 @@ func TestBGPValuesWithoutBGP(t *testing.T) {
 }
 
 func TestBGPPeersInput(t *testing.T) {
-	peers := bgpPeersInput([]NestInstanceBGPPeerModel{{
-		IP: types.StringValue("10.0.10.1"), ASN: types.Int64Value(65000), Password: types.StringNull(),
+	planned := NestInstanceBGPPeerModel{
+		IP: types.StringValue("10.0.10.1"), ASN: types.Int64Value(65000), PasswordWO: types.StringNull(),
 		Multihop: types.BoolValue(true), BFD: &NestInstanceBFDModel{ReceiveInterval: types.Int64Value(300)},
-	}})
+	}
+	configured := planned
+	configured.PasswordWO = types.StringValue("secret")
 
-	peer := peers[0]
-	if peer.Password != nil || !peer.Multihop || !peer.BFD || *peer.BFDReceiveInterval != 300 || peer.BFDTransmitInterval != nil {
-		t.Errorf("got %+v; want no password, multihop, BFD with only the receive interval", peer)
+	peer := bgpPeersInput([]NestInstanceBGPPeerModel{planned}, []NestInstanceBGPPeerModel{configured})[0]
+	if peer.Password == nil || *peer.Password != "secret" || !peer.Multihop || !peer.BFD || *peer.BFDReceiveInterval != 300 || peer.BFDTransmitInterval != nil {
+		t.Errorf("got %+v; want the configured password, multihop, BFD with only the receive interval", peer)
 	}
 }
 
 func TestBGPChanged(t *testing.T) {
-	peer := func(ip, password string) NestInstanceBGPPeerModel {
-		p := NestInstanceBGPPeerModel{IP: types.StringValue(ip), ASN: types.Int64Value(65000), Multihop: types.BoolValue(false), Password: types.StringNull()}
-		if password != "" {
-			p.Password = types.StringValue(password)
+	peer := func(ip string, passwordVersion int64) NestInstanceBGPPeerModel {
+		p := NestInstanceBGPPeerModel{IP: types.StringValue(ip), ASN: types.Int64Value(65000), Multihop: types.BoolValue(false), PasswordWOVersion: types.Int64Null()}
+		if passwordVersion != 0 {
+			p.PasswordWOVersion = types.Int64Value(passwordVersion)
 		}
 		return p
 	}
 	bgp := func(peers ...NestInstanceBGPPeerModel) NestInstanceBGPModel {
 		return NestInstanceBGPModel{LocalASN: types.Int64Value(65010), Peers: peers}
 	}
-	withBFD := peer("10.0.10.2", "")
+	withBFD := peer("10.0.10.2", 0)
 	withBFD.BFD = &NestInstanceBFDModel{ReceiveInterval: types.Int64Value(300)}
 
 	tests := []struct {
@@ -88,12 +93,13 @@ func TestBGPChanged(t *testing.T) {
 		state, plan  NestInstanceBGPModel
 		wantReplaced bool
 	}{
-		{"same peers in another order", bgp(peer("10.0.10.1", "a"), peer("10.0.10.2", "")), bgp(peer("10.0.10.2", ""), peer("10.0.10.1", "a")), false},
-		{"password the state does not know", bgp(peer("10.0.10.1", "")), bgp(peer("10.0.10.1", "a")), false},
-		{"changed password", bgp(peer("10.0.10.1", "a")), bgp(peer("10.0.10.1", "b")), true},
-		{"another peer", bgp(peer("10.0.10.1", "")), bgp(peer("10.0.10.3", "")), true},
-		{"added peer", bgp(peer("10.0.10.1", "")), bgp(peer("10.0.10.1", ""), peer("10.0.10.2", "")), true},
-		{"BFD turned on", bgp(peer("10.0.10.2", "")), bgp(withBFD), true},
+		{"same peers in another order", bgp(peer("10.0.10.1", 1), peer("10.0.10.2", 0)), bgp(peer("10.0.10.2", 0), peer("10.0.10.1", 1)), false},
+		{"password version the state does not know", bgp(peer("10.0.10.1", 0)), bgp(peer("10.0.10.1", 1)), false},
+		{"changed password version", bgp(peer("10.0.10.1", 1)), bgp(peer("10.0.10.1", 2)), true},
+		{"password removed", bgp(peer("10.0.10.1", 1)), bgp(peer("10.0.10.1", 0)), true},
+		{"another peer", bgp(peer("10.0.10.1", 0)), bgp(peer("10.0.10.3", 0)), true},
+		{"added peer", bgp(peer("10.0.10.1", 0)), bgp(peer("10.0.10.1", 0), peer("10.0.10.2", 0)), true},
+		{"BFD turned on", bgp(peer("10.0.10.2", 0)), bgp(withBFD), true},
 		{"changed local ASN", bgp(), NestInstanceBGPModel{LocalASN: types.Int64Value(65011)}, true},
 	}
 	for _, tt := range tests {
