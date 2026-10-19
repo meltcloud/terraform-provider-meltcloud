@@ -42,7 +42,7 @@ const nestDesc = "The [Nest](https://docs.meltcloud.io/concepts/nest/overview) i
 	"Since it's created automatically during the Nest installation, it can't be created by Terraform and must be [imported](https://developer.hashicorp.com/terraform/language/import). " +
 	"Same for deletion: to stop managing it, use a [`removed`](https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources) block with `destroy = false`.\n\n" +
 	"Needs the API Key of the admin Organization.\n\n" +
-	"~> Changing `version` updates and reboots one Nest Instance after the other. The Foundry's API can be briefly unavailable during the update."
+	"~> Changing `version` updates and reboots one Nest Instance after the other."
 
 func (r *NestResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{

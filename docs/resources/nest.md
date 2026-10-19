@@ -5,7 +5,7 @@ subcategory: ""
 description: |-
   The Nest https://docs.meltcloud.io/concepts/nest/overview is the management appliance that hosts the Foundry and the Kubernetes control planes. Since it's created automatically during the Nest installation, it can't be created by Terraform and must be imported https://developer.hashicorp.com/terraform/language/import. Same for deletion: to stop managing it, use a removed https://developer.hashicorp.com/terraform/language/resources/syntax#removing-resources block with destroy = false.
   Needs the API Key of the admin Organization.
-  ~> Changing version updates and reboots one Nest Instance after the other. The Foundry's API can be briefly unavailable during the update.
+  ~> Changing version updates and reboots one Nest Instance after the other.
 ---
 
 # meltcloud_nest (Resource)
@@ -14,7 +14,7 @@ The [Nest](https://docs.meltcloud.io/concepts/nest/overview) is the management a
 
 Needs the API Key of the admin Organization.
 
-~> Changing `version` updates and reboots one Nest Instance after the other. The Foundry's API can be briefly unavailable during the update.
+~> Changing `version` updates and reboots one Nest Instance after the other.
 
 ## Example Usage
 
