@@ -5,14 +5,9 @@
 
 ## Schema
 
-- Use nested attributes, never blocks: `SingleNestedAttribute` for one object, `ListNestedAttribute` or
-  `SetNestedAttribute` for several. A set can't hold write-only attributes, and a sensitive attribute in a
-  set hides the whole set in plans, so use a list there.
-- Group the settings of one feature into a single nested attribute, with an explicit `enabled` flag when
-  the feature can be off.
-- Every resource gets a data source with the same attributes, without secrets. Look it up by `id` or
-  `name` with `withLookupAttributes`.
-- Secrets are write-only, never stored in the state: `<name>_wo` with a `<name>_wo_version` that sends the
-  secret again when it changes. A `Sensitive` attribute is still stored, so it is no substitute.
-  Write-only attributes need Terraform 1.11, and a computed nested attribute can't contain one.
-- Descriptions use the wording of the docs (meltcloud/melt-docs) and the foundry UI, and link the docs page.
+- Use nested attributes, not blocks.
+- Put the settings of one feature in one nested attribute. Give it an `enabled` flag if the feature can be turned off.
+- Add a data source for every resource, with the same attributes except secrets.
+- Make secrets write-only: `<name>_wo` with `<name>_wo_version`. Don't use `Sensitive` for them, Terraform still stores those in the state.
+- Use a list, not a set, for objects with a secret. A set can't hold write-only attributes.
+- Take the wording of descriptions from the docs and the foundry UI, and link the docs page.
