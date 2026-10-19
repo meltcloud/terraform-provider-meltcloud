@@ -3,15 +3,15 @@
 page_title: "meltcloud_nest_instance_image Resource - meltcloud"
 subcategory: ""
 description: |-
-  An Installer Image https://docs.meltcloud.io/tasks/nest/create-instance#create-an-installer-image of a Nest Instance. Boot the host from it to install the instance and join it to the Nest. Creating the resource waits until the ISOs are built.
-  Needs the API Key of the admin Organization. The image stops working once it expires.
+  An Installer Image https://docs.meltcloud.io/tasks/nest/create-instance#create-an-installer-image of a Nest Instance. Boot the host from it to install the instance and join it to the Nest.
+  Needs the API Key of the admin Organization.
 ---
 
 # meltcloud_nest_instance_image (Resource)
 
-An [Installer Image](https://docs.meltcloud.io/tasks/nest/create-instance#create-an-installer-image) of a Nest Instance. Boot the host from it to install the instance and join it to the Nest. Creating the resource waits until the ISOs are built.
+An [Installer Image](https://docs.meltcloud.io/tasks/nest/create-instance#create-an-installer-image) of a Nest Instance. Boot the host from it to install the instance and join it to the Nest.
 
-Needs the API Key of the admin Organization. The image stops working once it expires.
+Needs the API Key of the admin Organization.
 
 ## Example Usage
 

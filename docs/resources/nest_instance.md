@@ -29,7 +29,10 @@ resource "meltcloud_nest_instance" "nest_1" {
   network_profile_id = meltcloud_network_profile.nest.id
 
   ip_addresses = [
-    { ip_pool_id = meltcloud_ip_pool.hosts.id, address = "10.0.10.11" },
+    {
+      ip_pool_id = meltcloud_ip_pool.hosts.id
+      address    = "10.0.10.11"
+    },
   ]
 
   boot_disk = {
@@ -51,7 +54,10 @@ resource "meltcloud_nest_instance" "nest_2" {
   network_profile_id = meltcloud_network_profile.nest.id
 
   ip_addresses = [
-    { ip_pool_id = meltcloud_ip_pool.hosts.id, address = "10.0.10.12" },
+    {
+      ip_pool_id = meltcloud_ip_pool.hosts.id
+      address    = "10.0.10.12"
+    },
   ]
 
   boot_disk = {

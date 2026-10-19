@@ -46,8 +46,8 @@ func (r *NestInstanceImageResource) Metadata(ctx context.Context, req resource.M
 }
 
 const nestInstanceImageDesc = "An [Installer Image](https://docs.meltcloud.io/tasks/nest/create-instance#create-an-installer-image) of a Nest Instance. " +
-	"Boot the host from it to install the instance and join it to the Nest. Creating the resource waits until the ISOs are built.\n\n" +
-	"Needs the API Key of the admin Organization. The image stops working once it expires."
+	"Boot the host from it to install the instance and join it to the Nest.\n\n" +
+	"Needs the API Key of the admin Organization."
 
 func (r *NestInstanceImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
