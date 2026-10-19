@@ -87,8 +87,6 @@ func settingString(description string) schema.StringAttribute {
 	return schema.StringAttribute{MarkdownDescription: description, Optional: true}
 }
 
-// A secret Terraform sends but never stores, with the version that sends it again when changed.
-// onChange says what a new version does.
 func writeOnlySecret(attributes map[string]schema.Attribute, name, description, onChange string) {
 	version := name + "_version"
 	attributes[name] = schema.StringAttribute{
@@ -305,7 +303,7 @@ func (r *FoundryResource) await(ctx context.Context, operation *client.Operation
 		return true
 	}
 
-	if _, err := r.client.Operation().PollUntilDoneThroughRestarts(ctx, operation.ID); err != nil {
+	if _, err := r.client.Operation().PollUntilDone(ctx, operation.ID); err != nil {
 		addError("Client Error", fmt.Sprintf("Unable to update Foundry, got error: %s", err))
 		return false
 	}

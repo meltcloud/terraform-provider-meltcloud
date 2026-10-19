@@ -71,38 +71,35 @@ func (or *OperationRequest) Get(ctx context.Context, id int64) (*OperationResult
 	return operationResult, nil
 }
 
+var (
+	pollInterval = 5 * time.Second
+	// Long enough for a single-instance nest to reboot during its update.
+	maxUnavailable = 15 * time.Minute
+)
+
+// Waits out the API not answering for up to maxUnavailable, as while the foundry restarts.
 func (or *OperationRequest) PollUntilDone(ctx context.Context, id int64) (*OperationResult, *Error) {
-	return or.poll(ctx, id, func(*Error) bool { return false })
-}
-
-// Like PollUntilDone, but waits out the API not answering, as it does while the foundry or the
-// nest it runs on restarts during their own update.
-func (or *OperationRequest) PollUntilDoneThroughRestarts(ctx context.Context, id int64) (*OperationResult, *Error) {
-	return or.poll(ctx, id, unavailable)
-}
-
-func unavailable(err *Error) bool {
-	switch err.HTTPStatusCode {
-	case 0, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
-		return true
-	}
-	return false
-}
-
-func (or *OperationRequest) poll(ctx context.Context, id int64, retry func(*Error) bool) (*OperationResult, *Error) {
-	ticker := time.NewTicker(time.Second * 5)
+	ticker := time.NewTicker(pollInterval)
 	defer ticker.Stop()
 
+	var unavailableSince time.Time
 	for {
 		select {
 		case <-ticker.C:
 			result, err := or.Get(ctx, id)
 			if err != nil {
-				if retry(err) {
-					continue
+				if !unavailable(err) {
+					return nil, err
 				}
-				return nil, err
+				if unavailableSince.IsZero() {
+					unavailableSince = time.Now()
+				}
+				if time.Since(unavailableSince) > maxUnavailable {
+					return nil, err
+				}
+				continue
 			}
+			unavailableSince = time.Time{}
 			if result.Operation.Status == OperationStatusSucceeded {
 				return result, nil
 			}
@@ -114,4 +111,12 @@ func (or *OperationRequest) poll(ctx context.Context, id int64, retry func(*Erro
 			return nil, &Error{Err: ctx.Err()}
 		}
 	}
+}
+
+func unavailable(err *Error) bool {
+	switch err.HTTPStatusCode {
+	case 0, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return true
+	}
+	return false
 }
