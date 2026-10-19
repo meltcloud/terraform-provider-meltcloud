@@ -97,6 +97,6 @@ Read-Only:
 
 Read-Only:
 
-- `address` (String) The address
-- `ip_pool_id` (Number) ID of the IP Pool
+- `address` (String) IP address of the instance in that IP Pool
+- `ip_pool_id` (Number) ID of the IP Pool the address is in
 - `static` (Boolean) Whether it is a [static IP](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) rather than one the pool allocated

@@ -109,7 +109,7 @@ Optional:
 
 Required:
 
-- `address` (String) The address the instance gets in that IP Pool
+- `address` (String) IP address of the instance in that IP Pool
 - `ip_pool_id` (Number) ID of the IP Pool the address is in
 
 

@@ -78,8 +78,8 @@ func (d *NestInstanceDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 				MarkdownDescription: "The addresses of the instance, one per IP Pool of its Network Profile",
 				NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
-					"ip_pool_id": computedInt64("ID of the IP Pool"),
-					"address":    computedStr("The address"),
+					"ip_pool_id": computedInt64("ID of the IP Pool the address is in"),
+					"address":    computedStr("IP address of the instance in that IP Pool"),
 					"static":     computedBool("Whether it is a [static IP](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) rather than one the pool allocated"),
 				}},
 			},

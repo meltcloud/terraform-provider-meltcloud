@@ -322,7 +322,7 @@ func (r *NestInstanceResource) Schema(ctx context.Context, req resource.SchemaRe
 				PlanModifiers:       []planmodifier.Set{setplanmodifier.RequiresReplace()},
 				NestedObject: schema.NestedAttributeObject{Attributes: map[string]schema.Attribute{
 					"ip_pool_id": schema.Int64Attribute{MarkdownDescription: "ID of the IP Pool the address is in", Required: true},
-					"address":    schema.StringAttribute{MarkdownDescription: "The address the instance gets in that IP Pool", Required: true},
+					"address":    schema.StringAttribute{MarkdownDescription: "IP address of the instance in that IP Pool", Required: true},
 				}},
 			},
 			"bgp": bgpAttribute(),
