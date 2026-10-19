@@ -49,11 +49,11 @@ func TestUnavailable(t *testing.T) {
 	}
 }
 
-// Answers 503 for the first unavailable polls, then reports the operation as succeeded.
-func pollServer(t *testing.T, unavailable int32) *Client {
+// A fake API that returns 503 for the first failingPolls requests, then a succeeded operation.
+func pollServer(t *testing.T, failingPolls int32) *Client {
 	var polls atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if polls.Add(1) <= unavailable {
+		if polls.Add(1) <= failingPolls {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
