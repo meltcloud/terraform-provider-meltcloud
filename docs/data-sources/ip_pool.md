@@ -24,7 +24,7 @@ An [IP Pool](https://docs.meltcloud.io/concepts/networking/subnet-addressing#ipa
 
 - `cidr` (String) The CIDR addresses come from. It has to be the prefix of the segment the IP Pool serves, and cannot be changed
 - `description` (String) What this IP Pool is for
-- `ranges` (Attributes List) (see [below for nested schema](#nestedatt--ranges))
+- `ranges` (Attributes Set) The ranges of the CIDR that addresses are allocated from, or kept free (see [below for nested schema](#nestedatt--ranges))
 
 <a id="nestedatt--ranges"></a>
 ### Nested Schema for `ranges`

@@ -60,9 +60,8 @@ resource "meltcloud_machine" "node2" {
   # sets the Kubernetes labels topology.kubernetes.io/region and topology.kubernetes.io/zone
   zone_id = meltcloud_zone.zrh_dc1.id
 
-  label {
-    key   = "node-role.example.com/storage"
-    value = "true"
+  labels = {
+    "node-role.example.com/storage" = "true"
   }
 }
 
@@ -74,10 +73,12 @@ resource "meltcloud_machine" "node3" {
   network_profile_id       = meltcloud_network_profile.ipam.id
   depot_network_profile_id = meltcloud_network_profile.ipam.id
 
-  ip_address {
-    ip_pool_id = meltcloud_ip_pool.example.id
-    address    = "10.20.0.50"
-  }
+  ip_addresses = [
+    {
+      ip_pool_id = meltcloud_ip_pool.example.id
+      address    = "10.20.0.50"
+    },
+  ]
 }
 
 # import a machine that self-registered during enrollment.
@@ -113,8 +114,8 @@ data "meltcloud_network_profile" "default" {
 
 ### Optional
 
-- `ip_address` (Block List) A [static IP](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in one of the IP Pools the Machine's Network Profiles use. In a pool without one, the Machine gets an address the pool allocates (see [below for nested schema](#nestedblock--ip_address))
-- `label` (Block List) (see [below for nested schema](#nestedblock--label))
+- `ip_addresses` (Attributes Set) [Static IPs](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in the IP Pools the Machine's Network Profiles use, at most one per IP Pool. In a pool without one, the Machine gets an address the pool allocates (see [below for nested schema](#nestedatt--ip_addresses))
+- `labels` (Map of String) Kubernetes labels to set on the Machine's node, for example `{ "node-role.example.com/storage" = "true" }`
 - `machine_pool_id` (Number) ID of the associated machine pool
 - `name` (String) Name of the Machine
 - `zone_id` (Number) ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the Machine is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on the Machine
@@ -123,22 +124,13 @@ data "meltcloud_network_profile" "default" {
 
 - `id` (Number) Internal ID of the Machine in meltcloud
 
-<a id="nestedblock--ip_address"></a>
-### Nested Schema for `ip_address`
+<a id="nestedatt--ip_addresses"></a>
+### Nested Schema for `ip_addresses`
 
 Required:
 
 - `address` (String) The address the Machine always gets in that IP Pool
 - `ip_pool_id` (Number) ID of the IP Pool the address is in. The Machine has one address per IP Pool
-
-
-<a id="nestedblock--label"></a>
-### Nested Schema for `label`
-
-Required:
-
-- `key` (String) The key of the label, for example 'node-role.example.com/storage'
-- `value` (String) The value of the label, for example 'true'
 
 ## Import
 

@@ -39,9 +39,8 @@ resource "meltcloud_machine" "node2" {
   # sets the Kubernetes labels topology.kubernetes.io/region and topology.kubernetes.io/zone
   zone_id = meltcloud_zone.zrh_dc1.id
 
-  label {
-    key   = "node-role.example.com/storage"
-    value = "true"
+  labels = {
+    "node-role.example.com/storage" = "true"
   }
 }
 
@@ -53,10 +52,12 @@ resource "meltcloud_machine" "node3" {
   network_profile_id       = meltcloud_network_profile.ipam.id
   depot_network_profile_id = meltcloud_network_profile.ipam.id
 
-  ip_address {
-    ip_pool_id = meltcloud_ip_pool.example.id
-    address    = "10.20.0.50"
-  }
+  ip_addresses = [
+    {
+      ip_pool_id = meltcloud_ip_pool.example.id
+      address    = "10.20.0.50"
+    },
+  ]
 }
 
 # import a machine that self-registered during enrollment.

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 var (
@@ -41,7 +43,7 @@ type IPPoolResourceModel struct {
 	Name        types.String `tfsdk:"name"`
 	CIDR        types.String `tfsdk:"cidr"`
 	Description types.String `tfsdk:"description"`
-	Ranges      types.List   `tfsdk:"range"`
+	Ranges      types.Set    `tfsdk:"ranges"`
 }
 
 type IPPoolRangeResourceModel struct {
@@ -81,6 +83,16 @@ func ipPoolResourceAttributes() map[string]schema.Attribute {
 			Optional:            true,
 			MarkdownDescription: "What this IP Pool is for",
 		},
+		"ranges": schema.SetNestedAttribute{
+			Optional:            true,
+			MarkdownDescription: "The ranges of the CIDR that addresses are allocated from, or kept free",
+			NestedObject: schema.NestedAttributeObject{
+				Attributes: ipPoolRangeResourceAttributes(),
+			},
+			Validators: []validator.Set{
+				setvalidator.SizeAtLeast(1),
+			},
+		},
 	}
 }
 
@@ -112,13 +124,6 @@ func (r *IPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schema.Schema{
 		MarkdownDescription: ipPoolDesc,
 		Attributes:          ipPoolResourceAttributes(),
-		Blocks: map[string]schema.Block{
-			"range": schema.ListNestedBlock{
-				NestedObject: schema.NestedBlockObject{
-					Attributes: ipPoolRangeResourceAttributes(),
-				},
-			},
-		},
 	}
 }
 
@@ -130,14 +135,18 @@ func (r *IPPoolResource) ValidateConfig(ctx context.Context, req resource.Valida
 		return
 	}
 
-	var ranges []IPPoolRangeResourceModel
-	resp.Diagnostics.Append(data.Ranges.ElementsAs(ctx, &ranges, false)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	for _, element := range data.Ranges.Elements() {
+		var poolRange IPPoolRangeResourceModel
+		object, ok := element.(types.Object)
+		if !ok {
+			continue
+		}
+		resp.Diagnostics.Append(object.As(ctx, &poolRange, basetypes.ObjectAsOptions{})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	for i, poolRange := range ranges {
-		validateRange(resp, path.Root("range").AtListIndex(i), poolRange)
+		validateRange(resp, path.Root("ranges").AtSetValue(element), poolRange)
 	}
 }
 
@@ -194,9 +203,9 @@ func ipPoolRangeObjectType() types.ObjectType {
 	}}
 }
 
-func ipPoolRangeValues(ctx context.Context, ranges []client.IPPoolRange) (types.List, diag.Diagnostics) {
+func ipPoolRangeValues(ctx context.Context, ranges []client.IPPoolRange) (types.Set, diag.Diagnostics) {
 	if len(ranges) == 0 {
-		return types.ListNull(ipPoolRangeObjectType()), nil
+		return types.SetNull(ipPoolRangeObjectType()), nil
 	}
 
 	models := make([]IPPoolRangeResourceModel, 0, len(ranges))
@@ -209,14 +218,16 @@ func ipPoolRangeValues(ctx context.Context, ranges []client.IPPoolRange) (types.
 		})
 	}
 
-	return types.ListValueFrom(ctx, ipPoolRangeObjectType(), models)
+	return types.SetValueFrom(ctx, ipPoolRangeObjectType(), models)
 }
 
-func (r *IPPoolResource) rangesInput(ctx context.Context, list types.List) []client.IPPoolRange {
+func (r *IPPoolResource) rangesInput(ctx context.Context, set types.Set) []client.IPPoolRange {
 	var ranges []IPPoolRangeResourceModel
-	list.ElementsAs(ctx, &ranges, false)
+	set.ElementsAs(ctx, &ranges, false)
 
-	var input []client.IPPoolRange
+	// Empty rather than nil: the update sends every field, and a null list leaves
+	// the ranges the IP Pool has.
+	input := []client.IPPoolRange{}
 	for _, poolRange := range ranges {
 		input = append(input, client.IPPoolRange{
 			Kind:         poolRange.Kind.ValueString(),

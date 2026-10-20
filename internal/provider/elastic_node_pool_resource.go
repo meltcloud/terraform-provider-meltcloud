@@ -7,14 +7,12 @@ import (
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -108,10 +106,15 @@ func elasticNodePoolResourceAttributes() map[string]schema.Attribute {
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		},
+		"node_config": schema.SingleNestedAttribute{
+			MarkdownDescription: "Per-node resource configuration",
+			Required:            true,
+			Attributes:          nodeConfigAttributes(),
+		},
 	}
 }
 
-func nodeConfigBlockAttributes() map[string]schema.Attribute {
+func nodeConfigAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"vcpus": schema.Int64Attribute{
 			MarkdownDescription: "Number of vCPUs per node",
@@ -133,15 +136,6 @@ func (r *ElasticNodePoolResource) Schema(ctx context.Context, req resource.Schem
 		MarkdownDescription: elasticNodePoolDesc + "\n\n" +
 			"~> Be aware that changing the `version`, `release_channel` or `manual_version` will be rolled out to all nodes of the Elastic Node Pool immediately.",
 		Attributes: elasticNodePoolResourceAttributes(),
-		Blocks: map[string]schema.Block{
-			"node_config": schema.SingleNestedBlock{
-				MarkdownDescription: "Per-node resource configuration. Required.",
-				Attributes:          nodeConfigBlockAttributes(),
-				Validators: []validator.Object{
-					objectvalidator.IsRequired(),
-				},
-			},
-		},
 	}
 }
 
@@ -170,11 +164,6 @@ func (r *ElasticNodePoolResource) Create(ctx context.Context, req resource.Creat
 	var data ElasticNodePoolResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if data.NodeConfig == nil {
-		resp.Diagnostics.AddError("Config Error", "node_config block is required")
 		return
 	}
 
@@ -252,11 +241,6 @@ func (r *ElasticNodePoolResource) Update(ctx context.Context, req resource.Updat
 	var data ElasticNodePoolResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if data.NodeConfig == nil {
-		resp.Diagnostics.AddError("Config Error", "node_config block is required")
 		return
 	}
 

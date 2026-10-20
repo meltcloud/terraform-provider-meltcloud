@@ -49,7 +49,7 @@ resource "meltcloud_elastic_node_pool" "example" {
   release_channel = "stable"
   node_count      = 1
 
-  node_config {
+  node_config = {
     vcpus      = 2
     memory_mib = 1024
     disk_gib   = 20

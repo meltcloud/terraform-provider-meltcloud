@@ -53,8 +53,9 @@ func (d *IPPoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: attributes["description"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"ranges": schema.ListNestedAttribute{
-				Computed: true,
+			"ranges": schema.SetNestedAttribute{
+				MarkdownDescription: attributes["ranges"].GetMarkdownDescription(),
+				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"kind": schema.StringAttribute{

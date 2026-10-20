@@ -23,19 +23,19 @@ A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profil
 ### Read-Only
 
 - `status` (String) Status of the Network Profile
-- `uplinks` (Attributes List) (see [below for nested schema](#nestedatt--uplinks))
+- `uplinks` (Attributes List) The Uplinks, each with a unique name (see [below for nested schema](#nestedatt--uplinks))
 
 <a id="nestedatt--uplinks"></a>
 ### Nested Schema for `uplinks`
 
 Read-Only:
 
-- `host_networks` (Attributes List) (see [below for nested schema](#nestedatt--uplinks--host_networks))
+- `host_networks` (Attributes List) The Subnets the Machine gets an address on through this Uplink (see [below for nested schema](#nestedatt--uplinks--host_networks))
 - `identifier` (String) What the interfaces are matched against: `kernel_name` (the default) or `mac_address`
 - `interfaces` (List of String) The interfaces to match. Empty with mode `auto`, one with `single`, at least two with `bond`
 - `lacp` (Boolean) Whether the bond runs LACP. Only with mode `bond`
 - `mode` (String) How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one named interface, `bond` for several bonded together
-- `name` (String) Name of the Uplink, at most 10 lowercase alphanumeric characters
+- `name` (String) Name of the Uplink, unique within the Network Profile. At most 10 lowercase alphanumeric characters, since a bond and its VLAN subinterfaces on the Machine are named after it
 
 <a id="nestedatt--uplinks--host_networks"></a>
 ### Nested Schema for `uplinks.host_networks`

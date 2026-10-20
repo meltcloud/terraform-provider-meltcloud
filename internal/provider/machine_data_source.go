@@ -32,17 +32,12 @@ type MachineDataSource struct {
 type MachineDataSourceModel struct {
 	UUID types.String `tfsdk:"uuid"`
 
-	ID            types.Int64            `tfsdk:"id"`
-	Name          types.String           `tfsdk:"name"`
-	MachinePoolID types.Int64            `tfsdk:"machine_pool_id"`
-	Status        types.String           `tfsdk:"status"`
-	ZoneID        types.Int64            `tfsdk:"zone_id"`
-	Labels        []LabelDataSourceModel `tfsdk:"labels"`
-}
-
-type LabelDataSourceModel struct {
-	Key   types.String `tfsdk:"key"`
-	Value types.String `tfsdk:"value"`
+	ID            types.Int64  `tfsdk:"id"`
+	Name          types.String `tfsdk:"name"`
+	MachinePoolID types.Int64  `tfsdk:"machine_pool_id"`
+	Status        types.String `tfsdk:"status"`
+	ZoneID        types.Int64  `tfsdk:"zone_id"`
+	Labels        types.Map    `tfsdk:"labels"`
 }
 
 func (d *MachineDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -86,20 +81,10 @@ func (d *MachineDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				MarkdownDescription: machineResourceAttributes()["zone_id"].GetMarkdownDescription(),
 				Computed:            true,
 			},
-			"labels": schema.ListNestedAttribute{
-				Computed: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"key": schema.StringAttribute{
-							Computed:            true,
-							MarkdownDescription: labelResourceAttributes()["key"].GetMarkdownDescription(),
-						},
-						"value": schema.StringAttribute{
-							Computed:            true,
-							MarkdownDescription: labelResourceAttributes()["value"].GetMarkdownDescription(),
-						},
-					},
-				},
+			"labels": schema.MapAttribute{
+				MarkdownDescription: machineResourceAttributes()["labels"].GetMarkdownDescription(),
+				Computed:            true,
+				ElementType:         types.StringType,
 			},
 		},
 	}
@@ -160,13 +145,13 @@ func (d *MachineDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		}
 	}
 
-	for _, label := range machine.Labels {
-		data.Labels = append(data.Labels, LabelDataSourceModel{
-			Key:   types.StringValue(label.Key),
-			Value: types.StringValue(label.Value),
-		})
+	labels, diags := labelValues(ctx, machine.Labels)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
+	data.Labels = labels
 	data.ID = types.Int64Value(machine.ID)
 	data.UUID = types.StringValue(machine.UUID.String())
 	data.Name = types.StringPointerValue(machine.Name)

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
@@ -46,7 +47,7 @@ type NetworkProfileResource struct {
 type NetworkProfileResourceModel struct {
 	ID      types.Int64  `tfsdk:"id"`
 	Name    types.String `tfsdk:"name"`
-	Uplinks types.List   `tfsdk:"uplink"`
+	Uplinks types.List   `tfsdk:"uplinks"`
 }
 
 type UplinkResourceModel struct {
@@ -55,7 +56,7 @@ type UplinkResourceModel struct {
 	Identifier   types.String `tfsdk:"identifier"`
 	Interfaces   types.List   `tfsdk:"interfaces"`
 	LACP         types.Bool   `tfsdk:"lacp"`
-	HostNetworks types.List   `tfsdk:"host_network"`
+	HostNetworks types.List   `tfsdk:"host_networks"`
 }
 
 type HostNetworkResourceModel struct {
@@ -86,6 +87,19 @@ func networkProfileResourceAttributes() map[string]schema.Attribute {
 				stringplanmodifier.RequiresReplace(),
 			},
 		},
+		"uplinks": schema.ListNestedAttribute{
+			Required:            true,
+			MarkdownDescription: "The Uplinks, each with a unique name",
+			NestedObject: schema.NestedAttributeObject{
+				Attributes: uplinkResourceAttributes(),
+			},
+			Validators: []validator.List{
+				listvalidator.SizeAtLeast(1),
+			},
+			PlanModifiers: []planmodifier.List{
+				listplanmodifier.RequiresReplace(),
+			},
+		},
 	}
 }
 
@@ -93,7 +107,7 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: "Name of the Uplink, at most 10 lowercase alphanumeric characters",
+			MarkdownDescription: "Name of the Uplink, unique within the Network Profile. At most 10 lowercase alphanumeric characters, since a bond and its VLAN subinterfaces on the Machine are named after it",
 			Validators: []validator.String{
 				stringvalidator.LengthAtMost(10),
 				stringvalidator.RegexMatches(regexp.MustCompile(`^[a-z0-9]+$`), "must be lowercase alphanumeric"),
@@ -126,6 +140,16 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 			Default:             booldefault.StaticBool(false),
 			MarkdownDescription: "Whether the bond runs LACP. Only with mode `bond`",
 		},
+		"host_networks": schema.ListNestedAttribute{
+			Optional:            true,
+			MarkdownDescription: "The Subnets the Machine gets an address on through this Uplink",
+			NestedObject: schema.NestedAttributeObject{
+				Attributes: hostNetworkResourceAttributes(),
+			},
+			Validators: []validator.List{
+				listvalidator.SizeAtLeast(1),
+			},
+		},
 	}
 }
 
@@ -155,24 +179,6 @@ func (r *NetworkProfileResource) Schema(ctx context.Context, req resource.Schema
 		MarkdownDescription: networkProfileDesc,
 
 		Attributes: networkProfileResourceAttributes(),
-
-		Blocks: map[string]schema.Block{
-			"uplink": schema.ListNestedBlock{
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
-				},
-				NestedObject: schema.NestedBlockObject{
-					Attributes: uplinkResourceAttributes(),
-					Blocks: map[string]schema.Block{
-						"host_network": schema.ListNestedBlock{
-							NestedObject: schema.NestedBlockObject{
-								Attributes: hostNetworkResourceAttributes(),
-							},
-						},
-					},
-				},
-			},
-		},
 	}
 }
 
@@ -192,9 +198,18 @@ func (r *NetworkProfileResource) ValidateConfig(ctx context.Context, req resourc
 
 	primaries := 0
 	autos := 0
+	names := map[string]bool{}
 
 	for i, uplink := range uplinks {
-		uplinkPath := path.Root("uplink").AtListIndex(i)
+		uplinkPath := path.Root("uplinks").AtListIndex(i)
+
+		if !uplink.Name.IsUnknown() {
+			if names[uplink.Name.ValueString()] {
+				resp.Diagnostics.AddAttributeError(uplinkPath.AtName("name"), "Invalid Attribute Value",
+					fmt.Sprintf("Uplink names must be unique within the profile, but %q appears more than once.", uplink.Name.ValueString()))
+			}
+			names[uplink.Name.ValueString()] = true
+		}
 
 		if uplink.Mode.ValueString() == "auto" {
 			autos++
@@ -219,7 +234,7 @@ func (r *NetworkProfileResource) ValidateConfig(ctx context.Context, req resourc
 
 	if autos > 0 && len(uplinks) > 1 {
 		resp.Diagnostics.AddAttributeError(
-			path.Root("uplink"),
+			path.Root("uplinks"),
 			"Invalid Attribute Combination",
 			"An auto uplink resolves to whichever interface the machine has, so it must be the only uplink.",
 		)
@@ -227,7 +242,7 @@ func (r *NetworkProfileResource) ValidateConfig(ctx context.Context, req resourc
 
 	if !resp.Diagnostics.HasError() && primaries != 1 {
 		resp.Diagnostics.AddAttributeError(
-			path.Root("uplink"),
+			path.Root("uplinks"),
 			"Invalid Attribute Combination",
 			fmt.Sprintf("Exactly one host network across the profile must be primary, which carries the default route, DNS and NTP. Found %d.", primaries),
 		)
@@ -305,34 +320,28 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 
 	data.ID = types.Int64Value(result.NetworkProfile.ID)
 
-	uplinkValues, diags := uplinkModels(ctx, result.NetworkProfile.Uplinks)
+	uplinkValues, diags := uplinkValues(ctx, result.NetworkProfile.Uplinks)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	uplinkList, diags := types.ListValueFrom(ctx, uplinkObjectType(), uplinkValues)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	data.Uplinks = uplinkList
+	data.Uplinks = uplinkValues
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func uplinkObjectType() attr.Type {
 	return types.ObjectType{AttrTypes: map[string]attr.Type{
-		"name":         types.StringType,
-		"mode":         types.StringType,
-		"identifier":   types.StringType,
-		"interfaces":   types.ListType{ElemType: types.StringType},
-		"lacp":         types.BoolType,
-		"host_network": types.ListType{ElemType: hostNetworkObjectType()},
+		"name":          types.StringType,
+		"mode":          types.StringType,
+		"identifier":    types.StringType,
+		"interfaces":    types.ListType{ElemType: types.StringType},
+		"lacp":          types.BoolType,
+		"host_networks": types.ListType{ElemType: hostNetworkObjectType()},
 	}}
 }
 
-func uplinkModels(ctx context.Context, uplinks []client.Uplink) ([]UplinkResourceModel, diag.Diagnostics) {
+func uplinkValues(ctx context.Context, uplinks []client.Uplink) (types.List, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	var models []UplinkResourceModel
 
@@ -340,10 +349,10 @@ func uplinkModels(ctx context.Context, uplinks []client.Uplink) ([]UplinkResourc
 		interfaces, interfaceDiags := stringListValue(ctx, uplink.Interfaces)
 		diags.Append(interfaceDiags...)
 
-		hostNetworks, hostNetworkDiags := types.ListValueFrom(ctx, hostNetworkObjectType(), hostNetworkValues(uplink))
+		hostNetworks, hostNetworkDiags := hostNetworkValues(ctx, uplink)
 		diags.Append(hostNetworkDiags...)
 		if diags.HasError() {
-			return nil, diags
+			return types.ListNull(uplinkObjectType()), diags
 		}
 
 		models = append(models, UplinkResourceModel{
@@ -356,7 +365,7 @@ func uplinkModels(ctx context.Context, uplinks []client.Uplink) ([]UplinkResourc
 		})
 	}
 
-	return models, diags
+	return types.ListValueFrom(ctx, uplinkObjectType(), models)
 }
 
 func (r *NetworkProfileResource) uplinksInput(ctx context.Context, uplinks []UplinkResourceModel) []client.Uplink {
@@ -408,36 +417,15 @@ func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	data.Name = types.StringValue(result.NetworkProfile.Name)
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-
-	var uplinks []UplinkResourceModel
-	for _, uplink := range result.NetworkProfile.Uplinks {
-		interfacesList, diags := stringListValue(ctx, uplink.Interfaces)
-		resp.Diagnostics.Append(diags...)
-		if diags.HasError() {
-			return
-		}
-
-		hostNetworksList, diags := types.ListValueFrom(ctx, hostNetworkObjectType(), hostNetworkValues(uplink))
-		resp.Diagnostics.Append(diags...)
-		if diags.HasError() {
-			return
-		}
-
-		uplinks = append(uplinks, UplinkResourceModel{
-			Name:         types.StringValue(uplink.Name),
-			Mode:         types.StringValue(uplink.Mode),
-			Identifier:   types.StringValue(uplink.Identifier),
-			Interfaces:   interfacesList,
-			LACP:         types.BoolValue(uplink.LACP),
-			HostNetworks: hostNetworksList,
-		})
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("uplink"), uplinks)...)
+	uplinks, diags := uplinkValues(ctx, result.NetworkProfile.Uplinks)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	data.Name = types.StringValue(result.NetworkProfile.Name)
+	data.Uplinks = uplinks
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func hostNetworkObjectType() attr.Type {
@@ -448,7 +436,11 @@ func hostNetworkObjectType() attr.Type {
 	}}
 }
 
-func hostNetworkValues(uplink client.Uplink) []HostNetworkResourceModel {
+func hostNetworkValues(ctx context.Context, uplink client.Uplink) (types.List, diag.Diagnostics) {
+	if len(uplink.HostNetworks) == 0 {
+		return types.ListNull(hostNetworkObjectType()), nil
+	}
+
 	var hostNetworks []HostNetworkResourceModel
 	for _, hostNetwork := range uplink.HostNetworks {
 		hostNetworks = append(hostNetworks, HostNetworkResourceModel{
@@ -457,7 +449,7 @@ func hostNetworkValues(uplink client.Uplink) []HostNetworkResourceModel {
 			Primary:    types.BoolValue(hostNetwork.Primary),
 		})
 	}
-	return hostNetworks
+	return types.ListValueFrom(ctx, hostNetworkObjectType(), hostNetworks)
 }
 
 func (r *NetworkProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

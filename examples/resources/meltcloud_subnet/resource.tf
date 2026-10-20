@@ -19,11 +19,13 @@ resource "meltcloud_subnet" "storage_dhcp" {
 
   # settings to override, or to add where the DHCP server delivers none
   # example: additional routes, not provided by dhcp
-  route {
-    destination = "10.30.0.0/16"
-    via         = "10.20.0.254"
-    metric      = 200
-  }
+  routes = [
+    {
+      destination = "10.30.0.0/16"
+      via         = "10.20.0.254"
+      metric      = 200
+    },
+  ]
 }
 
 # an IPAM subnet
