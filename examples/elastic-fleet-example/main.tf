@@ -35,7 +35,6 @@ variable "deploy_fleet" {
 resource "meltcloud_cluster" "example" {
   name             = "elastic-fleet-example"
   version          = "1.35"
-  release_channel  = "stable"
   pod_cidr         = "10.38.0.0/16"
   service_cidr     = "10.98.0.0/16"
   dns_service_ip   = "10.98.0.10"
@@ -47,9 +46,8 @@ resource "meltcloud_cluster" "example" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name            = "pool1"
-  version         = "1.35"
-  release_channel = "stable"
+  name    = "pool1"
+  version = "1.35"
 }
 
 

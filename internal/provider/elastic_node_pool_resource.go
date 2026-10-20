@@ -92,7 +92,8 @@ func elasticNodePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Kubernetes patch version of the Elastic Node Pool nodes (Kubelet)",
 			Computed:            true,
 		},
-		"release_channel":   releaseChannelAttribute(""),
+		"release_channel": releaseChannelAttribute("A new pool without a channel follows the channel of its Cluster, " +
+			"or the installation's default channel if the Cluster is pinned."),
 		"manual_version":    manualVersionAttribute(),
 		"kubernetes_bundle": kubernetesBundleAttribute(),
 		"node_count": schema.Int64Attribute{

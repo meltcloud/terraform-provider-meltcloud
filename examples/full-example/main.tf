@@ -49,7 +49,6 @@ data "meltcloud_enrollment_image" "example_name" {
 resource "meltcloud_cluster" "example" {
   name             = "melt03"
   version          = "1.31"
-  release_channel  = "stable"
   pod_cidr         = "10.36.0.0/16"
   service_cidr     = "10.96.0.0/16"
   dns_service_ip   = "10.96.0.10"
@@ -68,9 +67,8 @@ data "meltcloud_cluster" "example_name" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name            = "pool1"
-  version         = "1.31"
-  release_channel = "stable"
+  name    = "pool1"
+  version = "1.31"
 }
 
 resource "meltcloud_ip_pool" "example" {

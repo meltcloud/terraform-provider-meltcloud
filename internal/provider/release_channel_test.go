@@ -48,6 +48,9 @@ func TestValidateReleaseChannel(t *testing.T) {
 		{"manual with pin and unknown version", str("manual"), str("1.35.5-melt.30"), unknown, nil},
 		{"manual with invalid pin", str("manual"), str("1.35"), null, []path.Path{path.Root("manual_version")}},
 		{"manual without pin", str("manual"), null, str("1.35"), []path.Path{path.Root("manual_version")}},
+		{"no channel with version", null, null, str("1.35"), nil},
+		{"no channel without version", null, null, null, []path.Path{path.Root("version")}},
+		{"no channel with pin", null, str("1.35.5-melt.30"), str("1.35"), []path.Path{path.Root("manual_version")}},
 		{"unknown channel", unknown, null, null, nil},
 		{"unknown pin", str("stable"), unknown, null, nil},
 	}
@@ -110,6 +113,51 @@ func TestVersionFromManualVersion(t *testing.T) {
 
 			if resp.Diagnostics.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", resp.Diagnostics)
+			}
+			if !resp.PlanValue.Equal(c.want) {
+				t.Errorf("got %s, want %s", resp.PlanValue, c.want)
+			}
+		})
+	}
+}
+
+func TestReleaseChannelFromState(t *testing.T) {
+	ctx := context.Background()
+	s := schema.Schema{Attributes: map[string]schema.Attribute{
+		"release_channel": releaseChannelAttribute(""),
+	}}
+	plan := tfsdk.Plan{
+		Schema: s,
+		Raw: tftypes.NewValue(s.Type().TerraformType(ctx), map[string]tftypes.Value{
+			"release_channel": tftypes.NewValue(tftypes.String, tftypes.UnknownValue),
+		}),
+	}
+
+	cases := []struct {
+		name    string
+		config  types.String
+		state   types.String
+		want    types.String
+		wantErr bool
+	}{
+		{"new resource", types.StringNull(), types.StringNull(), types.StringUnknown(), false},
+		{"configured", types.StringValue("beta"), types.StringValue("stable"), types.StringUnknown(), false},
+		{"kept", types.StringNull(), types.StringValue("stable"), types.StringValue("stable"), false},
+		{"leaving a pin", types.StringNull(), types.StringValue("manual"), types.StringUnknown(), true},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			req := planmodifier.StringRequest{
+				Path: path.Root("release_channel"), ConfigValue: c.config, StateValue: c.state,
+				PlanValue: types.StringUnknown(), Plan: plan,
+			}
+			resp := &planmodifier.StringResponse{PlanValue: req.PlanValue}
+
+			releaseChannelFromState().PlanModifyString(ctx, req, resp)
+
+			if resp.Diagnostics.HasError() != c.wantErr {
+				t.Fatalf("got diagnostics %v, want error %t", resp.Diagnostics, c.wantErr)
 			}
 			if !resp.PlanValue.Equal(c.want) {
 				t.Errorf("got %s, want %s", resp.PlanValue, c.want)

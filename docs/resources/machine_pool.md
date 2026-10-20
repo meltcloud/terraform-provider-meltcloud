@@ -18,21 +18,19 @@ A [Machine Pool](https://docs.meltcloud.io/concepts/machine-pools) is an **updat
 ```terraform
 # create cluster
 resource "meltcloud_cluster" "example" {
-  name            = "melt02"
-  version         = "1.33"
-  release_channel = "stable"
-  pod_cidr        = "10.36.0.0/16"
-  service_cidr    = "10.96.0.0/16"
-  dns_service_ip  = "10.96.0.10"
+  name           = "melt02"
+  version        = "1.33"
+  pod_cidr       = "10.36.0.0/16"
+  service_cidr   = "10.96.0.0/16"
+  dns_service_ip = "10.96.0.10"
 }
 
 # create a machine pool
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name            = "pool1"
-  version         = "1.32"
-  release_channel = "stable"
+  name    = "pool1"
+  version = "1.32"
 }
 ```
 
@@ -43,11 +41,11 @@ resource "meltcloud_machine_pool" "example" {
 
 - `cluster_id` (Number) ID of the associated cluster
 - `name` (String) Name of the machine pool
-- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`.
 
 ### Optional
 
 - `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. If not specified, an existing resource keeps its channel. A new pool without a channel follows the channel of its Cluster, or the installation's default channel if the Cluster is pinned.
 - `version` (String) Kubernetes minor version of the machine pool (Kubelet). Required unless `release_channel` is `manual`.
 
 ### Read-Only

@@ -43,6 +43,6 @@ data "meltcloud_machine_pool" "example_name" {
 - `kubernetes_bundle` (String) Name of the Kubernetes Bundle currently applied, e.g. `1.35.5-melt.30`
 - `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
 - `patch_version` (String) Kubernetes patch version of the machine pool (Kubelet)
-- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`.
+- `release_channel` (String) Release channel the Kubernetes Bundle is taken from, e.g. `stable`. Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. If not specified, an existing resource keeps its channel. A new pool without a channel follows the channel of its Cluster, or the installation's default channel if the Cluster is pinned.
 - `status` (String) Status of the Machine Pool
 - `version` (String) Kubernetes minor version of the machine pool (Kubelet). Required unless `release_channel` is `manual`.

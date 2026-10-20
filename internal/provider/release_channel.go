@@ -39,13 +39,18 @@ func versionAttribute(desc string) schema.StringAttribute {
 
 func releaseChannelAttribute(extraDesc string) schema.StringAttribute {
 	desc := "Release channel the Kubernetes Bundle is taken from, e.g. `stable`. " +
-		"Set to `manual` to pin the Kubernetes Bundle given in `manual_version`."
+		"Set to `manual` to pin the Kubernetes Bundle given in `manual_version`. " +
+		"If not specified, an existing resource keeps its channel."
 	if extraDesc != "" {
 		desc += " " + extraDesc
 	}
 	return schema.StringAttribute{
 		MarkdownDescription: desc,
-		Required:            true,
+		Optional:            true,
+		Computed:            true,
+		PlanModifiers: []planmodifier.String{
+			releaseChannelFromState(),
+		},
 	}
 }
 
@@ -176,6 +181,39 @@ func (m versionFromManualVersionModifier) PlanModifyString(ctx context.Context, 
 	if minor, ok := bundleMinor(manualVersion.ValueString()); ok {
 		resp.PlanValue = types.StringValue(minor)
 	}
+}
+
+func releaseChannelFromState() planmodifier.String {
+	return releaseChannelFromStateModifier{}
+}
+
+// releaseChannelFromStateModifier plans an unconfigured release_channel as the channel the resource follows, as
+// the API keeps it when none is sent. Leaving a pin needs a channel, since the API would keep the pin.
+type releaseChannelFromStateModifier struct{}
+
+func (m releaseChannelFromStateModifier) Description(ctx context.Context) string {
+	return "If not configured, the release channel stays as it is."
+}
+
+func (m releaseChannelFromStateModifier) MarkdownDescription(ctx context.Context) string {
+	return m.Description(ctx)
+}
+
+func (m releaseChannelFromStateModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
+	if !req.ConfigValue.IsNull() || req.StateValue.IsNull() || req.Plan.Raw.IsNull() {
+		return
+	}
+
+	if req.StateValue.ValueString() == releaseChannelManual {
+		resp.Diagnostics.AddAttributeError(
+			req.Path,
+			"Missing Attribute Configuration",
+			"release_channel must be set to stop pinning manual_version.",
+		)
+		return
+	}
+
+	resp.PlanValue = req.StateValue
 }
 
 func optionalString(value types.String) *string {
