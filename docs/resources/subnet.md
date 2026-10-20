@@ -34,11 +34,13 @@ resource "meltcloud_subnet" "storage_dhcp" {
 
   # settings to override, or to add where the DHCP server delivers none
   # example: additional routes, not provided by dhcp
-  route {
-    destination = "10.30.0.0/16"
-    via         = "10.20.0.254"
-    metric      = 200
-  }
+  routes = [
+    {
+      destination = "10.30.0.0/16"
+      via         = "10.20.0.254"
+      metric      = 200
+    },
+  ]
 }
 
 # an IPAM subnet
@@ -85,15 +87,15 @@ resource "meltcloud_subnet" "storage_ipam" {
 - `ip_pool_id` (Number) ID of the IP Pool addresses come from. Required with addressing `ipam`
 - `mtu` (Number) The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26
 - `ntp` (List of String) The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42
-- `route` (Block List) (see [below for nested schema](#nestedblock--route))
+- `routes` (Attributes Set) Static routes to configure on the device (see [below for nested schema](#nestedatt--routes))
 - `vlan` (Number) VLAN ID of the segment. Leave empty when the segment has no VLAN
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the Subnet on meltcloud
 
-<a id="nestedblock--route"></a>
-### Nested Schema for `route`
+<a id="nestedatt--routes"></a>
+### Nested Schema for `routes`
 
 Required:
 

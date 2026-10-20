@@ -1,15 +1,13 @@
 # create cluster with auto-assigned network defaults
 resource "meltcloud_cluster" "example" {
-  name            = "melt02"
-  version         = "1.33"
-  release_channel = "stable"
+  name    = "melt02"
+  version = "1.33"
 }
 
 # create cluster with explicit network configuration
 resource "meltcloud_cluster" "example_custom_network" {
-  name            = "melt03"
-  version         = "1.33"
-  release_channel = "stable"
+  name    = "melt03"
+  version = "1.33"
 
   pod_cidr       = "10.36.0.0/16"
   service_cidr   = "10.96.0.0/16"
@@ -21,7 +19,6 @@ resource "meltcloud_cluster" "example_custom_network" {
 resource "meltcloud_cluster" "example_ha" {
   name              = "melt04"
   version           = "1.33"
-  release_channel   = "stable"
   high_availability = true
 }
 

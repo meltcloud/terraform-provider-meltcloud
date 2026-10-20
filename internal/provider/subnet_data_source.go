@@ -90,8 +90,9 @@ func (d *SubnetDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"routes": schema.ListNestedAttribute{
-				Computed: true,
+			"routes": schema.SetNestedAttribute{
+				MarkdownDescription: attributes["routes"].GetMarkdownDescription(),
+				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"destination": schema.StringAttribute{

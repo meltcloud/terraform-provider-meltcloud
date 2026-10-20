@@ -32,7 +32,6 @@ data "meltcloud_elastic_quota" "existing" {
 resource "meltcloud_cluster" "example" {
   name             = "elastic-node-pool-example"
   version          = "1.35"
-  release_channel  = "stable"
   pod_cidr         = "10.37.0.0/16"
   service_cidr     = "10.97.0.0/16"
   dns_service_ip   = "10.97.0.10"
@@ -44,12 +43,11 @@ resource "meltcloud_elastic_node_pool" "example" {
   cluster_id       = meltcloud_cluster.example.id
   elastic_quota_id = data.meltcloud_elastic_quota.existing.id
 
-  name            = "nodepool1"
-  version         = "1.35"
-  release_channel = "stable"
-  node_count      = 1
+  name       = "nodepool1"
+  version    = "1.35"
+  node_count = 1
 
-  node_config {
+  node_config = {
     vcpus      = 2
     memory_mib = 1024
     disk_gib   = 20

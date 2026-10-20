@@ -33,7 +33,7 @@ A [Subnet](https://docs.meltcloud.io/concepts/networking/networks-and-subnets) i
 - `ip_pool_id` (Number) ID of the IP Pool addresses come from. Required with addressing `ipam`
 - `mtu` (Number) The MTU to configure on the device. With `dhcp`, setting this replaces what the server sends in option 26
 - `ntp` (List of String) The time servers to configure. With `dhcp`, setting these replaces what the server sends in option 42
-- `routes` (Attributes List) (see [below for nested schema](#nestedatt--routes))
+- `routes` (Attributes Set) Static routes to configure on the device (see [below for nested schema](#nestedatt--routes))
 - `vlan` (Number) VLAN ID of the segment. Leave empty when the segment has no VLAN
 
 <a id="nestedatt--routes"></a>

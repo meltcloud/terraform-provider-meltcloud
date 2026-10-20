@@ -49,7 +49,6 @@ data "meltcloud_enrollment_image" "example_name" {
 resource "meltcloud_cluster" "example" {
   name             = "melt03"
   version          = "1.31"
-  release_channel  = "stable"
   pod_cidr         = "10.36.0.0/16"
   service_cidr     = "10.96.0.0/16"
   dns_service_ip   = "10.96.0.10"
@@ -68,27 +67,27 @@ data "meltcloud_cluster" "example_name" {
 resource "meltcloud_machine_pool" "example" {
   cluster_id = meltcloud_cluster.example.id
 
-  name            = "pool1"
-  version         = "1.31"
-  release_channel = "stable"
+  name    = "pool1"
+  version = "1.31"
 }
 
 resource "meltcloud_ip_pool" "example" {
   name = "pool1"
   cidr = "10.0.10.0/24"
 
-  range {
-    kind          = "allocatable"
-    start_address = "10.0.10.100"
-    end_address   = "10.0.10.200"
-  }
-
-  range {
-    kind          = "excluded"
-    start_address = "10.0.10.150"
-    end_address   = "10.0.10.159"
-    description   = "printers"
-  }
+  ranges = [
+    {
+      kind          = "allocatable"
+      start_address = "10.0.10.100"
+      end_address   = "10.0.10.200"
+    },
+    {
+      kind          = "excluded"
+      start_address = "10.0.10.150"
+      end_address   = "10.0.10.159"
+      description   = "printers"
+    },
+  ]
 }
 
 data "meltcloud_ip_pool" "example_name" {
@@ -112,11 +111,13 @@ resource "meltcloud_subnet" "mgmt" {
   dns        = ["10.0.10.53"]
   mtu        = 9000
 
-  route {
-    destination = "10.20.0.0/16"
-    via         = "10.0.10.254"
-    metric      = 200
-  }
+  routes = [
+    {
+      destination = "10.20.0.0/16"
+      via         = "10.0.10.254"
+      metric      = 200
+    },
+  ]
 }
 
 resource "meltcloud_subnet" "storage" {
@@ -134,24 +135,27 @@ data "meltcloud_subnet" "mgmt_name" {
 resource "meltcloud_network_profile" "example" {
   name = "profile1"
 
-  uplink {
-    name       = "wl-prd"
-    mode       = "bond"
-    lacp       = true
-    identifier = "kernel_name"
-    interfaces = ["eth0", "eth1"]
+  uplinks = [
+    {
+      name       = "wlprd"
+      mode       = "bond"
+      lacp       = true
+      identifier = "kernel_name"
+      interfaces = ["eth0", "eth1"]
 
-    host_network {
-      subnet_id   = meltcloud_subnet.mgmt.id
-      vlan_tagged = false
-      primary     = true
-    }
-
-    host_network {
-      subnet_id   = meltcloud_subnet.storage.id
-      vlan_tagged = true
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.mgmt.id
+          vlan_tagged = false
+          primary     = true
+        },
+        {
+          subnet_id   = meltcloud_subnet.storage.id
+          vlan_tagged = true
+        },
+      ]
+    },
+  ]
 }
 
 data "meltcloud_network_profile" "example_name" {
@@ -171,14 +175,9 @@ resource "meltcloud_machine" "node1" {
   network_profile_id       = meltcloud_network_profile.example.id
   depot_network_profile_id = meltcloud_network_profile.example.id
 
-  label {
-    key   = "topology.kubernetes.io/region"
-    value = "ch"
-  }
-
-  label {
-    key   = "topology.kubernetes.io/zone"
-    value = "az3"
+  labels = {
+    "topology.kubernetes.io/region" = "ch"
+    "topology.kubernetes.io/zone"   = "az3"
   }
 }
 

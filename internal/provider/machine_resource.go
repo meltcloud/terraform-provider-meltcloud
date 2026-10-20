@@ -3,12 +3,17 @@ package provider
 import (
 	"context"
 	"fmt"
+	"maps"
 	"regexp"
+	"slices"
 	"strconv"
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -17,12 +22,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ resource.Resource                = &MachineResource{}
-	_ resource.ResourceWithImportState = &MachineResource{}
+	_ resource.Resource                   = &MachineResource{}
+	_ resource.ResourceWithImportState    = &MachineResource{}
+	_ resource.ResourceWithValidateConfig = &MachineResource{}
 )
 
 func NewMachineResource() resource.Resource {
@@ -43,18 +50,13 @@ type MachineResourceModel struct {
 	NetworkProfileID      types.Int64  `tfsdk:"network_profile_id"`
 	DepotNetworkProfileID types.Int64  `tfsdk:"depot_network_profile_id"`
 	ZoneID                types.Int64  `tfsdk:"zone_id"`
-	Labels                types.List   `tfsdk:"label"`
-	IPAddresses           types.List   `tfsdk:"ip_address"`
+	Labels                types.Map    `tfsdk:"labels"`
+	IPAddresses           types.Set    `tfsdk:"ip_addresses"`
 }
 
 type IPAddressResourceModel struct {
 	IPPoolID types.Int64  `tfsdk:"ip_pool_id"`
 	Address  types.String `tfsdk:"address"`
-}
-
-type LabelResourceModel struct {
-	Key   types.String `tfsdk:"key"`
-	Value types.String `tfsdk:"value"`
 }
 
 func (r *MachineResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -102,6 +104,24 @@ func machineResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "ID of the [Zone](https://docs.meltcloud.io/concepts/regions-and-zones) the Machine is in. Sets the Kubernetes labels `topology.kubernetes.io/region` and `topology.kubernetes.io/zone` on the Machine",
 			Optional:            true,
 		},
+		"labels": schema.MapAttribute{
+			MarkdownDescription: "Kubernetes labels to set on the Machine's node, for example `{ \"node-role.example.com/storage\" = \"true\" }`",
+			Optional:            true,
+			ElementType:         types.StringType,
+			Validators: []validator.Map{
+				mapvalidator.SizeAtLeast(1),
+			},
+		},
+		"ip_addresses": schema.SetNestedAttribute{
+			MarkdownDescription: "[Static IPs](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in the IP Pools the Machine's Network Profiles use, at most one per IP Pool. In a pool without one, the Machine gets an address the pool allocates",
+			Optional:            true,
+			NestedObject: schema.NestedAttributeObject{
+				Attributes: ipAddressResourceAttributes(),
+			},
+			Validators: []validator.Set{
+				setvalidator.SizeAtLeast(1),
+			},
+		},
 	}
 }
 
@@ -118,20 +138,6 @@ func ipAddressResourceAttributes() map[string]schema.Attribute {
 	}
 }
 
-func labelResourceAttributes() map[string]schema.Attribute {
-	return map[string]schema.Attribute{
-		"key": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "The key of the label, for example 'node-role.example.com/storage'",
-		},
-
-		"value": schema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: "The value of the label, for example 'true'",
-		},
-	}
-}
-
 func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: machineDesc + "\n\n" +
@@ -139,20 +145,37 @@ func (r *MachineResource) Schema(ctx context.Context, req resource.SchemaRequest
 			"~> Be aware that changing the name will cause a new [Revision that will be applied immediately, causing a reboot of the Machine](https://docs.meltcloud.io/concepts/machines#revisions).",
 
 		Attributes: machineResourceAttributes(),
+	}
+}
 
-		Blocks: map[string]schema.Block{
-			"label": schema.ListNestedBlock{
-				NestedObject: schema.NestedBlockObject{
-					Attributes: labelResourceAttributes(),
-				},
-			},
-			"ip_address": schema.ListNestedBlock{
-				MarkdownDescription: "A [static IP](https://docs.meltcloud.io/concepts/networking/subnet-addressing#static-ip-addresses) in one of the IP Pools the Machine's Network Profiles use. In a pool without one, the Machine gets an address the pool allocates",
-				NestedObject: schema.NestedBlockObject{
-					Attributes: ipAddressResourceAttributes(),
-				},
-			},
-		},
+func (r *MachineResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data MachineResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() || data.IPAddresses.IsNull() || data.IPAddresses.IsUnknown() {
+		return
+	}
+
+	pools := map[int64]bool{}
+	for _, element := range data.IPAddresses.Elements() {
+		var address IPAddressResourceModel
+		object, ok := element.(types.Object)
+		if !ok {
+			continue
+		}
+		resp.Diagnostics.Append(object.As(ctx, &address, basetypes.ObjectAsOptions{})...)
+		if resp.Diagnostics.HasError() || address.IPPoolID.IsUnknown() {
+			continue
+		}
+
+		if pools[address.IPPoolID.ValueInt64()] {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("ip_addresses").AtSetValue(element),
+				"Invalid Attribute Value",
+				fmt.Sprintf("The Machine has one address per IP Pool, but IP Pool %d appears more than once.", address.IPPoolID.ValueInt64()),
+			)
+		}
+		pools[address.IPPoolID.ValueInt64()] = true
 	}
 }
 
@@ -190,10 +213,9 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	var labels []LabelResourceModel
-	diags := data.Labels.ElementsAs(ctx, &labels, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
+	labels := map[string]string{}
+	resp.Diagnostics.Append(data.Labels.ElementsAs(ctx, &labels, false)...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -210,7 +232,7 @@ func (r *MachineResource) Create(ctx context.Context, req resource.CreateRequest
 		NetworkProfileID:      data.NetworkProfileID.ValueInt64(),
 		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64(),
 		ZoneID:                data.ZoneID.ValueInt64Pointer(),
-		Labels:                r.labelInput(labels),
+		Labels:                labelInput(labels),
 		IPAddresses:           ipAddressInput(ipAddresses),
 	}
 
@@ -251,11 +273,37 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 	data.DepotNetworkProfileID = types.Int64Value(result.Machine.DepotNetworkProfileID)
 	data.ZoneID = types.Int64PointerValue(result.Machine.ZoneID)
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	labels, diags := labelValues(ctx, result.Machine.Labels)
+	resp.Diagnostics.Append(diags...)
+	ipAddresses, diags := ipAddressValues(ctx, result.Machine.Revision)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	data.Labels = labels
+	data.IPAddresses = ipAddresses
 
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+// Like the other optional collections, no labels and no static IPs read as
+// absent: the attributes refuse an empty map or set, so that is what was configured.
+func labelValues(ctx context.Context, labels []client.Label) (types.Map, diag.Diagnostics) {
+	if len(labels) == 0 {
+		return types.MapNull(types.StringType), nil
+	}
+
+	values := map[string]string{}
+	for _, label := range labels {
+		values[label.Key] = label.Value
+	}
+	return types.MapValueFrom(ctx, types.StringType, values)
+}
+
+func ipAddressValues(ctx context.Context, revision *client.MachineRevision) (types.Set, diag.Diagnostics) {
 	var ipAddresses []IPAddressResourceModel
-	if result.Machine.Revision != nil {
-		for _, address := range result.Machine.Revision.IPAddresses {
+	if revision != nil {
+		for _, address := range revision.IPAddresses {
 			if address.Source != "operator" {
 				continue
 			}
@@ -266,23 +314,10 @@ func (r *MachineResource) Read(ctx context.Context, req resource.ReadRequest, re
 		}
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("ip_address"), ipAddresses)...)
-	if resp.Diagnostics.HasError() {
-		return
+	if len(ipAddresses) == 0 {
+		return types.SetNull(ipAddressObjectType), nil
 	}
-
-	var labels []LabelResourceModel
-	for _, label := range result.Machine.Labels {
-		labels = append(labels, LabelResourceModel{
-			Key:   types.StringValue(label.Key),
-			Value: types.StringValue(label.Value),
-		})
-	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("label"), labels)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	return types.SetValueFrom(ctx, ipAddressObjectType, ipAddresses)
 }
 
 func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -293,10 +328,9 @@ func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	var labels []LabelResourceModel
-	diags := data.Labels.ElementsAs(ctx, &labels, false)
-	resp.Diagnostics.Append(diags...)
-	if diags.HasError() {
+	labels := map[string]string{}
+	resp.Diagnostics.Append(data.Labels.ElementsAs(ctx, &labels, false)...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -312,7 +346,7 @@ func (r *MachineResource) Update(ctx context.Context, req resource.UpdateRequest
 		NetworkProfileID:      data.NetworkProfileID.ValueInt64(),
 		DepotNetworkProfileID: data.DepotNetworkProfileID.ValueInt64(),
 		ZoneID:                data.ZoneID.ValueInt64Pointer(),
-		Labels:                r.labelInput(labels),
+		Labels:                labelInput(labels),
 		IPAddresses:           ipAddressInput(ipAddresses),
 	}
 
@@ -376,12 +410,13 @@ func (r *MachineResource) ImportState(ctx context.Context, req resource.ImportSt
 	}
 }
 
-func (r *MachineResource) labelInput(labels []LabelResourceModel) []client.Label {
+// Sorted by key, so the Machine's labels don't change order between applies.
+func labelInput(labels map[string]string) []client.Label {
 	labelInput := []client.Label{}
-	for _, label := range labels {
+	for _, key := range slices.Sorted(maps.Keys(labels)) {
 		labelInput = append(labelInput, client.Label{
-			Key:   label.Key.ValueString(),
-			Value: label.Value.ValueString(),
+			Key:   key,
+			Value: labels[key],
 		})
 	}
 	return labelInput

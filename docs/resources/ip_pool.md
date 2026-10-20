@@ -19,30 +19,33 @@ resource "meltcloud_ip_pool" "example" {
   description = "workload addresses"
 
   # addresses are handed out from allocatable ranges only
-  range {
-    kind          = "allocatable"
-    start_address = "10.20.0.10"
-    end_address   = "10.20.0.200"
-  }
-
-  # an excluded range prevents handing out addresses something else already uses
-  range {
-    kind          = "excluded"
-    start_address = "10.20.0.1"
-    end_address   = "10.20.0.3"
-    description   = "routers"
-  }
+  ranges = [
+    {
+      kind          = "allocatable"
+      start_address = "10.20.0.10"
+      end_address   = "10.20.0.200"
+    },
+    # an excluded range prevents handing out addresses something else already uses
+    {
+      kind          = "excluded"
+      start_address = "10.20.0.1"
+      end_address   = "10.20.0.3"
+      description   = "routers"
+    },
+  ]
 }
 
 resource "meltcloud_ip_pool" "storage" {
   name = "storage"
   cidr = "10.30.0.0/24"
 
-  range {
-    kind          = "allocatable"
-    start_address = "10.30.0.10"
-    end_address   = "10.30.0.200"
-  }
+  ranges = [
+    {
+      kind          = "allocatable"
+      start_address = "10.30.0.10"
+      end_address   = "10.30.0.200"
+    },
+  ]
 }
 ```
 
@@ -57,14 +60,14 @@ resource "meltcloud_ip_pool" "storage" {
 ### Optional
 
 - `description` (String) What this IP Pool is for
-- `range` (Block List) (see [below for nested schema](#nestedblock--range))
+- `ranges` (Attributes Set) The ranges of the CIDR that addresses are allocated from, or kept free (see [below for nested schema](#nestedatt--ranges))
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the IP Pool on meltcloud
 
-<a id="nestedblock--range"></a>
-### Nested Schema for `range`
+<a id="nestedatt--ranges"></a>
+### Nested Schema for `ranges`
 
 Required:
 

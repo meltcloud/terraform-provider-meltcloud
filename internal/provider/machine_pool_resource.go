@@ -76,7 +76,8 @@ func machinePoolResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Kubernetes patch version of the machine pool (Kubelet)",
 			Computed:            true,
 		},
-		"release_channel":   releaseChannelAttribute(""),
+		"release_channel": releaseChannelAttribute("A new pool without a channel follows the channel of its Cluster, " +
+			"or the installation's default channel if the Cluster is pinned."),
 		"manual_version":    manualVersionAttribute(),
 		"kubernetes_bundle": kubernetesBundleAttribute(),
 	}

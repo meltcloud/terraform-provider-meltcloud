@@ -91,7 +91,8 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Kubernetes patch version of the cluster control plane",
 			Computed:            true,
 		},
-		"release_channel": releaseChannelAttribute("Switching to another channel without changing `version` moves the Cluster to the newest " +
+		"release_channel": releaseChannelAttribute("A new Cluster without a channel follows the installation's default channel. " +
+			"Switching to another channel without changing `version` moves the Cluster to the newest " +
 			"Kubernetes Bundle of that channel on its minor version."),
 		"manual_version":    manualVersionAttribute(),
 		"kubernetes_bundle": kubernetesBundleAttribute(),

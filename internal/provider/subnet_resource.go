@@ -8,6 +8,7 @@ import (
 	"terraform-provider-meltcloud/internal/client"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -50,7 +52,7 @@ type SubnetResourceModel struct {
 	NTP        types.List   `tfsdk:"ntp"`
 	Domains    types.List   `tfsdk:"domains"`
 	MTU        types.Int64  `tfsdk:"mtu"`
-	Routes     types.List   `tfsdk:"route"`
+	Routes     types.Set    `tfsdk:"routes"`
 }
 
 type RouteResourceModel struct {
@@ -156,6 +158,19 @@ func subnetResourceAttributes() map[string]schema.Attribute {
 				int64planmodifier.RequiresReplace(),
 			},
 		},
+		"routes": schema.SetNestedAttribute{
+			Optional:            true,
+			MarkdownDescription: "Static routes to configure on the device",
+			NestedObject: schema.NestedAttributeObject{
+				Attributes: routeResourceAttributes(),
+			},
+			Validators: []validator.Set{
+				setvalidator.SizeAtLeast(1),
+			},
+			PlanModifiers: []planmodifier.Set{
+				setplanmodifier.RequiresReplace(),
+			},
+		},
 	}
 }
 
@@ -180,16 +195,6 @@ func (r *SubnetResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schema.Schema{
 		MarkdownDescription: subnetDesc,
 		Attributes:          subnetResourceAttributes(),
-		Blocks: map[string]schema.Block{
-			"route": schema.ListNestedBlock{
-				NestedObject: schema.NestedBlockObject{
-					Attributes: routeResourceAttributes(),
-				},
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
-				},
-			},
-		},
 	}
 }
 
@@ -319,9 +324,9 @@ func routeObjectType() types.ObjectType {
 	}}
 }
 
-func routeValues(ctx context.Context, routes []client.SubnetRoute) (types.List, diag.Diagnostics) {
+func routeValues(ctx context.Context, routes []client.SubnetRoute) (types.Set, diag.Diagnostics) {
 	if len(routes) == 0 {
-		return types.ListNull(routeObjectType()), nil
+		return types.SetNull(routeObjectType()), nil
 	}
 
 	models := make([]RouteResourceModel, 0, len(routes))
@@ -333,7 +338,7 @@ func routeValues(ctx context.Context, routes []client.SubnetRoute) (types.List, 
 		})
 	}
 
-	return types.ListValueFrom(ctx, routeObjectType(), models)
+	return types.SetValueFrom(ctx, routeObjectType(), models)
 }
 
 // An empty list is how the server says a field was never set, and an attribute
@@ -371,9 +376,9 @@ func stringList(ctx context.Context, list types.List) []string {
 	return values
 }
 
-func (r *SubnetResource) routesInput(ctx context.Context, list types.List) []client.SubnetRoute {
+func (r *SubnetResource) routesInput(ctx context.Context, set types.Set) []client.SubnetRoute {
 	var routes []RouteResourceModel
-	list.ElementsAs(ctx, &routes, false)
+	set.ElementsAs(ctx, &routes, false)
 
 	var input []client.SubnetRoute
 	for _, route := range routes {

@@ -41,7 +41,7 @@ type Cluster struct {
 type ClusterCreateInput struct {
 	Name             string  `json:"name"`
 	UserVersion      string  `json:"user_version,omitempty"`
-	ReleaseChannel   string  `json:"release_channel"`
+	ReleaseChannel   string  `json:"release_channel,omitempty"`
 	ManualVersion    *string `json:"manual_version,omitempty"`
 	PodCIDR          *string `json:"pod_cidr,omitempty"`
 	ServiceCIDR      *string `json:"service_cidr,omitempty"`
@@ -53,7 +53,7 @@ type ClusterCreateInput struct {
 
 type ClusterUpdateInput struct {
 	UserVersion      string  `json:"user_version,omitempty"`
-	ReleaseChannel   string  `json:"release_channel"`
+	ReleaseChannel   string  `json:"release_channel,omitempty"`
 	ManualVersion    *string `json:"manual_version,omitempty"`
 	HighAvailability *bool   `json:"high_availability,omitempty"`
 }

@@ -59,7 +59,8 @@ func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.Sc
 				Computed:            true,
 			},
 			"uplinks": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: networkProfileResourceAttributes()["uplinks"].GetMarkdownDescription(),
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -84,7 +85,8 @@ func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.Sc
 							MarkdownDescription: uplinkResourceAttributes()["lacp"].GetMarkdownDescription(),
 						},
 						"host_networks": schema.ListNestedAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: uplinkResourceAttributes()["host_networks"].GetMarkdownDescription(),
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"subnet_id": schema.Int64Attribute{

@@ -17,252 +17,296 @@ A [Network Profile](https://docs.meltcloud.io/concepts/networking/network-profil
 resource "meltcloud_network_profile" "auto" {
   name = "workload"
 
-  uplink {
-    name = "workload"
-    mode = "auto"
+  uplinks = [
+    {
+      name = "workload"
+      mode = "auto"
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = false
-      primary     = true
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = false
+          primary     = true
+        },
+      ]
+    },
+  ]
 }
 
 # single interface named, untagged vlan
 resource "meltcloud_network_profile" "single_untagged" {
   name = "workload-single"
 
-  uplink {
-    name       = "workload"
-    mode       = "single"
-    identifier = "kernel_name"
-    interfaces = ["eth0"]
+  uplinks = [
+    {
+      name       = "workload"
+      mode       = "single"
+      identifier = "kernel_name"
+      interfaces = ["eth0"]
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = false
-      primary     = true
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = false
+          primary     = true
+        },
+      ]
+    },
+  ]
 }
 
 # single interface named, tagged vlan
 resource "meltcloud_network_profile" "single_tagged" {
   name = "workload-tagged"
 
-  uplink {
-    name       = "workload"
-    mode       = "single"
-    identifier = "kernel_name"
-    interfaces = ["eth0"]
+  uplinks = [
+    {
+      name       = "workload"
+      mode       = "single"
+      identifier = "kernel_name"
+      interfaces = ["eth0"]
 
-    host_network {
-      subnet_id   = meltcloud_subnet.storage_dhcp.id
-      vlan_tagged = true
-      primary     = true
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.storage_dhcp.id
+          vlan_tagged = true
+          primary     = true
+        },
+      ]
+    },
+  ]
 }
 
 # two interfaces bonded, untagged vlan
 resource "meltcloud_network_profile" "bonded_untagged" {
   name = "workload-bonded"
 
-  uplink {
-    name       = "workload"
-    mode       = "bond"
-    identifier = "kernel_name"
-    interfaces = ["eth0", "eth1"]
-    lacp       = true
+  uplinks = [
+    {
+      name       = "workload"
+      mode       = "bond"
+      identifier = "kernel_name"
+      interfaces = ["eth0", "eth1"]
+      lacp       = true
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = false
-      primary     = true
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = false
+          primary     = true
+        },
+      ]
+    },
+  ]
 }
 
 # two interfaces bonded, tagged vlan
 resource "meltcloud_network_profile" "bonded_tagged" {
   name = "storage-bonded"
 
-  uplink {
-    name       = "storage"
-    mode       = "bond"
-    identifier = "kernel_name"
-    interfaces = ["eth0", "eth1"]
-    lacp       = true
+  uplinks = [
+    {
+      name       = "storage"
+      mode       = "bond"
+      identifier = "kernel_name"
+      interfaces = ["eth0", "eth1"]
+      lacp       = true
 
-    host_network {
-      subnet_id   = meltcloud_subnet.storage_dhcp.id
-      vlan_tagged = true
-      primary     = true
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.storage_dhcp.id
+          vlan_tagged = true
+          primary     = true
+        },
+      ]
+    },
+  ]
 }
 
 # single interface named, multiple subnets, all tagged
 resource "meltcloud_network_profile" "single_multiple_tagged" {
   name = "main-single"
 
-  uplink {
-    name       = "main"
-    mode       = "single"
-    identifier = "kernel_name"
-    interfaces = ["eth0"]
+  uplinks = [
+    {
+      name       = "main"
+      mode       = "single"
+      identifier = "kernel_name"
+      interfaces = ["eth0"]
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = true
-      primary     = true
-    }
-
-    host_network {
-      subnet_id   = meltcloud_subnet.storage_dhcp.id
-      vlan_tagged = true
-      primary     = false
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = true
+          primary     = true
+        },
+        {
+          subnet_id   = meltcloud_subnet.storage_dhcp.id
+          vlan_tagged = true
+          primary     = false
+        },
+      ]
+    },
+  ]
 }
 
 # single interface named, multiple subnets, one native and tagged subnets
 resource "meltcloud_network_profile" "single_native_and_tagged" {
   name = "main-single-native"
 
-  uplink {
-    name       = "main"
-    mode       = "single"
-    identifier = "kernel_name"
-    interfaces = ["eth0"]
+  uplinks = [
+    {
+      name       = "main"
+      mode       = "single"
+      identifier = "kernel_name"
+      interfaces = ["eth0"]
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = false
-      primary     = true
-    }
-
-    host_network {
-      subnet_id   = meltcloud_subnet.storage_dhcp.id
-      vlan_tagged = true
-      primary     = false
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = false
+          primary     = true
+        },
+        {
+          subnet_id   = meltcloud_subnet.storage_dhcp.id
+          vlan_tagged = true
+          primary     = false
+        },
+      ]
+    },
+  ]
 }
 
 # one bond, multiple subnets, all tagged
 resource "meltcloud_network_profile" "bonded_multiple_tagged" {
   name = "main-bonded-tagged"
 
-  uplink {
-    name       = "main"
-    mode       = "bond"
-    identifier = "kernel_name"
-    interfaces = ["eth0", "eth1"]
-    lacp       = true
+  uplinks = [
+    {
+      name       = "main"
+      mode       = "bond"
+      identifier = "kernel_name"
+      interfaces = ["eth0", "eth1"]
+      lacp       = true
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = true
-      primary     = true
-    }
-
-    host_network {
-      subnet_id   = meltcloud_subnet.storage_dhcp.id
-      vlan_tagged = true
-      primary     = false
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = true
+          primary     = true
+        },
+        {
+          subnet_id   = meltcloud_subnet.storage_dhcp.id
+          vlan_tagged = true
+          primary     = false
+        },
+      ]
+    },
+  ]
 }
 
 # one bond, multiple subnets, one native and tagged subnets
 resource "meltcloud_network_profile" "bonded_native_and_tagged" {
   name = "main"
 
-  uplink {
-    name       = "main"
-    mode       = "bond"
-    identifier = "kernel_name"
-    interfaces = ["eth0", "eth1"]
-    lacp       = true
+  uplinks = [
+    {
+      name       = "main"
+      mode       = "bond"
+      identifier = "kernel_name"
+      interfaces = ["eth0", "eth1"]
+      lacp       = true
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = false
-      primary     = true
-    }
-
-    host_network {
-      subnet_id   = meltcloud_subnet.storage_dhcp.id
-      vlan_tagged = true
-      primary     = false
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = false
+          primary     = true
+        },
+        {
+          subnet_id   = meltcloud_subnet.storage_dhcp.id
+          vlan_tagged = true
+          primary     = false
+        },
+      ]
+    },
+  ]
 }
 
 # multiple uplinks with a single interface each
 resource "meltcloud_network_profile" "two_uplinks" {
   name = "workload-storage"
 
-  uplink {
-    name       = "workload"
-    mode       = "single"
-    identifier = "kernel_name"
-    interfaces = ["eth0"]
+  uplinks = [
+    {
+      name       = "workload"
+      mode       = "single"
+      identifier = "kernel_name"
+      interfaces = ["eth0"]
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = false
-      primary     = true
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = false
+          primary     = true
+        },
+      ]
+    },
 
-  uplink {
-    name       = "storage"
-    mode       = "single"
-    identifier = "kernel_name"
-    interfaces = ["eth1"]
+    {
+      name       = "storage"
+      mode       = "single"
+      identifier = "kernel_name"
+      interfaces = ["eth1"]
 
-    host_network {
-      subnet_id   = meltcloud_subnet.storage_ipam.id
-      vlan_tagged = false
-      primary     = false
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.storage_ipam.id
+          vlan_tagged = false
+          primary     = false
+        },
+      ]
+    },
+  ]
 }
 
 # multiple uplinks with bonds each
 resource "meltcloud_network_profile" "two_uplinks_bonded" {
   name = "workload-storage-bonded"
 
-  uplink {
-    name       = "workload"
-    mode       = "bond"
-    identifier = "mac_address"
-    interfaces = ["00:1b:21:3c:4d:5e", "00:1b:21:3c:4d:5f"]
-    lacp       = true
+  uplinks = [
+    {
+      name       = "workload"
+      mode       = "bond"
+      identifier = "mac_address"
+      interfaces = ["00:1b:21:3c:4d:5e", "00:1b:21:3c:4d:5f"]
+      lacp       = true
 
-    host_network {
-      subnet_id   = meltcloud_subnet.workload_dhcp.id
-      vlan_tagged = false
-      primary     = true
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.workload_dhcp.id
+          vlan_tagged = false
+          primary     = true
+        },
+      ]
+    },
 
-  uplink {
-    name       = "storage"
-    mode       = "bond"
-    identifier = "mac_address"
-    interfaces = ["00:1b:21:3c:4d:60", "00:1b:21:3c:4d:61"]
-    lacp       = true
+    {
+      name       = "storage"
+      mode       = "bond"
+      identifier = "mac_address"
+      interfaces = ["00:1b:21:3c:4d:60", "00:1b:21:3c:4d:61"]
+      lacp       = true
 
-    host_network {
-      subnet_id   = meltcloud_subnet.storage_ipam.id
-      vlan_tagged = false
-      primary     = false
-    }
-  }
+      host_networks = [
+        {
+          subnet_id   = meltcloud_subnet.storage_ipam.id
+          vlan_tagged = false
+          primary     = false
+        },
+      ]
+    },
+  ]
 }
 ```
 
@@ -272,32 +316,29 @@ resource "meltcloud_network_profile" "two_uplinks_bonded" {
 ### Required
 
 - `name` (String) Name of the Network Profile, unique within the organization
-
-### Optional
-
-- `uplink` (Block List) (see [below for nested schema](#nestedblock--uplink))
+- `uplinks` (Attributes List) The Uplinks, each with a unique name (see [below for nested schema](#nestedatt--uplinks))
 
 ### Read-Only
 
 - `id` (Number) Internal ID of the Network Profile on meltcloud
 
-<a id="nestedblock--uplink"></a>
-### Nested Schema for `uplink`
+<a id="nestedatt--uplinks"></a>
+### Nested Schema for `uplinks`
 
 Required:
 
 - `mode` (String) How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one named interface, `bond` for several bonded together
-- `name` (String) Name of the Uplink, at most 10 lowercase alphanumeric characters
+- `name` (String) Name of the Uplink, unique within the Network Profile. At most 10 lowercase alphanumeric characters, since a bond and its VLAN subinterfaces on the Machine are named after it
 
 Optional:
 
-- `host_network` (Block List) (see [below for nested schema](#nestedblock--uplink--host_network))
+- `host_networks` (Attributes List) The Subnets the Machine gets an address on through this Uplink (see [below for nested schema](#nestedatt--uplinks--host_networks))
 - `identifier` (String) What the interfaces are matched against: `kernel_name` (the default) or `mac_address`
 - `interfaces` (List of String) The interfaces to match. Empty with mode `auto`, one with `single`, at least two with `bond`
 - `lacp` (Boolean) Whether the bond runs LACP. Only with mode `bond`
 
-<a id="nestedblock--uplink--host_network"></a>
-### Nested Schema for `uplink.host_network`
+<a id="nestedatt--uplinks--host_networks"></a>
+### Nested Schema for `uplinks.host_networks`
 
 Required:
 

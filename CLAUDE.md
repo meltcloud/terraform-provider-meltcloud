@@ -2,6 +2,7 @@
 
 - Remind the user to make sure PR and docs are well understandable from the perspective of a terraform consumer. Insist on user review of them when creating PRs.
 - Test changes against a real foundry
+- Do not add "Co-Authored-By" trailers to commit messages or "Generated with" trailers to PRs.
 
 ## Schema
 
