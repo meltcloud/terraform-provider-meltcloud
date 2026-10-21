@@ -36,6 +36,14 @@ resource "meltcloud_cluster" "example_pinned" {
   manual_version  = "1.35.5-melt.30"
 }
 
+# create cluster without kube-proxy, for a CNI that replaces it such as Cilium
+# (changing it later adds or removes kube-proxy in place)
+resource "meltcloud_cluster" "example_without_kube_proxy" {
+  name             = "melt07"
+  version          = "1.35"
+  addon_kube_proxy = false
+}
+
 # use kubeconfig to install a helm chart, for example a CNI
 provider "helm" {
   kubernetes {

@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -124,22 +123,16 @@ func clusterResourceAttributes() map[string]schema.Attribute {
 			},
 		},
 		"addon_kube_proxy": schema.BoolAttribute{
-			MarkdownDescription: "Enable the kube-proxy Addon. Changing it replaces the Cluster",
+			MarkdownDescription: "Enable the kube-proxy Addon. Changing it adds or removes the Addon in place, see [Configure Add-ons](https://docs.meltcloud.io/tasks/clusters/addons). Turning it off breaks Service routing unless the CNI replaces it, such as Cilium's kube-proxy replacement",
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(true),
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.RequiresReplace(),
-			},
 		},
 		"addon_core_dns": schema.BoolAttribute{
-			MarkdownDescription: "Enable the CoreDNS Addon. Changing it replaces the Cluster",
+			MarkdownDescription: "Enable the CoreDNS Addon. Changing it adds or removes the Addon in place, see [Configure Add-ons](https://docs.meltcloud.io/tasks/clusters/addons). Turning it off breaks DNS unless another DNS server replaces it",
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(true),
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.RequiresReplace(),
-			},
 		},
 		"high_availability": schema.BoolAttribute{
 			MarkdownDescription: "Runs the control plane with multiple replicas, see [Enable High Availability](https://docs.meltcloud.io/tasks/clusters/high-availability). Available once the Nest is [scaled out](https://docs.meltcloud.io/tasks/nest/scale-out). Changing it grows or shrinks the control plane in place, without replacing the Cluster",
@@ -372,6 +365,8 @@ func (r *ClusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		ReleaseChannel:   data.ReleaseChannel.ValueString(),
 		ManualVersion:    optionalString(data.ManualVersion),
 		HighAvailability: data.HighAvailability.ValueBoolPointer(),
+		AddonKubeProxy:   data.AddonKubeProxy.ValueBoolPointer(),
+		AddonCoreDNS:     data.AddonCoreDNS.ValueBoolPointer(),
 	}
 
 	result, err := r.client.Cluster().Update(ctx, data.ID.ValueInt64(), clusterUpdateInput)
