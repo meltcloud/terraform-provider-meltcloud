@@ -56,6 +56,8 @@ type ClusterUpdateInput struct {
 	ReleaseChannel   string  `json:"release_channel,omitempty"`
 	ManualVersion    *string `json:"manual_version,omitempty"`
 	HighAvailability *bool   `json:"high_availability,omitempty"`
+	AddonKubeProxy   *bool   `json:"addon_kube_proxy,omitempty"`
+	AddonCoreDNS     *bool   `json:"addon_core_dns,omitempty"`
 }
 
 func (c *Client) Cluster() *ClusterRequest {

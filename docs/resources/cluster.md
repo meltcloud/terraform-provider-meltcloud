@@ -51,6 +51,14 @@ resource "meltcloud_cluster" "example_pinned" {
   manual_version  = "1.35.5-melt.30"
 }
 
+# create cluster without kube-proxy, for a CNI that replaces it such as Cilium
+# (changing it later adds or removes kube-proxy in place)
+resource "meltcloud_cluster" "example_without_kube_proxy" {
+  name             = "melt07"
+  version          = "1.35"
+  addon_kube_proxy = false
+}
+
 # use kubeconfig to install a helm chart, for example a CNI
 provider "helm" {
   kubernetes {
@@ -86,8 +94,8 @@ resource "helm_release" "cilium" {
 
 ### Optional
 
-- `addon_core_dns` (Boolean) Enable the CoreDNS Addon. Changing it replaces the Cluster
-- `addon_kube_proxy` (Boolean) Enable the kube-proxy Addon. Changing it replaces the Cluster
+- `addon_core_dns` (Boolean) Enable the CoreDNS Addon. Changing it adds or removes the Addon in place, see [Configure Add-ons](https://docs.meltcloud.io/tasks/clusters/addons). Turning it off breaks DNS unless another DNS server replaces it
+- `addon_kube_proxy` (Boolean) Enable the kube-proxy Addon. Changing it adds or removes the Addon in place, see [Configure Add-ons](https://docs.meltcloud.io/tasks/clusters/addons). Turning it off breaks Service routing unless the CNI replaces it, such as Cilium's kube-proxy replacement
 - `dns_service_ip` (String) IP for the DNS service. If not specified, it is derived from the service CIDR automatically.
 - `high_availability` (Boolean) Runs the control plane with multiple replicas, see [Enable High Availability](https://docs.meltcloud.io/tasks/clusters/high-availability). Available once the Nest is [scaled out](https://docs.meltcloud.io/tasks/nest/scale-out). Changing it grows or shrinks the control plane in place, without replacing the Cluster
 - `manual_version` (String) Kubernetes Bundle to pin, e.g. `1.35.5-melt.30`. Required if `release_channel` is `manual`, must not be set otherwise.
