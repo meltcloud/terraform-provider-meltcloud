@@ -45,7 +45,7 @@ output "nest_1_iso" {
 ### Optional
 
 - `enable_http` (Boolean) Whether the image can be downloaded via insecure HTTP
-- `install_disk_force_overwrite` (Boolean) Install even if the disks of the Nest Instance already contain partitions. Required to reinstall a Nest Instance on the disks it was installed to.
+- `install_disk_force_overwrite` (Boolean) Force overwrite disk if it contains unknown data
 
 ### Read-Only
 
