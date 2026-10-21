@@ -92,11 +92,18 @@ type NestInstanceImage struct {
 	LastUsedAt       *time.Time `json:"last_used_at"`
 	HTTPSURLISOAMD64 *string    `json:"https_url_iso_amd64"`
 	HTTPSURLISOARM64 *string    `json:"https_url_iso_arm64"`
+	HTTPURLISOAMD64  *string    `json:"http_url_iso_amd64"`
+	HTTPURLISOARM64  *string    `json:"http_url_iso_arm64"`
+
+	InstallDiskForceOverwrite bool `json:"install_disk_force_overwrite"`
+	EnableHTTP                bool `json:"enable_http"`
 }
 
 type NestInstanceImageCreateInput struct {
-	Name      string    `json:"name"`
-	ExpiresAt time.Time `json:"expires_at"`
+	Name                      string    `json:"name"`
+	ExpiresAt                 time.Time `json:"expires_at"`
+	InstallDiskForceOverwrite bool      `json:"install_disk_force_overwrite"`
+	EnableHTTP                bool      `json:"enable_http"`
 }
 
 func (c *Client) Nest() *NestRequest {
