@@ -45,7 +45,7 @@ output "nest_1_iso" {
 ### Optional
 
 - `enable_http` (Boolean) Whether the image can be downloaded via insecure HTTP
-- `install_disk_force_overwrite` (Boolean) Force overwrite disk if it contains any data
+- `install_disk_force_overwrite` (Boolean) Force overwrite disks if they contain any data
 
 ### Read-Only
 

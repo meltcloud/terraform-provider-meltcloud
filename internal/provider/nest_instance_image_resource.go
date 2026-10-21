@@ -56,7 +56,7 @@ const nestInstanceImageDesc = "An [Installer Image](https://docs.meltcloud.io/ta
 	"Boot the host from it to install the instance and join it to the Nest.\n\n" +
 	"Needs the API Key of the admin Organization."
 
-const nestInstanceImageForceOverwriteDesc = "Force overwrite disk if it contains any data"
+const nestInstanceImageForceOverwriteDesc = "Force overwrite disks if they contain any data"
 
 func (r *NestInstanceImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{

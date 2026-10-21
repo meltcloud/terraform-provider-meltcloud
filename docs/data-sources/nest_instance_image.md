@@ -39,6 +39,6 @@ data "meltcloud_nest_instance_image" "nest_1" {
 - `http_url_iso_arm64` (String, Sensitive) URL to download the ISO for arm64 via HTTP, if `enable_http` is set
 - `https_url_iso_amd64` (String, Sensitive) URL to download the ISO for amd64 via HTTPS
 - `https_url_iso_arm64` (String, Sensitive) URL to download the ISO for arm64 via HTTPS
-- `install_disk_force_overwrite` (Boolean) Force overwrite disk if it contains any data
+- `install_disk_force_overwrite` (Boolean) Force overwrite disks if they contain any data
 - `last_used_at` (String) Timestamp when an install last used the image
 - `status` (String) Status of the image: `pending` while it builds, then `ready`, or `failed` if the build failed
