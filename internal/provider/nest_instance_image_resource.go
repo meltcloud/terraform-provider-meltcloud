@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -39,6 +41,11 @@ type NestInstanceImageResourceModel struct {
 	LastUsedAt       timetypes.RFC3339 `tfsdk:"last_used_at"`
 	HTTPSURLISOAMD64 types.String      `tfsdk:"https_url_iso_amd64"`
 	HTTPSURLISOARM64 types.String      `tfsdk:"https_url_iso_arm64"`
+	HTTPURLISOAMD64  types.String      `tfsdk:"http_url_iso_amd64"`
+	HTTPURLISOARM64  types.String      `tfsdk:"http_url_iso_arm64"`
+
+	InstallDiskForceOverwrite types.Bool `tfsdk:"install_disk_force_overwrite"`
+	EnableHTTP                types.Bool `tfsdk:"enable_http"`
 }
 
 func (r *NestInstanceImageResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -48,6 +55,8 @@ func (r *NestInstanceImageResource) Metadata(ctx context.Context, req resource.M
 const nestInstanceImageDesc = "An [Installer Image](https://docs.meltcloud.io/tasks/nest/create-instance#create-an-installer-image) of a Nest Instance. " +
 	"Boot the host from it to install the instance and join it to the Nest.\n\n" +
 	"Needs the API Key of the admin Organization."
+
+const nestInstanceImageForceOverwriteDesc = "Force overwrite disks if they contain any data"
 
 func (r *NestInstanceImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
@@ -72,7 +81,21 @@ func (r *NestInstanceImageResource) Schema(ctx context.Context, req resource.Sch
 			},
 			"status": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Status of the image: `pending` while it builds, then `ready`",
+				MarkdownDescription: "Status of the image: `pending` while it builds, then `ready`, or `failed` if the build failed",
+			},
+			"install_disk_force_overwrite": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+				MarkdownDescription: nestInstanceImageForceOverwriteDesc,
+				PlanModifiers:       []planmodifier.Bool{boolplanmodifier.RequiresReplace()},
+			},
+			"enable_http": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+				MarkdownDescription: "Whether the image can be downloaded via insecure HTTP",
+				PlanModifiers:       []planmodifier.Bool{boolplanmodifier.RequiresReplace()},
 			},
 			"last_used_at": schema.StringAttribute{
 				CustomType:          timetypes.RFC3339Type{},
@@ -88,6 +111,16 @@ func (r *NestInstanceImageResource) Schema(ctx context.Context, req resource.Sch
 				Computed:            true,
 				Sensitive:           true,
 				MarkdownDescription: "URL to download the ISO for arm64 via HTTPS",
+			},
+			"http_url_iso_amd64": schema.StringAttribute{
+				Computed:            true,
+				Sensitive:           true,
+				MarkdownDescription: "URL to download the ISO for amd64 via HTTP, if `enable_http` is set",
+			},
+			"http_url_iso_arm64": schema.StringAttribute{
+				Computed:            true,
+				Sensitive:           true,
+				MarkdownDescription: "URL to download the ISO for arm64 via HTTP, if `enable_http` is set",
 			},
 		},
 	}
@@ -125,8 +158,10 @@ func (r *NestInstanceImageResource) Create(ctx context.Context, req resource.Cre
 
 	instanceID := data.NestInstanceID.ValueInt64()
 	result, err := r.client.Nest().CreateInstanceImage(ctx, instanceID, &client.NestInstanceImageCreateInput{
-		Name:      data.Name.ValueString(),
-		ExpiresAt: expiresAt.UTC(),
+		Name:                      data.Name.ValueString(),
+		ExpiresAt:                 expiresAt.UTC(),
+		InstallDiskForceOverwrite: data.InstallDiskForceOverwrite.ValueBool(),
+		EnableHTTP:                data.EnableHTTP.ValueBool(),
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Nest Instance image, got error: %s", err))
@@ -231,4 +266,8 @@ func setNestInstanceImageValues(image *client.NestInstanceImage, data *NestInsta
 	data.LastUsedAt = timetypes.NewRFC3339TimePointerValue(image.LastUsedAt)
 	data.HTTPSURLISOAMD64 = types.StringPointerValue(image.HTTPSURLISOAMD64)
 	data.HTTPSURLISOARM64 = types.StringPointerValue(image.HTTPSURLISOARM64)
+	data.HTTPURLISOAMD64 = types.StringPointerValue(image.HTTPURLISOAMD64)
+	data.HTTPURLISOARM64 = types.StringPointerValue(image.HTTPURLISOARM64)
+	data.InstallDiskForceOverwrite = types.BoolValue(image.InstallDiskForceOverwrite)
+	data.EnableHTTP = types.BoolValue(image.EnableHTTP)
 }
