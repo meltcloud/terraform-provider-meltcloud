@@ -115,7 +115,7 @@ func (or *OperationRequest) PollUntilDone(ctx context.Context, id int64) (*Opera
 
 func unavailable(err *Error) bool {
 	switch err.HTTPStatusCode {
-	case 0, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+	case 0, http.StatusTooManyRequests, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
 		return true
 	}
 	return false
