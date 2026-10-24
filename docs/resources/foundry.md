@@ -40,6 +40,11 @@ resource "meltcloud_foundry" "this" {
     enabled = true
     email   = "ops@example.com"
   }
+
+  session_config = {
+    idle_timeout_hours = 8
+    max_age_days       = 7
+  }
 }
 
 variable "auth0_client_secret" {
@@ -58,6 +63,7 @@ variable "auth0_client_secret" {
 - `letsencrypt_config` (Attributes) Use certificates from Let's Encrypt. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--letsencrypt_config))
 - `rails_log_level` (String) Log level of the Foundry application (web and worker)
 - `sentry_config` (Attributes) Error reporting to Sentry. Leave it out to keep the current settings (see [below for nested schema](#nestedatt--sentry_config))
+- `session_config` (Attributes) How long a sign-in to the Foundry UI lasts, see [Update Settings](https://docs.meltcloud.io/tasks/foundry/update-settings#identity-provider). Leave it out to keep the current settings (see [below for nested schema](#nestedatt--session_config))
 - `version` (String) The Foundry version to run, for example `1.5.0`. Leave it out to keep the running one
 
 ### Read-Only
@@ -105,6 +111,15 @@ Optional:
 - `dsn_wo` (String, Sensitive) DSN of the Sentry project. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Change `dsn_wo_version` to send a new one
 - `dsn_wo_version` (Number) Version of `dsn_wo`, see there
 - `environment` (String) Environment the errors are reported under, for example `production`
+
+
+<a id="nestedatt--session_config"></a>
+### Nested Schema for `session_config`
+
+Required:
+
+- `idle_timeout_hours` (Number) Hours without a request after which a user must sign in again, from 1 to 720. The Foundry default is 24
+- `max_age_days` (Number) Days after signing in after which a user must sign in again, however active, from 1 to 365. The Foundry default is 14
 
 ## Import
 

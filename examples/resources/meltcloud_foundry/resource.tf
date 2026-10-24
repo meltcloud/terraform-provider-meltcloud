@@ -19,6 +19,11 @@ resource "meltcloud_foundry" "this" {
     enabled = true
     email   = "ops@example.com"
   }
+
+  session_config = {
+    idle_timeout_hours = 8
+    max_age_days       = 7
+  }
 }
 
 variable "auth0_client_secret" {

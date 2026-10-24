@@ -30,6 +30,7 @@ type FoundryDataSourceModel struct {
 	Auth0Config       *FoundryDataSourceAuth0Model       `tfsdk:"auth0_config"`
 	LetsencryptConfig *FoundryDataSourceLetsencryptModel `tfsdk:"letsencrypt_config"`
 	SentryConfig      *FoundryDataSourceSentryModel      `tfsdk:"sentry_config"`
+	SessionConfig     *FoundryDataSourceSessionModel     `tfsdk:"session_config"`
 }
 
 type FoundryDataSourceAuth0Model struct {
@@ -46,6 +47,11 @@ type FoundryDataSourceLetsencryptModel struct {
 type FoundryDataSourceSentryModel struct {
 	Enabled     types.Bool   `tfsdk:"enabled"`
 	Environment types.String `tfsdk:"environment"`
+}
+
+type FoundryDataSourceSessionModel struct {
+	IdleTimeoutHours types.Int64 `tfsdk:"idle_timeout_hours"`
+	MaxAgeDays       types.Int64 `tfsdk:"max_age_days"`
 }
 
 func (d *FoundryDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -97,6 +103,14 @@ func (d *FoundryDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 					"environment": str("Environment the errors are reported under"),
 				},
 			},
+			"session_config": schema.SingleNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "How long a sign-in to the Foundry UI lasts",
+				Attributes: map[string]schema.Attribute{
+					"idle_timeout_hours": schema.Int64Attribute{Computed: true, MarkdownDescription: "Hours without a request after which a user must sign in again"},
+					"max_age_days":       schema.Int64Attribute{Computed: true, MarkdownDescription: "Days after signing in after which a user must sign in again, however active"},
+				},
+			},
 		},
 	}
 }
@@ -141,6 +155,10 @@ func (d *FoundryDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		SentryConfig: &FoundryDataSourceSentryModel{
 			Enabled:     types.BoolValue(foundry.SentryEnabled),
 			Environment: emptyAsNull(foundry.SentryEnvironment),
+		},
+		SessionConfig: &FoundryDataSourceSessionModel{
+			IdleTimeoutHours: types.Int64Value(foundry.SessionIdleTimeoutHours),
+			MaxAgeDays:       types.Int64Value(foundry.SessionMaxAgeDays),
 		},
 	}
 	if foundry.Auth0Domain != "" {
