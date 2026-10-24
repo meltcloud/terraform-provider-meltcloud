@@ -32,6 +32,7 @@ output "foundry_version" {
 - `letsencrypt_config` (Attributes) Certificates from Let's Encrypt (see [below for nested schema](#nestedatt--letsencrypt_config))
 - `rails_log_level` (String) Log level of the Foundry application (web and worker)
 - `sentry_config` (Attributes) Error reporting to Sentry (see [below for nested schema](#nestedatt--sentry_config))
+- `session_config` (Attributes) How long a sign-in to the Foundry UI lasts (see [below for nested schema](#nestedatt--session_config))
 - `status` (String) Status of the Foundry, for example `ready` or `updating`
 - `version` (String) The Foundry version it runs
 
@@ -61,3 +62,12 @@ Read-Only:
 
 - `enabled` (Boolean) Whether errors of the Foundry application are reported to Sentry
 - `environment` (String) Environment the errors are reported under
+
+
+<a id="nestedatt--session_config"></a>
+### Nested Schema for `session_config`
+
+Read-Only:
+
+- `idle_timeout_hours` (Number) Hours without a request after which a user must sign in again
+- `max_age_days` (Number) Days after signing in after which a user must sign in again, however active

@@ -31,6 +31,9 @@ type Foundry struct {
 	LetsencryptEnabled bool   `json:"letsencrypt_enabled"`
 	LetsencryptEmail   string `json:"letsencrypt_email"`
 	LetsencryptStaging bool   `json:"letsencrypt_staging"`
+
+	SessionIdleTimeoutHours int64 `json:"session_idle_timeout_hours"`
+	SessionMaxAgeDays       int64 `json:"session_max_age_days"`
 }
 
 // A nil field keeps the setting, an empty string clears it. An empty secret keeps the stored one.
@@ -47,6 +50,9 @@ type FoundryUpdateInput struct {
 	LetsencryptEnabled *bool   `json:"letsencrypt_enabled,omitempty"`
 	LetsencryptEmail   *string `json:"letsencrypt_email,omitempty"`
 	LetsencryptStaging *bool   `json:"letsencrypt_staging,omitempty"`
+
+	SessionIdleTimeoutHours *int64 `json:"session_idle_timeout_hours,omitempty"`
+	SessionMaxAgeDays       *int64 `json:"session_max_age_days,omitempty"`
 }
 
 func (c *Client) Foundry() *FoundryRequest {

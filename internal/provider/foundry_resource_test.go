@@ -49,7 +49,8 @@ func TestFoundryUpdateInputSendsSecretOnNewVersion(t *testing.T) {
 func TestFoundryUpdateInputLeavesUnmanagedBlocksAlone(t *testing.T) {
 	input := foundryUpdateInput(&FoundryResourceModel{}, &FoundryResourceModel{}, &FoundryResourceModel{})
 
-	if input.Auth0Domain != nil || input.SentryEnabled != nil || input.SentryDSN != nil || input.LetsencryptEnabled != nil {
+	if input.Auth0Domain != nil || input.SentryEnabled != nil || input.SentryDSN != nil || input.LetsencryptEnabled != nil ||
+		input.SessionIdleTimeoutHours != nil || input.SessionMaxAgeDays != nil {
 		t.Fatalf("sent settings of a block left out: %+v", input)
 	}
 }
@@ -63,5 +64,18 @@ func TestFoundryUpdateInputClearsLeftOutFields(t *testing.T) {
 
 	if input.LetsencryptEmail == nil || *input.LetsencryptEmail != "" {
 		t.Fatalf("email = %v, want it cleared", input.LetsencryptEmail)
+	}
+}
+
+func TestFoundryUpdateInputSendsSessionSettings(t *testing.T) {
+	plan := &FoundryResourceModel{SessionConfig: &FoundrySessionModel{
+		IdleTimeoutHours: types.Int64Value(8), MaxAgeDays: types.Int64Value(7),
+	}}
+
+	input := foundryUpdateInput(plan, plan, &FoundryResourceModel{})
+
+	if input.SessionIdleTimeoutHours == nil || *input.SessionIdleTimeoutHours != 8 ||
+		input.SessionMaxAgeDays == nil || *input.SessionMaxAgeDays != 7 {
+		t.Fatalf("got %v and %v, want 8 hours and 7 days", input.SessionIdleTimeoutHours, input.SessionMaxAgeDays)
 	}
 }

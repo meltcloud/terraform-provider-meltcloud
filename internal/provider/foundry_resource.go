@@ -41,6 +41,7 @@ type FoundryResourceModel struct {
 	Auth0Config       *FoundryAuth0Model       `tfsdk:"auth0_config"`
 	LetsencryptConfig *FoundryLetsencryptModel `tfsdk:"letsencrypt_config"`
 	SentryConfig      *FoundrySentryModel      `tfsdk:"sentry_config"`
+	SessionConfig     *FoundrySessionModel     `tfsdk:"session_config"`
 }
 
 type FoundryAuth0Model struct {
@@ -61,6 +62,11 @@ type FoundrySentryModel struct {
 	DSNWO        types.String `tfsdk:"dsn_wo"`
 	DSNWOVersion types.Int64  `tfsdk:"dsn_wo_version"`
 	Environment  types.String `tfsdk:"environment"`
+}
+
+type FoundrySessionModel struct {
+	IdleTimeoutHours types.Int64 `tfsdk:"idle_timeout_hours"`
+	MaxAgeDays       types.Int64 `tfsdk:"max_age_days"`
 }
 
 func (r *FoundryResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -149,6 +155,25 @@ func foundrySentryAttribute() schema.SingleNestedAttribute {
 	}
 }
 
+func foundrySessionAttribute() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		Optional:            true,
+		MarkdownDescription: "How long a sign-in to the Foundry UI lasts, see [Update Settings](https://docs.meltcloud.io/tasks/foundry/update-settings#identity-provider). Leave it out to keep the current settings",
+		Attributes: map[string]schema.Attribute{
+			"idle_timeout_hours": schema.Int64Attribute{
+				Required:            true,
+				MarkdownDescription: "Hours without a request after which a user must sign in again, from 1 to 720. The Foundry default is 24",
+				Validators:          []validator.Int64{int64validator.Between(1, 720)},
+			},
+			"max_age_days": schema.Int64Attribute{
+				Required:            true,
+				MarkdownDescription: "Days after signing in after which a user must sign in again, however active, from 1 to 365. The Foundry default is 14",
+				Validators:          []validator.Int64{int64validator.Between(1, 365)},
+			},
+		},
+	}
+}
+
 func foundryResourceAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.Int64Attribute{
@@ -172,6 +197,7 @@ func foundryResourceAttributes() map[string]schema.Attribute {
 		"auth0_config":       foundryAuth0Attribute(),
 		"letsencrypt_config": foundryLetsencryptAttribute(),
 		"sentry_config":      foundrySentryAttribute(),
+		"session_config":     foundrySessionAttribute(),
 	}
 }
 
@@ -350,6 +376,10 @@ func foundryUpdateInput(data, config, state *FoundryResourceModel) *client.Found
 			input.SentryDSN = knownString(config.SentryConfig.DSNWO)
 		}
 	}
+	if session := data.SessionConfig; session != nil {
+		input.SessionIdleTimeoutHours = session.IdleTimeoutHours.ValueInt64Pointer()
+		input.SessionMaxAgeDays = session.MaxAgeDays.ValueInt64Pointer()
+	}
 	return input
 }
 
@@ -375,6 +405,10 @@ func setFoundryValues(foundry *client.Foundry, data *FoundryResourceModel) {
 		sentry.Enabled = types.BoolValue(foundry.SentryEnabled)
 		sentry.Environment = emptyAsNull(foundry.SentryEnvironment)
 		sentry.DSNWO = types.StringNull()
+	}
+	if session := data.SessionConfig; session != nil {
+		session.IdleTimeoutHours = types.Int64Value(foundry.SessionIdleTimeoutHours)
+		session.MaxAgeDays = types.Int64Value(foundry.SessionMaxAgeDays)
 	}
 }
 
