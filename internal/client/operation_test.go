@@ -37,7 +37,7 @@ func TestOperationStatusFinished(t *testing.T) {
 }
 
 func TestUnavailable(t *testing.T) {
-	for _, status := range []int{0, 502, 503, 504} {
+	for _, status := range []int{0, 429, 502, 503, 504} {
 		if !unavailable(&Error{HTTPStatusCode: status}) {
 			t.Errorf("status %d should count as the API restarting", status)
 		}

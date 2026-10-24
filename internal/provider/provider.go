@@ -2,7 +2,10 @@ package provider
 
 import (
 	"context"
+	"crypto/x509"
 	"fmt"
+	"net"
+	"net/url"
 	"os"
 	"terraform-provider-meltcloud/internal/client"
 
@@ -47,7 +50,7 @@ func (p *MeltcloudProvider) Schema(ctx context.Context, req provider.SchemaReque
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "URL of the meltcloud API, defaults to https://app.meltcloud.io. Can also be set via MELTCLOUD_ENDPOINT environment variable.",
+				MarkdownDescription: "URL of the meltcloud API, defaults to https://app.meltcloud.io. Must use https, except on localhost. Can also be set via MELTCLOUD_ENDPOINT environment variable.",
 				Optional:            true,
 			},
 			"organization": schema.StringAttribute{
@@ -57,6 +60,7 @@ func (p *MeltcloudProvider) Schema(ctx context.Context, req provider.SchemaReque
 			"api_key": schema.StringAttribute{
 				MarkdownDescription: "API Key permitted for the organization. Can also be set via MELTCLOUD_API_KEY environment variable.",
 				Optional:            true,
+				Sensitive:           true,
 			},
 			"ca_cert_file": schema.StringAttribute{
 				MarkdownDescription: "Path to a CA certificate file to verify the meltcloud API server's TLS certificate. Conflicts with `ca_cert_pem`. Can also be set via MELTCLOUD_CACERT environment variable.",
@@ -104,6 +108,11 @@ func (p *MeltcloudProvider) Configure(ctx context.Context, req provider.Configur
 		endpoint = data.Endpoint.ValueString()
 	}
 
+	if err := checkEndpoint(endpoint); err != nil {
+		resp.Diagnostics.AddError("Config Error", err.Error())
+		return
+	}
+
 	var organization string
 	if data.Organization.IsNull() {
 		var found bool
@@ -133,6 +142,16 @@ func (p *MeltcloudProvider) Configure(ctx context.Context, req provider.Configur
 			return
 		}
 		caPEM = string(pemBytes)
+	}
+
+	if caPEM != "" && !x509.NewCertPool().AppendCertsFromPEM([]byte(caPEM)) {
+		resp.Diagnostics.AddError("Config Error", "no certificate found in the CA certificate")
+		return
+	}
+
+	if skipTLS {
+		resp.Diagnostics.AddWarning("TLS verification is off",
+			"skip_tls_verify or MELTCLOUD_SKIP_VERIFY is set, so the certificate of the meltcloud API is not checked.")
 	}
 
 	if caPEM != "" || skipTLS {
@@ -223,4 +242,19 @@ func boolAttrOrEnv(attr types.Bool, envVar string) bool {
 	}
 	v := os.Getenv(envVar)
 	return v == "1" || v == "true"
+}
+
+// checkEndpoint only allows http for localhost.
+func checkEndpoint(endpoint string) error {
+	u, err := url.Parse(endpoint)
+	if err != nil || u.Host == "" {
+		return fmt.Errorf("endpoint %q is not a URL", endpoint)
+	}
+	switch {
+	case u.Scheme == "https":
+		return nil
+	case u.Scheme == "http" && (u.Hostname() == "localhost" || net.ParseIP(u.Hostname()).IsLoopback()):
+		return nil
+	}
+	return fmt.Errorf("endpoint %q must use https", endpoint)
 }

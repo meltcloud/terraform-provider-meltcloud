@@ -5,11 +5,22 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 )
 
 const apiPath string = "/api/v1/"
+
+const (
+	requestTimeout       = 60 * time.Second
+	rateLimitRetries     = 5
+	maxRateLimitWait     = time.Minute
+	defaultRateLimitWait = 5 * time.Second
+)
 
 type Client struct {
 	Debug        bool
@@ -39,13 +50,22 @@ type TLSConfig struct {
 }
 
 func New(endpoint string, organization string, apiKey string, tlsConfig *TLSConfig) *Client {
-	url := fmt.Sprintf("%s%s/orgs/%s/", endpoint, apiPath, organization)
+	baseURL := fmt.Sprintf("%s%s/orgs/%s/", endpoint, apiPath, url.PathEscape(organization))
 
+	// Don't follow redirects, so the API key is only sent to the endpoint.
 	restyClient := resty.New().
-		SetBaseURL(url).
+		SetBaseURL(baseURL).
 		SetHeader("Content-Type", "application/json").
 		SetHeader("User-Agent", "meltcloud-go-client v1").
-		SetHeader("X-Meltcloud-API-Key", apiKey)
+		SetHeader("X-Meltcloud-API-Key", apiKey).
+		SetRedirectPolicy(resty.NoRedirectPolicy()).
+		SetTimeout(requestTimeout).
+		SetRetryCount(rateLimitRetries).
+		SetRetryMaxWaitTime(maxRateLimitWait).
+		AddRetryCondition(func(r *resty.Response, _ error) bool {
+			return r != nil && r.StatusCode() == http.StatusTooManyRequests
+		}).
+		SetRetryAfter(retryAfter)
 
 	if tlsConfig != nil {
 		tc := &tls.Config{}
@@ -65,6 +85,17 @@ func New(endpoint string, organization string, apiKey string, tlsConfig *TLSConf
 		Endpoint:     endpoint,
 		Organization: organization,
 	}
+}
+
+// retryAfter returns the wait from the Retry-After header, up to maxRateLimitWait.
+func retryAfter(_ *resty.Client, r *resty.Response) (time.Duration, error) {
+	if r == nil {
+		return defaultRateLimitWait, nil
+	}
+	if seconds, err := strconv.Atoi(r.Header().Get("Retry-After")); err == nil && seconds > 0 {
+		return min(time.Duration(seconds)*time.Second, maxRateLimitWait), nil
+	}
+	return defaultRateLimitWait, nil
 }
 
 func (c *Client) SetDebug(debug bool) *Client {
