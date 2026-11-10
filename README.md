@@ -6,6 +6,12 @@
 
 ## Local development
 
+Install Go, Terraform and golangci-lint in the versions CI uses (`mise.toml`):
+
+```bash
+mise install
+```
+
 Instruct terraform to use the local provider:
 
 ```bash
