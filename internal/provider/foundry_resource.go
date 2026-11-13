@@ -167,7 +167,7 @@ func foundrySessionAttribute() schema.SingleNestedAttribute {
 			},
 			"max_age_days": schema.Int64Attribute{
 				Required:            true,
-				MarkdownDescription: "Days after signing in after which a user must sign in again, however active, from 1 to 365. The Foundry default is 14",
+				MarkdownDescription: "Days after signing in after which a user must sign in again, even if they stay active, from 1 to 365. The Foundry default is 14",
 				Validators:          []validator.Int64{int64validator.Between(1, 365)},
 			},
 		},

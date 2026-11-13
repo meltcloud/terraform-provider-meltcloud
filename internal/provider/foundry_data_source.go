@@ -108,7 +108,7 @@ func (d *FoundryDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				MarkdownDescription: "How long a sign-in to the Foundry UI lasts",
 				Attributes: map[string]schema.Attribute{
 					"idle_timeout_hours": schema.Int64Attribute{Computed: true, MarkdownDescription: "Hours without a request after which a user must sign in again"},
-					"max_age_days":       schema.Int64Attribute{Computed: true, MarkdownDescription: "Days after signing in after which a user must sign in again, however active"},
+					"max_age_days":       schema.Int64Attribute{Computed: true, MarkdownDescription: "Days after signing in after which a user must sign in again, even if they stay active"},
 				},
 			},
 		},
