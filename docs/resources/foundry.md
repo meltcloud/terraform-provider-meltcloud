@@ -119,7 +119,7 @@ Optional:
 Required:
 
 - `idle_timeout_hours` (Number) Hours without a request after which a user must sign in again, from 1 to 720. The Foundry default is 24
-- `max_age_days` (Number) Days after signing in after which a user must sign in again, however active, from 1 to 365. The Foundry default is 14
+- `max_age_days` (Number) Days after signing in after which a user must sign in again, even if they stay active, from 1 to 365. The Foundry default is 14
 
 ## Import
 

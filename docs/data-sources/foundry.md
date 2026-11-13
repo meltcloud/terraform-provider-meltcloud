@@ -70,4 +70,4 @@ Read-Only:
 Read-Only:
 
 - `idle_timeout_hours` (Number) Hours without a request after which a user must sign in again
-- `max_age_days` (Number) Days after signing in after which a user must sign in again, however active
+- `max_age_days` (Number) Days after signing in after which a user must sign in again, even if they stay active
