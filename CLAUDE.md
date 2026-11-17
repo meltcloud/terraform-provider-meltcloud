@@ -2,7 +2,6 @@
 
 - Remind the user to make sure PR and docs are well understandable from the perspective of a terraform consumer. Insist on user review of them when creating PRs.
 - Test changes against a real foundry
-- A check that should block merging to main goes into the required checks in [infra-tf's `ci/github/variables.tf`](https://github.com/meltcloud/infra-tf/blob/main/ci/github/variables.tf); until then it does not block.
 - Do not add "Co-Authored-By" trailers to commit messages or "Generated with" trailers to PRs.
 
 ## Schema
