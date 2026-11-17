@@ -82,7 +82,7 @@ Required:
 
 Optional:
 
-- `client_secret_wo` (String, Sensitive) Client secret of the Auth0 application. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Change `client_secret_wo_version` to send a new one
+- `client_secret_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Client secret of the Auth0 application. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Change `client_secret_wo_version` to send a new one
 - `client_secret_wo_version` (Number) Version of `client_secret_wo`, see there
 
 
@@ -108,7 +108,7 @@ Required:
 
 Optional:
 
-- `dsn_wo` (String, Sensitive) DSN of the Sentry project. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Change `dsn_wo_version` to send a new one
+- `dsn_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) DSN of the Sentry project. Write-only, needs Terraform 1.11 or later: it is not stored in the state. Change `dsn_wo_version` to send a new one
 - `dsn_wo_version` (Number) Version of `dsn_wo`, see there
 - `environment` (String) Environment the errors are reported under, for example `production`
 

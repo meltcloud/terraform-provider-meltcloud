@@ -150,7 +150,7 @@ Optional:
 
 - `bfd` (Attributes) BFD on the session. Leave it out to keep BFD off (see [below for nested schema](#nestedatt--bgp--peers--bfd))
 - `multihop` (Boolean) Enable if the peer is not directly connected (more than one hop away). Defaults to `false`
-- `password_wo` (String, Sensitive) Password of the BGP session. Write-only, needs Terraform 1.11 or later: it is not stored in the state. On an imported instance, set it to the password in use: the first version is recorded without a replace
+- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password of the BGP session. Write-only, needs Terraform 1.11 or later: it is not stored in the state. On an imported instance, set it to the password in use: the first version is recorded without a replace
 - `password_wo_version` (Number) Version of `password_wo`, see there
 
 <a id="nestedatt--bgp--peers--bfd"></a>
