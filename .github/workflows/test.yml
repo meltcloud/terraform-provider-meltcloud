@@ -1,3 +1,5 @@
+# main requires the checks listed in infra-tf; a new job blocks merging only once it is added there:
+# https://github.com/meltcloud/infra-tf/blob/main/ci/github/variables.tf
 # Terraform Provider testing workflow.
 name: Tests
 
