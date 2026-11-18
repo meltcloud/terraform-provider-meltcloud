@@ -34,7 +34,7 @@ Read-Only:
 - `identifier` (String) What the interfaces are matched against: `kernel_name` (the default) or `mac_address`
 - `interfaces` (List of String) The interfaces to match. Empty with mode `auto`, one with `single`, at least two with `bond`
 - `lacp` (Boolean) Whether the bond runs LACP. Only with mode `bond`
-- `mode` (String) How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one named interface, `bond` for several bonded together
+- `mode` (String) How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one specified interface, `bond` for several bonded together
 - `name` (String) Name of the Uplink, unique within the Network Profile. At most 10 lowercase alphanumeric characters, since a bond and its VLAN subinterfaces on the Machine are named after it
 
 <a id="nestedatt--uplinks--host_networks"></a>

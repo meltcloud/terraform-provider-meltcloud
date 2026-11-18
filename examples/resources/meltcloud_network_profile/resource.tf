@@ -18,7 +18,7 @@ resource "meltcloud_network_profile" "auto" {
   ]
 }
 
-# single interface named, untagged vlan
+# single interface specified, untagged vlan
 resource "meltcloud_network_profile" "single_untagged" {
   name = "workload-single"
 
@@ -40,7 +40,7 @@ resource "meltcloud_network_profile" "single_untagged" {
   ]
 }
 
-# single interface named, tagged vlan
+# single interface specified, tagged vlan
 resource "meltcloud_network_profile" "single_tagged" {
   name = "workload-tagged"
 
@@ -108,7 +108,7 @@ resource "meltcloud_network_profile" "bonded_tagged" {
   ]
 }
 
-# single interface named, multiple subnets, all tagged
+# single interface specified, multiple subnets, all tagged
 resource "meltcloud_network_profile" "single_multiple_tagged" {
   name = "main-single"
 
@@ -135,7 +135,7 @@ resource "meltcloud_network_profile" "single_multiple_tagged" {
   ]
 }
 
-# single interface named, multiple subnets, one native and tagged subnets
+# single interface specified, multiple subnets, one native and tagged subnets
 resource "meltcloud_network_profile" "single_native_and_tagged" {
   name = "main-single-native"
 
