@@ -118,7 +118,7 @@ func uplinkResourceAttributes() map[string]schema.Attribute {
 			Validators: []validator.String{
 				stringvalidator.OneOf("auto", "single", "bond"),
 			},
-			MarkdownDescription: "How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one named interface, `bond` for several bonded together",
+			MarkdownDescription: "How many interfaces the Uplink expects: `auto` for the Machine's only interface, `single` for one specified interface, `bond` for several bonded together",
 		},
 		"identifier": schema.StringAttribute{
 			Optional: true,
@@ -257,17 +257,17 @@ func validateInterfaceCount(resp *resource.ValidateConfigResponse, uplinkPath pa
 	case "auto":
 		if count > 0 {
 			resp.Diagnostics.AddAttributeError(interfacesPath, "Invalid Attribute Combination",
-				"An auto uplink names no interfaces, it resolves to the machine's only one.")
+				"An auto uplink has no interfaces, it resolves to the machine's only one.")
 		}
 	case "single":
 		if count != 1 {
 			resp.Diagnostics.AddAttributeError(interfacesPath, "Invalid Attribute Combination",
-				"A single uplink names exactly one interface.")
+				"A single uplink has exactly one interface.")
 		}
 	case "bond":
 		if count < 2 {
 			resp.Diagnostics.AddAttributeError(interfacesPath, "Invalid Attribute Combination",
-				"A bond uplink names at least two interfaces.")
+				"A bond uplink has at least two interfaces.")
 		}
 	}
 }

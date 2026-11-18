@@ -10,7 +10,7 @@ resource "meltcloud_enrollment_image" "example" {
   network_profile_id  = meltcloud_network_profile.single_untagged.id
 }
 
-# a mirrored install requires both disks to be named explicitly.
+# a mirrored install requires both disks to be specified explicitly.
 resource "meltcloud_enrollment_image" "mirrored" {
   name       = "my-mirrored-image"
   expires_at = time_offset.in_a_day.rfc3339
